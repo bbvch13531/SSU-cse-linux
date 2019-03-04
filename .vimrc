@@ -7,6 +7,7 @@ set tabstop=4         " tab을 4칸으로
 set ignorecase      " 검색시 대소문자 구별하지않음
 set hlsearch         " 검색시 하이라이트(색상 강조)
 set background=light
+set backspace=eol,start,indent
 set nocompatible   " 방향키로 이동가능
 set fileencodings=utf-8,euc-kr    " 파일인코딩 형식 지정
 set bs=indent,eol,start    " backspace 키 사용 가능
