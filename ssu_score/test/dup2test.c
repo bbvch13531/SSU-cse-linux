@@ -22,9 +22,10 @@ int main(int argc, char** argv){
             2 : Standard error
         Change File Descriptor pointing STDOUT to fd_wr
     */
+    
     printf("fd_wr = %d, fd_rd = %d\n",fd_wr,fd_rd);
     system("ls -d */");
-    // ls directory only
+    // ls directory only, system() 사용 금지됨.
     
     close(fd_wr);
     close(fd_rd);

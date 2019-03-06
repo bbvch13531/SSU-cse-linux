@@ -244,3 +244,18 @@ On Ubuntu Linux:
 Ctrl+Alt+- .. navigate back
 
 Ctrl+Shift+- .. navigate forward
+
+[x] regex 예제 - calculator.c : regexExample()
+[x] dup2 예제 - dup2test.c, dup2test.txt
+
+[dup2 예제](https://sosal.kr/186)
+
+- dup2에서는 system("ls") 사용이 금지되었기 때문에 access(), stat, S_ISDIR을 사용해서 디렉토리 내의 파일 읽어와야 한다.
+- 프로그램 문제 기능에서는 system("gcc")는 사용 가능할듯?
+- dup2는 프로그램 문제 기능에서 stderr, stdout 읽어올 때만 사용하는 것 같다.
+- 빈칸 문제 기능에서 디렉토리를 순차적으로 탐색하는 기능은 dup2안쓰고 구현.
+
+- ANS_DIR, STD_DIR의 파일목록을 읽어오기.
+    - stat
+    - opendir
+    - 
