@@ -232,3 +232,15 @@ system()을 사용하지 못하기 때문에 dup2()를 사용해야 할 것 같�
 0306
 
 gnu c library에 regex가 있다고 함. 오늘은 regex 예제와 dup2 예제를 만들어보자.
+
+On Mac:
+
+Ctrl+- .. navigate back
+
+Ctrl+Shift+- .. navigate forward
+
+On Ubuntu Linux:
+
+Ctrl+Alt+- .. navigate back
+
+Ctrl+Shift+- .. navigate forward
