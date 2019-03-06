@@ -1,3 +1,4 @@
+// SSU_20142468 Kyungyoung Heo
 #ifndef STACK_H_
 
 #include <stdbool.h>

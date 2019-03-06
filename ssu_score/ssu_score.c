@@ -1,3 +1,4 @@
+// SSU_20142468 Kyungyoung Heo
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
