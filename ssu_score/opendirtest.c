@@ -5,8 +5,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h> // DIR
+#include <errno.h> // errno
 
-#define DIRECTORY_SIZE 100000
+#define DIRECTORY_SIZE MAXNAMLEN
 
 int main(int argc, char** argv){
     
@@ -23,10 +24,10 @@ int main(int argc, char** argv){
         fprintf(stderr, "Usage : %s <STD_DIR> <ANS_DIR>", argv[0]);
         exit(1);
     }
-    if((dirp1 = opendir(argv[1])) == NULL || chdir(argv[1]) == -1 ||
-        (dirp2 = opendir(argv[2])) == NULL || chdir(argv[2]) == -1){
-            fprintf(stderr, "opendir : chdir error");
-            exit(1);
+
+    if((dirp1 = opendir(argv[1])) == NULL || chdir(argv[1]) == -1){
+        fprintf(stderr, "opendir : chdir error");
+        exit(1);
     }
 
     while((dentry = readdir(dirp1)) != NULL){
@@ -35,7 +36,8 @@ int main(int argc, char** argv){
         memcpy(filename, dentry->d_name, DIRECTORY_SIZE);
 
         if(stat(filename, &statbuf) == -1){
-            fprintf(stderr, "stat error for %s %d\n", filename, statbuf.st_mode);
+            fprintf(stderr, "stat error for %s %x\n", filename, statbuf.st_mode);
+            perror("stat err");
             break;
         }
 
@@ -43,26 +45,27 @@ int main(int argc, char** argv){
             printf("%-14s\n",filename);
         }
         else {
-            printf("%-14s\n",filename);
+            printf("%-14s is directory\n",filename);
         }
     }
-    while((dentry = readdir(dirp2)) != NULL){
-        if(dentry->d_ino == 0)
-            continue;
-        memcpy(filename, dentry->d_name, DIRECTORY_SIZE);
 
-        if(stat(filename, &statbuf) == -1){
-            fprintf(stderr, "stat error for %s %d\n", filename, statbuf.st_mode);
-            perror("Error : ");
-            break;
-        }
+    // while((dentry = readdir(dirp2)) != NULL){
+    //     if(dentry->d_ino == 0)
+    //         continue;
+    //     memcpy(filename, dentry->d_name, DIRECTORY_SIZE);
 
-        if((statbuf.st_mode & S_IFMT) == S_IFREG){
-            printf("%-14s\n",filename);
-        }
-        else {
-            printf("%-14s\n",filename);
-        }
-    }
+    //     if(stat(filename, &statbuf) == -1){
+    //         fprintf(stderr, "stat error for %s %d\n", filename, statbuf.st_mode);
+    //         perror("Error : ");
+    //         break;
+    //     }
+
+    //     if((statbuf.st_mode & S_IFMT) == S_IFREG){
+    //         printf("%-14s\n",filename);
+    //     }
+    //     else {
+    //         printf("%-14s\n",filename);
+    //     }
+    // }
     exit(0);
 }
