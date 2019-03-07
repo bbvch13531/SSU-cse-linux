@@ -8,7 +8,7 @@
 #include <errno.h> // errno
 
 #define DIRECTORY_SIZE MAXNAMLEN
-
+void _ls(char *pos, int depth);
 int main(int argc, char** argv){
     
     // 가변인자로 들어온 디렉터리1(STD_DIR), 디렉터리2(ANS_DIR)를 가져온다.
@@ -44,8 +44,11 @@ int main(int argc, char** argv){
         if((statbuf.st_mode & S_IFMT) == S_IFREG){
             printf("%-14s\n",filename);
         }
+
+
         else {
             printf("%-14s is directory\n",filename);
+
         }
     }
 
@@ -68,4 +71,7 @@ int main(int argc, char** argv){
     //     }
     // }
     exit(0);
+}
+void _ls(char *pos, int depth){
+    
 }

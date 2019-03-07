@@ -258,4 +258,3 @@ Ctrl+Shift+- .. navigate forward
 - ANS_DIR, STD_DIR의 파일목록을 읽어오기.
     - stat
     - opendir
-    - 
