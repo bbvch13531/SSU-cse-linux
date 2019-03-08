@@ -224,12 +224,12 @@ fopen해서 char[] 로 저장하고 strcmp로 비교
 대소문자는 구분, 공백은 구분 X
 일치하면 점수 추가
 
-0303
+## 0303
 
 처음 과제 나온 날임. 명세서가 눈에 잘 안들어와서 다시 정리하면서 읽는 중. 구현할 때 처리해야할 의문점들이 생긴다.
 system()을 사용하지 못하기 때문에 dup2()를 사용해야 할 것 같다.
 
-0306
+## 0306
 
 gnu c library에 regex가 있다고 함. 오늘은 regex 예제와 dup2 예제를 만들어보자.
 
@@ -258,3 +258,10 @@ Ctrl+Shift+- .. navigate forward
 - ANS_DIR, STD_DIR의 파일목록을 읽어오기.
     - stat
     - opendir
+
+## 0308
+system("ls")를 안쓰고 opendir, readdir, chdir를 이용해서 디렉토리를 순차적으로 탐색하는 기능을 lsls, opendirtest에 만들었다.
+
+이제 .c 파일을 읽어와서 system("gcc"), system("./main") 으로 실행하고 stdout, stderr을 파일에 출력하는 기능을 구현하려고 한다.
+
+예상되는 어려움은 파일이름을 오름차순으로 읽는 기능, 실행파일을 생성하고 마지막에 지워야 하는지에 대한 의문이다.
