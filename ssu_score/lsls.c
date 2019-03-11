@@ -55,8 +55,6 @@ int main(int argc,char* argv[]){
                 continue;
             _ls(filename,0);
         }
-        
-    
     }
 
 
