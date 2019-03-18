@@ -36,6 +36,7 @@ int main(int argc, char ** argv){
     count = read(fd2, buf, 24);
     buf[count] = 0;
     printf("fd2's second printf : %s\n", buf);
+    
 	exit(0);
 }
 
