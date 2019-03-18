@@ -19,7 +19,7 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 
-	if((fsize = lseek(fd, 0, SEEK_END)) < 0){
+	if((fsize = lseek(fd, 0, SEEK_END)) < 0){	// fd의 처음부터 파일의 끝까지 lseek
 		fprintf(stderr, "lseek error\n");
 		exit(1);
 	}

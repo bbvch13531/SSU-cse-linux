@@ -33,17 +33,17 @@ int main(int argc, char *argv[]){
     entry = 0;
     offset = 0;
 
-    while((length = read(fd, buf, BUFFER_SIZE)) > 0){
+    while((length = read(fd, buf, BUFFER_SIZE)) > 0){   // fd에서 사이즈만큼 읽고 buf에 저장
         for(i = 0; i < length; i++){
-            table[entry].length++;
+            table[entry].length++;      // 엔트리의 length 증가
             offset++;
 
             if(buf[i] == '\n')
-                table[++entry].offset = offset;
+                table[++entry].offset = offset;     // \n 만나면 offset 설정 후 엔트리 증가
         }
     }
 
-    #ifdef DEBUG
+    #ifdef DEBUG    // 디버그 모드일 때 실행
         for(i = 0; i < entry; i++){
             printf("%d : %ld, %d\n", i+1, table[i].offset, table[i].length);
         }

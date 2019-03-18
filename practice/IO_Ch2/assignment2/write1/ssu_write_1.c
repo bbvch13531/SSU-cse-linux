@@ -16,7 +16,7 @@ int main(int argc, char *argv[]){
     gettimeofday(&begin_t, NULL);
     
     length = read(0, buf, BUFFER_SIZE);
-    write(1, buf, length);
+    write(1, buf, length);  // stdout에 buf를 write
 
     gettimeofday(&end_t, NULL);
 

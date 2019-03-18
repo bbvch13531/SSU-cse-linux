@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <sys/time.h>
 
+#define SEC_TO_MICRO 1000000
+
 int main(void){
     struct timeval begin_t, end_t;
     char c;

@@ -27,14 +27,14 @@ int main(int argc, char *argv[]){
     
     while(1){
         printf("Enter employee name <SPACE> salary: ");
-        scanf("%s",record.name);
+        scanf("%s",record.name);   
 
-        if(record.name[0] == '.')
+        if(record.name[0] == '.')   // .이 입력되면 break
             break;
 
         scanf("%d",&record.salary);
-        record.pid = getpid();
-        write(fd, (char *)&record, sizeof(record));
+        record.pid = getpid();  // pid를 저장
+        write(fd, (char *)&record, sizeof(record)); // record를 fd에 저장
     }
     close(fd);
     gettimeofday(&end_t, NULL);

@@ -31,8 +31,8 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     
-    while((length = read(fd1, buf, BUFFER_SIZE)) > 0){
-        write(fd2, buf, length);
+    while((length = read(fd1, buf, BUFFER_SIZE)) > 0){  // size만큼 fd1에서 읽어서 buf에 저장
+        write(fd2, buf, length);    // buf에 length만큼 fd2에 write
     }
 
     gettimeofday(&end_t, NULL);

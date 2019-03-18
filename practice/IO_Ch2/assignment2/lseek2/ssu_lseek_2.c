@@ -22,15 +22,15 @@ int main(int argc, char** argv){
 		exit(1);
 	}
 
-	if(write(fd, buf1, 12) != 12){
+	if(write(fd, buf1, 12) != 12){	// fd 를 12바이트만큼 읽고 buf1에 저장
 		fprintf(stderr, "buf1 write error\n");
 		exit(1);
 	}
-	if(lseek(fd, 15000, SEEK_SET) < 0){
+	if(lseek(fd, 15000, SEEK_SET) < 0){		// fd를 15000만큼 lseek
 		fprintf(stderr, "lseek error\n");
 		exit(1);
 	}
-	if(write(fd, buf2, 12) != 12){
+	if(write(fd, buf2, 12) != 12){	// fd 를 12바이트만큼 읽고 buf2에 저장
 		fprintf(stderr, "buf2 write error\n");
 		exit(1);
 	}
