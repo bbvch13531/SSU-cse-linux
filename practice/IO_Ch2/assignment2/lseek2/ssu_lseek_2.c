@@ -34,6 +34,7 @@ int main(int argc, char** argv){
 		fprintf(stderr, "buf2 write error\n");
 		exit(1);
 	}
+	
 	gettimeofday(&end_t, NULL);
 
 	end_t.tv_sec -= begin_t.tv_sec;
