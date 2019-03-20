@@ -16,8 +16,8 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    for(i=1; i<argc; i++){
-        if(access(argv[i], F_OK) < 0){
+    for(i=1; i<argc; i++){      // argv 들에 access 할 수 있는지 확인
+        if(access(argv[i], F_OK) < 0){  
             fprintf(stderr, "%s doesn't exist\n",argv[i]);
             continue;
         } 

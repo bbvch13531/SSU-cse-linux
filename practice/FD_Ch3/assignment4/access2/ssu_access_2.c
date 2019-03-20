@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
     }
 
     for(int i=0; i<TABLE_SIZE; i++){
-        if(access(argv[1], table[i].mode) != -1){
+        if(access(argv[1], table[i].mode) != -1){   //argv의 mode 확인
             printf("%s -ok\n",table[i].text);            
         }
         else{

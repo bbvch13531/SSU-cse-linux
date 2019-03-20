@@ -17,7 +17,7 @@ int main(int argc, char* argv[]){
     
     for(i=1; i<argc; i++){
         printf("name = %s, type = ", argv[i]);
-        if(lstat(argv[i], &file_info) < 0){
+        if(lstat(argv[i], &file_info) < 0){     // argv들의 stat 정보를 저장
             fprintf(stderr, "lstat error\n");
             continue;
         }
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
             str = "block special";
         else if(S_ISFIFO(file_info.st_mode))
             str = "FIFO";
-        else if(S_ISLINK(file_info.st_mode))
+        else if(S_ISLNK(file_info.st_mode))
             str = "symbolic link";
         else if(S_ISSOCK(file_info.st_mode))
             str = "socket";
