@@ -18,12 +18,12 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    if((stat(argv[1], &statbuf)) < 0){
+    if((stat(argv[1], &statbuf)) < 0){  // argv[1]의 stat정보를 statbuf에 저장
         fprintf(stderr, "stat error\n");
         exit(1);
     }
 
-    printf("%s is %lld bytes\n", argv[1], statbuf.st_size);  
+    printf("%s is %lld bytes\n", argv[1], statbuf.st_size);  // 파일의 크기 출력
     gettimeofday(&end_t, NULL);
 
 	end_t.tv_sec -= begin_t.tv_sec;

@@ -20,13 +20,13 @@ int main(int argc, char* argv[]){
         exit(1);
     }
 
-    if((stat(argv[1], &statbuf)) < 0){
+    if((stat(argv[1], &statbuf)) < 0){  // argv[1]의 stat정보를 statbuf에 저장
         fprintf(stderr, "stat error\n");
         exit(1);
     }
-    intertime = statbuf.st_mtime;
+    intertime = statbuf.st_mtime; // 수정시간을 저장
     while(1){
-        ssu_checkfile(argv[1], &intertime);
+        ssu_checkfile(argv[1], &intertime); // 수정시간이 달라졌는지 확인
         sleep(10);
     }
 
