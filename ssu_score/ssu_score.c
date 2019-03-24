@@ -7,12 +7,18 @@
 #include <fcntl.h>
 #include <string.h>
 
-void showHelp();
+void showHelp(void);
 int checkScoreTable(char *pathname);
+char* readFiles(char *pathname);
+int selectType(void);
+int* selectProblemPoint(int scoreType);
 int main(int argc, char** argv){
     int opt;
-    int flag = 0;
+    int flag = 0, scoreType;
+    int csvFileDes;
+    int *scorePoints;
     char *student_dir, *trueset_dir;
+    char *fileNames;
 
     if(argc < 3){
         fprintf(stderr, "Usage : %s <STD_DIR> <ANS_DIR>", argv[0]);
@@ -66,15 +72,19 @@ int main(int argc, char** argv){
     }
     */
 
-    checkScoreTable(trueset_dir);
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
+    csvFileDes = checkScoreTable(trueset_dir);
+    // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
+    filenames = readFiles(trueset_dir);
+    scoreType = selectType();
+    scorePoints = selectProblemPoint(scoreType);
+    printf("%d",scorePoints[1]);
     //  문제 배점 입력
     //  STD, ANS 디렉토리 읽음
     //  .txt면 바로 비교
     //  .c면 컴파일 후 실행, 실행결과를 비교
     exit(0);
 }
-
 
 void showHelp(){
     printf("Usage : ssu_score <STUDENTDIR> <TRUEDIR> [OPTION]\n\
@@ -93,11 +103,57 @@ void showHelp(){
 */
 int checkScoreTable(char *pathname){
     int fd;
-    printf("scoretable : %s\n",pathname);
+    // printf("scoretable : %s\n",pathname);
     strcat(pathname, "/score_table.csv");
-    if((fd = creat(pathname, 0666)) < 0){
-        fprintf(stderr, "creat error for %s\n", pathname);
-        exit(1);
+
+    if((fd = open(pathname, O_RDWR)) < 0){
+        printf("score_table.csv file doens't exist in TRUEDIR!\n");
+        if((fd = creat(pathname, 0666)) < 0){
+            fprintf(stderr, "creat error for %s\n", pathname);
+            exit(1);
+        }
     }
+
     return fd;
+}
+
+/*
+    Read files in pathname and verify type of problems
+*/
+char* readFiles(char *pathname){
+
+}
+
+int selectType(){
+    int type;
+
+    printf("1. input blank question and program question's score. ex) 0.5 1\n");
+    printf("2. input all question's score. ex) Input value of 1-1: 0.1\n");
+    printf("select type >> ");
+    scanf("%d", &type);
+
+    return type;
+}
+
+int* selectProblemPoint(int scoreType){
+    int blank, program;
+    int scorePoints[110];
+
+    // If scoreType is 1, use first two elements of scorePoints
+    if(scoreType == 1){
+        printf("Input value of blank question : ");
+        scanf("%d", &blank);
+        printf("Input value of program question : ");
+        scanf("%d", &program);
+
+        scorePoints[0] = blank;
+        scorePoints[1] = program;
+
+    }
+    /*
+    else{
+
+    }
+    */
+    return scorePoints;
 }
