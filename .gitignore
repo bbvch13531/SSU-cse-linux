@@ -3,3 +3,4 @@
 a.out
 main
 *.gch
+.DS_Store
