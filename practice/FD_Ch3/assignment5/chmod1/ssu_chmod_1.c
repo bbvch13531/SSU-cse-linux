@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include "calTime.h"
 
 #define MODE_EXEC (S_IXUSR | S_IXGRP | S_IXOTH)
@@ -21,7 +22,7 @@ int main(void){
         fprintf(stderr, "chmod error %s\n", fname1);
     }
 
-    if(chmod(fname2, S_IRUSR | S_IWUSR | S_IFGRP | S_IROTH | S_IXOTH) < 0){
+    if(chmod(fname2, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IXOTH) < 0){
         fprintf(stderr, "chmod error %s\n",fname2);
     }
     gettimeofday(&end_t, NULL);
