@@ -8,7 +8,7 @@ int main(int argc, char **argv){
     
     gettimeofday(&begin_t, NULL);
     
-    if(argv < 3){
+    if(argc < 3){
         fprintf(stderr, "Usage: %s <file1> <file2>\n", argv[0]);
         exit(1);
     }
