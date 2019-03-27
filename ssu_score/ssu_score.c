@@ -8,18 +8,25 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#define NAME_LEN 200
+
 void showHelp(void);
 int checkScoreTable(char *pathname);
 char* readFiles(char *pathname);
 int selectType(void);
 int* selectProblemPoint(int scoreType);
+void readANS(char *pathname);
+
+int fd_ans[110]; // ANS/files의 fd를 저장
+int fd_std[110][110]; // STD/num/files의 fd를 저장
+
 int main(int argc, char** argv){
     int opt;
     int flag = 0, scoreType;
     int csvFileDes;
     int *scorePoints;
-    char *student_dir, *trueset_dir;
-    char *fileNames;
+    char *student_dir, *answer_dir;
+    char *filenames;
 
     if(argc < 3){
         fprintf(stderr, "Usage : %s <STD_DIR> <ANS_DIR>", argv[0]);
@@ -27,9 +34,9 @@ int main(int argc, char** argv){
     }
 
     student_dir = argv[2];
-    trueset_dir = argv[3];
+    answer_dir = argv[3];
     
-    printf("%s %s",student_dir, trueset_dir);
+    printf("%s %s",student_dir, answer_dir);
 
     while((opt = getopt(argc, argv, "epthc")) == -1){
         switch(opt){
@@ -74,12 +81,13 @@ int main(int argc, char** argv){
     */
 
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
-    csvFileDes = checkScoreTable(trueset_dir);
+    csvFileDes = checkScoreTable(answer_dir);
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
-    filenames = readFiles(trueset_dir);
+    readANS(answer_dir);
+    // filenames = readFiles(answer_dir);
     scoreType = selectType();
     scorePoints = selectProblemPoint(scoreType);
-    printf("%d",scorePoints[1]);
+    // printf("%d",scorePoints[1]);
     //  문제 배점 입력
     //  STD, ANS 디렉토리 읽음
     //  .txt면 바로 비교
@@ -104,13 +112,15 @@ void showHelp(){
 */
 int checkScoreTable(char *pathname){
     int fd;
+    char table[200];
+    memcpy(table, pathname, NAME_LEN);
     // printf("scoretable : %s\n",pathname);
-    strcat(pathname, "/score_table.csv");
+    strcat(table, "/score_table.csv");
 
-    if((fd = open(pathname, O_RDWR)) < 0){
+    if((fd = open(table, O_RDWR)) < 0){
         printf("score_table.csv file doens't exist in TRUEDIR!\n");
-        if((fd = creat(pathname, 0666)) < 0){
-            fprintf(stderr, "creat error for %s\n", pathname);
+        if((fd = creat(table, 0644)) < 0){
+            fprintf(stderr, "creat error for %s\n", table);
             exit(1);
         }
     }
@@ -160,10 +170,78 @@ int* selectProblemPoint(int scoreType){
         scorePoints[1] = program;
 
     }
-    /*
+    // scoreType is 2, get every problem's scorePoints
     else{
 
     }
-    */
+    
     return scorePoints;
+}
+
+void readANS(char *pathname){
+    struct dirent *dentry1, *dentry2;
+    struct stat statbuf1, statbuf2;
+    char filename1[200], filename2[200];
+    char curdir[200], buf[1024];
+    DIR *dirp1, *dirp2;
+
+    if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
+        fprintf(stderr, "opendir: chdir error for %s\n",pathname);
+        exit(1);
+    }
+
+    while((dentry1 = readdir(dirp1)) != NULL){
+        if(dentry1->d_ino == 0)
+            continue;
+
+        memcpy(filename1, dentry1->d_name, NAME_LEN);
+
+        if(stat(filename1, &statbuf1) == -1){
+            fprintf(stderr, "stat error for %s\n", filename1);
+            exit(1);
+        }
+
+        if(S_ISDIR(statbuf1.st_mode)){  // if directory
+            if(strncmp(".", filename1, 1) == 0 || strncmp("..", filename1, 2) == 0)
+                continue;
+            if((dirp2 = opendir(filename1)) == NULL){
+                fprintf(stderr, "opendir error for %s\n", filename2);
+                exit(1);
+            }
+            if(strcmp(filename1, "score_table.csv") == 0) continue;
+            chdir(filename1);    // change dir to child dir
+
+            while((dentry2 = readdir(dirp2)) != NULL){
+                if(dentry1->d_ino == 0)
+                    continue;
+                memcpy(filename2, dentry2->d_name, NAME_LEN); 
+
+                if(strncmp(".", filename2, 1) == 0 || strncmp("..", filename2, 2) == 0)
+                    continue;
+                // printf("%s\n",filename2);
+                
+                if(stat(filename2, &statbuf2) == -1){
+                    fprintf(stderr, "stat error for %s\n", filename2);
+                    exit(1);
+                }
+
+                if(S_ISREG(statbuf2.st_mode)){
+                    printf("%s\n",filename2);
+                    if(strstr(filename2, ".txt")){
+                        int fd = open(dentry2->d_name,O_RDONLY);
+                        while(read(fd, buf, 1024)){
+                            // printf("%s\n",buf);
+                        }
+                    }
+                    /* .c file 
+                    else{
+
+                    }
+                    */
+                }
+            }
+            chdir("..");
+            if(dentry1->d_ino == 0) continue;
+        }
+    }
 }
