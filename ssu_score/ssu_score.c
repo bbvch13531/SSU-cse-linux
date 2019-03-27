@@ -10,23 +10,11 @@
 
 #define NAME_LEN 200
 
-void showHelp(void);
-int checkScoreTable(char *pathname);
-int selectType(void);
-int* selectProblemPoint(int scoreType);
-void readANS(char *pathname);
-void readSTD(char *pathname);
-
-int strToNum(char *name);
-
-int fd_ans[110], fd_std[110][110]; // ANS/files, STD/num/files의 fd를 저장
-char stdDirname[110][200];
-int problemNum = 0, studentNum = 0; // number of problem and students
-
 typedef struct {
     char name[NAME_LEN];
     int fd;
     int id;
+    int type;
 } AnsFile;
 
 typedef struct {
@@ -34,15 +22,28 @@ typedef struct {
     AnsFile file[110];
 } StdFile;
 
+void showHelp(void);
+int checkScoreTable(char *pathname);
+int selectType(void);
+void selectProblemPoint(int scoreType, double* scorePoints);
+void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoints);
+void readANS(char *pathname);
+void readSTD(char *pathname);
+int strToNum(char *name);
+
+int fd_ans[110], fd_std[110][110]; // ANS/files, STD/num/files의 fd를 저장
+char stdDirname[110][200];
+int problemNum = 0, studentNum = 0; // number of problem and students
+
 AnsFile ansFile[110];
 StdFile stdFile[110];
 
 int main(int argc, char** argv){
     int opt;
     int flag = 0, scoreType;
-    int csvFileDes;
+    int csvfd;
     int tmp;
-    int *scorePoints;
+    double scorePoints[110];
     char *student_dir, *answer_dir;
     char tmpstr[200];
 
@@ -99,29 +100,32 @@ int main(int argc, char** argv){
     */
 
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
-    csvFileDes = checkScoreTable(answer_dir);
+    csvfd = checkScoreTable(answer_dir);
     
     // test debug
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     readANS(answer_dir);
     
     for(int i=0; i<problemNum; i++){
-        // printf("%s %d\n",ansFile[i].name, ansFile[i].id);
+        printf("%s %d\n",ansFile[i].name, ansFile[i].type);
     }
 
     readSTD(student_dir);
-    for(int i=0; i<studentNum; i++){
-        printf("%s\n",stdFile[i].stdName);
-        for(int j=0; j<10; j++){
-            printf("%s\n",stdFile[i].file[j].name);
-        }
-    }
-    // for(int j=0; j<problemNum; j++){
-    //     printf("%s %s\n",stdFile[1].stdName, stdFile[0].file[j].name);
+
+
+    // for(int i=0; i<studentNum; i++){
+    //     printf("%s\n",stdFile[i].stdName);
+    //     for(int j=0; j<10; j++){
+    //         printf("%s\n",stdFile[i].file[j].name);
+    //     }
     // }
-    // filenames = readFiles(answer_dir);
+
     scoreType = selectType();
-    scorePoints = selectProblemPoint(scoreType);
+    selectProblemPoint(scoreType,scorePoints);
+
+    fillScoreTable(csvfd, ansFile, scoreType, scorePoints);
+
+
     // printf("%d",scorePoints[1]);
     //  문제 배점 입력
     //  STD, ANS 디렉토리 읽음
@@ -174,16 +178,15 @@ int selectType(){
     return type;
 }
 
-int* selectProblemPoint(int scoreType){
-    int blank, program;
-    int scorePoints[110];
+void selectProblemPoint(int scoreType, double scorePoints[]){
+    double blank, program;
 
     // If scoreType is 1, use first two elements of scorePoints
     if(scoreType == 1){
         printf("Input value of blank question : ");
-        scanf("%d", &blank);
+        scanf("%lf", &blank);
         printf("Input value of program question : ");
-        scanf("%d", &program);
+        scanf("%lf", &program);
 
         scorePoints[0] = blank;
         scorePoints[1] = program;
@@ -191,11 +194,52 @@ int* selectProblemPoint(int scoreType){
     }
     // scoreType is 2, get every problem's scorePoints
     else{
-
+        for(int i=0; i<problemNum; i++){
+            printf("Input of %s: \n",ansFile[i].name);
+            // scorePoints[i] = i * 0.1;
+            scanf("%lf",&scorePoints[i]);
+        }
     }
-    
-    return scorePoints;
+
+    // for(int i=0; i<problemNum; i++){
+    //     printf("%2lf\n",scorePoints[i]);
+    // }
 }
+void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoints){
+    // csvFileDes 로 열고
+    char dtoc[20]="";
+
+    for(int i=0; i<problemNum; i++){
+        
+            write(csvfd, ansFile[i].name, strlen(ansFile[i].name));
+            write(csvfd, ", ", 2);
+        
+        
+            if(scoreType == 1){
+                // 빈칸, 프로그램 문제 구분
+                if(ansFile[i].type == 1){ // blank
+                    snprintf(dtoc, 10, "%3lf", scorePoints[0]);                                   
+                    write(csvfd, dtoc, strlen(dtoc));
+                    // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[0]);
+                }
+                else{   // program
+                    snprintf(dtoc, 10, "%3lf", scorePoints[1]);
+                    write(csvfd, dtoc, strlen(dtoc));
+                    printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[1]);
+                }
+            }
+            else{
+                snprintf(dtoc, 10, "%3lf", scorePoints[i]);
+                write(csvfd, dtoc, strlen(dtoc));
+                // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[i]);
+            }
+            write(csvfd, "\n",1);
+        
+    }
+    // ansFIle의 이름 받아와서 행 만들고
+    // scoreType에 따라서 scorePoint의 내용을 csv파일에 쓴다.
+}
+
 
 void readANS(char *pathname){
     struct dirent *dentry1, *dentry2;
@@ -247,25 +291,28 @@ void readANS(char *pathname){
 
                 if(S_ISREG(statbuf2.st_mode)){
                     // printf("%s\n",filename2);
-                    //if(strstr(filename2, ".txt")){
-                        fd_ans[i] = open(dentry2->d_name,O_RDONLY);
-                        ansFile[i].fd = fd_ans[i];
-                                       
-                        memcpy(ansFile[i].name, dentry2->d_name, NAME_LEN);
-                        
-                        // strToNum debugging...
-                        ansFile[i].id = strToNum(ansFile[i].name);
+                    
+                    fd_ans[i] = open(dentry2->d_name,O_RDONLY);
+                    ansFile[i].fd = fd_ans[i];
+                                    
+                    memcpy(ansFile[i].name, dentry2->d_name, NAME_LEN);
+                    
+                    // strToNum
+                    ansFile[i].id = strToNum(ansFile[i].name);
 
-                        while(read(fd_ans[i], buf, 1024)){
-                            // printf("%s\n",buf);
-                        }
-                        i++;
-                    //}
-                    /* .c file 
-                    else{
+                    // while(read(fd_ans[i], buf, 1024)){
+                    //     // printf("%s\n",buf);
+                    // }
+                    
 
+                    // .txt file
+                    if(strstr(filename2, ".txt")){
+                        ansFile[i].type = 1;
                     }
-                    */
+                    else {  // .c file 
+                        ansFile[i].type = 2;
+                    }
+                     i++;
                 }
             }
             chdir("..");
@@ -343,26 +390,26 @@ void readSTD(char *pathname){
 
                 if(S_ISREG(statbuf2.st_mode)){
                     // printf("%s\n",filename2);
-                    //if(strstr(filename2, ".txt")){
-                        fd_std[i][j] = open(dentry2->d_name,O_RDONLY);
-                        stdFile[i].file[j].fd = fd_std[i][j];
-                        // printf("%d\n",stdFile[i].file[j].fd);
-                        // printf("%s\n",dentry2->d_name );
-                        memcpy(stdFile[i].file[j].name, dentry2->d_name, NAME_LEN);
+                    fd_std[i][j] = open(dentry2->d_name,O_RDONLY);
+                    stdFile[i].file[j].fd = fd_std[i][j];
+                    // printf("%d\n",stdFile[i].file[j].fd);
+                    // printf("%s\n",dentry2->d_name );
+                    memcpy(stdFile[i].file[j].name, dentry2->d_name, NAME_LEN);
+                    
+                    // strToNum
+                    stdFile[i].file[j].id = strToNum(stdFile[i].file[j].name);
+                    // printf("%s %d\n",stdFile[i].file[j].name, stdFile[i].file[j].id);
+                    // while(read(fd_std[i][j], buf, 1024)){
+                    //     printf("%s\n",buf);
+                    // }
                         
-                        // strToNum
-                        stdFile[i].file[j].id = strToNum(stdFile[i].file[j].name);
-                        // printf("%s %d\n",stdFile[i].file[j].name, stdFile[i].file[j].id);
-                        // while(read(fd_std[i][j], buf, 1024)){
-                        //     printf("%s\n",buf);
-                        // }
-                        
-                    //}
-                    /* .c file 
-                    else{
-
+                    // .txt file
+                    if(strstr(filename2, ".txt")){
+                        stdFile[i].file[j].type = 1;
                     }
-                    */
+                    else {  // .c file 
+                        stdFile[i].file[j].type = 2;
+                    }
                 }
                 
                 j++;
