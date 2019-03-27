@@ -101,32 +101,14 @@ int main(int argc, char** argv){
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
     csvFileDes = checkScoreTable(answer_dir);
     
-    /*// test debug
+    // test debug
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     readANS(answer_dir);
+    
     for(int i=0; i<problemNum; i++){
-        for(int j=i; j<problemNum; j++){
-            if(ansFile[i].id > ansFile[j].id){
-                // memcpy(tmpstr, ans_files[i], NAME_LEN);
-                // memcpy(ans_files[i], ans_files[j], NAME_LEN);
-                // memcpy(ans_files[j], tmpstr, NAME_LEN);
-
-                // tmp = fd_ans[i];
-                // fd_ans[i] = fd_ans[j];
-                // fd_ans[j] = tmp;
-
-                AnsFile tmp;
-                tmp = ansFile[i];
-                ansFile[i] = ansFile[j];
-                ansFile[j] = tmp;
-            }
-        }
+        // printf("%s %d\n",ansFile[i].name, ansFile[i].id);
     }
-    for(int i=0; i<problemNum; i++){
-        printf("%s %d\n",ansFile[i].name, ansFile[i].id);
-    }
-    //*/
-    readANS(answer_dir);
+
     readSTD(student_dir);
     for(int i=0; i<studentNum; i++){
         printf("%s\n",stdFile[i].stdName);
@@ -292,6 +274,18 @@ void readANS(char *pathname){
     }
     problemNum = i;
     chdir("..");
+
+    for(int i=0; i<problemNum; i++){
+        for(int j=i; j<problemNum; j++){
+            if(ansFile[i].id > ansFile[j].id){
+
+                AnsFile tmp;
+                tmp = ansFile[i];
+                ansFile[i] = ansFile[j];
+                ansFile[j] = tmp;
+            }
+        }
+    }
 }
 
 void readSTD(char *pathname){
@@ -370,25 +364,39 @@ void readSTD(char *pathname){
                     }
                     */
                 }
+                
                 j++;
-                printf("i = %d, j = %d\n",i,j);
             }
-            
+            for(int l=0; l<problemNum; l++){
+                for(int k=l; k<problemNum; k++){
+                    if(stdFile[i].file[l].id > stdFile[i].file[k].id){
+
+                        AnsFile tmp;
+                        tmp = stdFile[i].file[l];
+                        stdFile[i].file[l] = stdFile[i].file[k];
+                        stdFile[i].file[k] = tmp;
+                    }
+                }
+            }
             
             chdir("..");
             if(dentry1->d_ino == 0) continue;
             i++;
         }
-    }   
+    }
     
     studentNum = i;
+    for(int l=0; l<studentNum; l++){
+        for(int k=l; k<studentNum; k++){
+            if(strcmp(stdFile[l].stdName, stdFile[k].stdName) > 0){
 
-    // for(int i=0; i<studentNum; i++){
-    //     printf("%s\n",stdFile[i].stdName);
-    //     for(int j=0; j<10; j++){
-    //         printf("%s\n",stdFile[i].file[j].name);
-    //     }
-    // }
+                char buf[NAME_LEN];
+                strcpy(buf,stdFile[l].stdName);
+                strcpy(stdFile[l].stdName,stdFile[k].stdName);
+                strcpy(stdFile[k].stdName,buf);
+            }
+        }
+    }
 }
 
 int strToNum(char *name){
