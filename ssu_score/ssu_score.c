@@ -1,11 +1,12 @@
 // SSU_20142468 Kyungyoung Heo
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <dirent.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 void showHelp(void);
 int checkScoreTable(char *pathname);
@@ -121,7 +122,16 @@ int checkScoreTable(char *pathname){
     Read files in pathname and verify type of problems
 */
 char* readFiles(char *pathname){
+    struct dirent *dentry;
+    struct stat statbuf;
+    char filenames[110];
+    char curdir[1000];
+    DIR *dirp;
 
+    if((dirp = opendir(pathname)) == NULL || chdir(pathname) == -1){
+        fprintf(stderr, "opendir : chdir error");
+        exit(1);
+    }
 }
 
 int selectType(){
