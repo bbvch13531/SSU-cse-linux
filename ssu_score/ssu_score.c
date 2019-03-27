@@ -17,16 +17,28 @@ int selectType(void);
 int* selectProblemPoint(int scoreType);
 void readANS(char *pathname);
 
-int fd_ans[110]; // ANS/files의 fd를 저장
-int fd_std[110][110]; // STD/num/files의 fd를 저장
+int strToNum(char *name);
+
+int fd_ans[110], fd_std[110][110]; // ANS/files, STD/num/files의 fd를 저장
+char ans_files[110][200], std_files[110][200];
+int problemNum = 0, studentNum = 0; // number of problem and students
+
+typedef struct {
+    char name[NAME_LEN];
+    int fd;
+    int id;
+} AnsFile;
+
+AnsFile ansFile[110];
 
 int main(int argc, char** argv){
     int opt;
     int flag = 0, scoreType;
     int csvFileDes;
+    int tmp;
     int *scorePoints;
     char *student_dir, *answer_dir;
-    char *filenames;
+    char tmpstr[200];
 
     if(argc < 3){
         fprintf(stderr, "Usage : %s <STD_DIR> <ANS_DIR>", argv[0]);
@@ -84,6 +96,29 @@ int main(int argc, char** argv){
     csvFileDes = checkScoreTable(answer_dir);
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     readANS(answer_dir);
+    for(int i=0; i<problemNum; i++){
+        for(int j=i; j<problemNum; j++){
+            if(ansFile[i].id > ansFile[j].id){
+                // memcpy(tmpstr, ans_files[i], NAME_LEN);
+                // memcpy(ans_files[i], ans_files[j], NAME_LEN);
+                // memcpy(ans_files[j], tmpstr, NAME_LEN);
+
+                // tmp = fd_ans[i];
+                // fd_ans[i] = fd_ans[j];
+                // fd_ans[j] = tmp;
+
+                AnsFile tmp;
+                tmp = ansFile[i];
+                ansFile[i] = ansFile[j];
+                ansFile[j] = tmp;
+            }
+        }
+    }
+    for(int i=0; i<problemNum; i++){
+        printf("%s %d\n",ansFile[i].name, ansFile[i].id);
+    }
+    
+    
     // filenames = readFiles(answer_dir);
     scoreType = selectType();
     scorePoints = selectProblemPoint(scoreType);
@@ -183,6 +218,7 @@ void readANS(char *pathname){
     struct stat statbuf1, statbuf2;
     char filename1[200], filename2[200];
     char curdir[200], buf[1024];
+    int i = 0;
     DIR *dirp1, *dirp2;
 
     if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
@@ -226,13 +262,22 @@ void readANS(char *pathname){
                 }
 
                 if(S_ISREG(statbuf2.st_mode)){
-                    printf("%s\n",filename2);
-                    if(strstr(filename2, ".txt")){
-                        int fd = open(dentry2->d_name,O_RDONLY);
-                        while(read(fd, buf, 1024)){
+                    // printf("%s\n",filename2);
+                    //if(strstr(filename2, ".txt")){
+                        fd_ans[i] = open(dentry2->d_name,O_RDONLY);
+                        ansFile[i].fd = fd_ans[i];
+
+                        memcpy(ans_files[i], dentry2->d_name, NAME_LEN);                                        
+                        memcpy(ansFile[i].name, dentry2->d_name, NAME_LEN);
+                        
+                        // strToNum debugging...
+                        ansFile[i].id = strToNum(ansFile[i].name);
+
+                        while(read(fd_ans[i], buf, 1024)){
                             // printf("%s\n",buf);
                         }
-                    }
+                        i++;
+                    //}
                     /* .c file 
                     else{
 
@@ -244,4 +289,54 @@ void readANS(char *pathname){
             if(dentry1->d_ino == 0) continue;
         }
     }
+    problemNum = i;
+}
+
+int strToNum(char *name){
+    // 1-1.txt 10-1.c 2-3.txt 5-2.txt를 11, 101, 23, 52 으로 만들고 싶다
+
+    int len = strlen(name);
+    int idx1, idx2, num=0, res;
+    const char *ptr;
+    char buf[NAME_LEN];
+
+    if(strstr(name,"-")){
+        ptr = strchr(name, '-');
+        // 만약 '-'이 없는 경우
+        idx1 = ptr - name;
+        for(int j=0; j<idx1; j++){
+            // printf("%c",name[j]);
+            buf[j] = name[j];
+        }
+        buf[idx1] = 0;
+        res = atoi(buf);
+        num = res * 10;
+
+        ptr = strchr(name, '.');
+        idx2 = ptr - name;   // 
+        for(int j=idx1+1; j<idx2; j++){
+            // printf("%c",name[j]);
+            buf[j-idx1-1] = name[j];
+        }
+        buf[idx2 - idx1 - 1] = 0;
+        res = atoi(buf);
+        num += res;
+    }
+    else {
+        ptr = strchr(name, '.');
+        idx1 = ptr - name;
+        for(int j=0; j<idx1; j++){
+            // printf("%c",name[j]);
+            buf[j] = name[j];
+        }
+        buf[idx1] = 0;
+        res = atoi(buf);
+        num = res * 10;
+    }
+    // printf("  res1 = %d  ", res);
+
+   
+    // printf("  res2 = %d\n", res);
+    // printf("num = %d\n",num);
+    return num;
 }
