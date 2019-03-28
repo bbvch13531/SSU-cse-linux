@@ -6,6 +6,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/stat.h>
 
 #define NAME_LEN 200
@@ -29,10 +30,11 @@ void selectProblemPoint(int scoreType, double* scorePoints);
 void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoints);
 void readANS(char *pathname);
 void readSTD(char *pathname);
+void readSTDfd(char *stdpath, char *pathname);
 int strToNum(char *name);
 void runStdProgram(char *pathname);
 void printStdProgram(char *pathname);
-int fd_ans[110], fd_std[110][110]; // ANS/files, STD/num/files의 fd를 저장
+int fd_ans[110], fd_std[110]; // ANS/files, STD/num/files의 fd를 저장
 char stdDirname[110][200];
 int problemNum = 0, studentNum = 0; // number of problem and students
 
@@ -111,6 +113,8 @@ int main(int argc, char** argv){
     // }
 
     readSTD(student_dir);
+    
+    // readSTDfd(student_dir, );
     runStdProgram(student_dir);
 
     // for(int i=0; i<studentNum; i++){
@@ -368,12 +372,13 @@ void readSTD(char *pathname){
                 continue;
             
             if((dirp2 = opendir(filename1)) == NULL){
-                fprintf(stderr, "opendir error for %s\n", filename2);
+                fprintf(stderr, "opendir error for %s\n", filename1);
                 exit(1);
             }
             
             chdir(filename1);
-            // printf("%15s\n",filename1);
+            printf("%15s\n",filename1);
+            readSTDfd(pathname, filename1);
             j=0;
             while((dentry2 = readdir(dirp2)) != NULL){
                 if(dentry2->d_ino == 0)
@@ -391,8 +396,9 @@ void readSTD(char *pathname){
 
                 if(S_ISREG(statbuf2.st_mode)){
                     // printf("%s\n",filename2);
-                    fd_std[i][j] = open(dentry2->d_name,O_RDONLY);
-                    stdFile[i].file[j].fd = fd_std[i][j];
+                    
+                    fd_std[j] = open(dentry2->d_name,O_RDONLY);
+                    // stdFile[i].file[j].fd = fd_std[j];
                     // printf("%d\n",stdFile[i].file[j].fd);
                     // printf("%s\n",dentry2->d_name );
                     memcpy(stdFile[i].file[j].name, dentry2->d_name, NAME_LEN);
@@ -447,6 +453,53 @@ void readSTD(char *pathname){
     }
 }
 
+// STD dirpath 와 20190000 dirpath, return fd of dirpathname
+void readSTDfd(char *stdpath, char *pathname){
+    struct dirent *dentry;
+    struct stat statbuf;
+    char filename[200];
+    char buf[1024];
+    DIR *dirp;
+    int i = 0;
+    chdir("..");
+    if((dirp = opendir(pathname)) == NULL){
+        fprintf(stderr, "opendir error for %s\n", pathname);
+        exit(1);
+    }
+    chdir(pathname);
+    // printf("%15s\n",pathname);
+
+
+    while((dentry = readdir(dirp)) != NULL){
+        if(dentry->d_ino == 0)
+            continue;
+        memcpy(filename, dentry->d_name, NAME_LEN);
+
+        if(strncmp(".", filename, 1) == 0 || strncmp("..", filename, 2) == 0)
+            continue;
+        // printf("%s\n",filename);
+        
+        if(stat(filename, &statbuf) == -1){
+            fprintf(stderr, "stat error for %s\n", filename);
+            printf("errno = %s\n",strerror(errno));
+            exit(1);
+        }
+        if(S_ISREG(statbuf.st_mode)){
+            // printf("%s\n",filename2);
+            
+            fd_std[i] = open(dentry->d_name,O_RDONLY);
+            // printf("%d\n",stdFile[i].file[j].fd);
+            // printf("%s\n",dentry->d_name );
+
+            // printf("%s %d\n",stdFile[i].file[j].name, stdFile[i].file[j].id);
+            // while(read(fd_std[i], buf, 1024)){
+            //     printf("%s\n",buf);
+            // }
+        }
+        i++;
+    }
+
+}
 int strToNum(char *name){
     // 1-1.txt 10-1.c 2-3.txt 5-2.txt를 11, 101, 23, 52 으로 만들고 싶다
 
@@ -504,7 +557,7 @@ void runStdProgram(char *pathname){
 
     // system("pwd");
 
-    for(int i=0; i<studentNum; i++){
+    for(int i=0; i<5; i++){
         for(int j=0; j<problemNum; j++){
             if(stdFile[i].file[j].type ==2){
                 memset(buf1, 0, 50);
@@ -515,7 +568,6 @@ void runStdProgram(char *pathname){
                 // fd of c file in std dir
                 fd = stdFile[i].file[j].fd;
                 chdir(stdFile[i].stdName);
-
                 
                 strcpy(buf1, stdFile[i].file[j].name);                
                 strcpy(buf2, buf1);
