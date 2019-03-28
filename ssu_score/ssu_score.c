@@ -33,9 +33,10 @@ void readSTD(char *pathname);
 void readSTDfd(char *stdpath, char *pathname);
 int strToNum(char *name);
 void runStdProgram(char *pathname);
+void runAnsProgram(char *pathname);
 void printStdProgram(char *pathname);
 int fd_ans[110], fd_std[110]; // ANS/files, STD/num/files의 fd를 저장
-char stdDirname[110][200];
+char ansDirname[110][200];
 int problemNum = 0, studentNum = 0; // number of problem and students
 
 AnsFile ansFile[110];
@@ -113,9 +114,13 @@ int main(int argc, char** argv){
     // }
 
     readSTD(student_dir);
-    
-    // readSTDfd(student_dir, );
-    runStdProgram(student_dir);
+    for(int i=0; i<problemNum; i++){
+        printf("%s\n",ansDirname[i]);
+    }
+    // STD 의 .c파일을 컴파일하고 실행시킴.
+    // runStdProgram(student_dir);
+    printf("runAnsProgram\n");
+    runAnsProgram(answer_dir);
 
     // for(int i=0; i<studentNum; i++){
     //     printf("%s\n",stdFile[i].stdName);
@@ -251,7 +256,7 @@ void readANS(char *pathname){
     struct stat statbuf1, statbuf2;
     char filename1[200], filename2[200];
     char curdir[200], buf[1024];
-    int i = 0;
+    int i = 0, j = 0;
     DIR *dirp1, *dirp2;
 
     if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
@@ -271,7 +276,7 @@ void readANS(char *pathname){
             printf("%s\n",strerror(errno));
             exit(1);
         }
-
+        strcpy(ansDirname[j], filename1);
         if(S_ISDIR(statbuf1.st_mode)){  // if directory
             if(strncmp(".", filename1, 1) == 0 || strncmp("..", filename1, 2) == 0)
                 continue;
@@ -324,21 +329,23 @@ void readANS(char *pathname){
                      i++;
                 }
             }
-            if(closedir(dirp2) == 0)
-                printf("closedir dirp2\n");
+            if(closedir(dirp2) == 0){
+                // printf("closedir dirp2\n");
+            }
             chdir("..");
             if(dentry1->d_ino == 0) continue;
         }
+        j++;
     }
     problemNum = i;
-    if(closedir(dirp1) == 0)
-        printf("closedir dirp1\n");
+    if(closedir(dirp1) == 0){
+        // printf("closedir dirp1\n");
+    }
     chdir("..");
 
     for(int i=0; i<problemNum; i++){
         for(int j=i; j<problemNum; j++){
             if(ansFile[i].id > ansFile[j].id){
-
                 AnsFile tmp;
                 tmp = ansFile[i];
                 ansFile[i] = ansFile[j];
@@ -346,6 +353,7 @@ void readANS(char *pathname){
             }
         }
     }
+
 }
 
 void readSTD(char *pathname){
@@ -367,8 +375,7 @@ void readSTD(char *pathname){
             continue;
         memcpy(filename1, dentry1->d_name, NAME_LEN);
         if(strcmp(filename1, "score_table.csv") == 0) continue;
-        memcpy(stdDirname[i], filename1, NAME_LEN);
-        memcpy(stdFile[i].stdName, stdDirname[i], NAME_LEN);
+        memcpy(stdFile[i].stdName, filename1, NAME_LEN);
         // printf("%s\n",filename1);
         if(stat(filename1, &statbuf1) == -1){
             fprintf(stderr, "stat error for %s\n", filename1);
@@ -387,7 +394,7 @@ void readSTD(char *pathname){
             }
             
             chdir(filename1);
-            printf("%15s\n",filename1);
+            // printf("%15s\n",filename1);
             // readSTDfd(pathname, filename1);
             j=0;
             while((dentry2 = readdir(dirp2)) != NULL){
@@ -435,8 +442,9 @@ void readSTD(char *pathname){
                 }
                 j++;
             }
-            if(closedir(dirp2) == 0)
-                printf("closedir dirp2\n");
+            if(closedir(dirp2) == 0){
+                // printf("closedir dirp2\n");
+            }
             for(int l=0; l<problemNum; l++){
                 for(int k=l; k<problemNum; k++){
                     if(stdFile[i].file[l].id > stdFile[i].file[k].id){
@@ -456,8 +464,9 @@ void readSTD(char *pathname){
     }
     
     studentNum = i;
-    if(closedir(dirp1) == 0)
-        printf("closedir dirp1\n");
+    if(closedir(dirp1) == 0){
+        // printf("closedir dirp1\n");
+    }
     for(int l=0; l<studentNum; l++){
         for(int k=l; k<studentNum; k++){
             if(strcmp(stdFile[l].stdName, stdFile[k].stdName) > 0){
@@ -469,6 +478,7 @@ void readSTD(char *pathname){
             }
         }
     }
+    chdir("..");
 }
 
 // STD dirpath 와 20190000 dirpath, return fd of dirpathname
@@ -479,7 +489,7 @@ void readSTDfd(char *stdpath, char *pathname){
     char buf[1024];
     DIR *dirp;
     int i = 0;
-    chdir("..");
+    
     if((dirp = opendir(pathname)) == NULL){
         fprintf(stderr, "opendir error for %s in readSTDfd\n", pathname);
         exit(1);
@@ -516,6 +526,7 @@ void readSTDfd(char *stdpath, char *pathname){
         }
         i++;
     }
+    chdir("..");
     if(closedir(dirp) == 0)
         printf("closedir dirp\n");
 }
@@ -574,7 +585,8 @@ void runStdProgram(char *pathname){
     char cmd[50], buf1[50], buf2[50];
     int fd,len;
 
-    // system("pwd");
+    system("pwd");
+    chdir(pathname);
 
     for(int i=0; i<studentNum; i++){
         for(int j=0; j<problemNum; j++){
@@ -591,7 +603,7 @@ void runStdProgram(char *pathname){
                 fd = stdFile[i].file[j].fd;
                 chdir(stdFile[i].stdName);
                 
-                strcpy(buf1, stdFile[i].file[j].name);                
+                strcpy(buf1, stdFile[i].file[j].name);
 
                 strcpy(buf2, buf1);
                 len = strlen(buf1);
@@ -604,10 +616,88 @@ void runStdProgram(char *pathname){
                 // printf("cmd = %s\n",cmd);
                 system(cmd);
                 // system("pwd");
+                
+                // 만약 에러가 나지 않으면 실행 후 결과를 파일에 출력
                 // printStdProgram(buf1);
+                // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
+
                 chdir("..");
             }
         }
+    }
+    chdir("..");
+}
+void runAnsProgram(char *pathname){
+    struct dirent *dentry;
+    struct stat statbuf;
+    DIR *dirp;
+    char filename[NAME_LEN];
+    char cmd[50], buf1[50], buf2[50];
+    int fd,len,i=0;
+
+    
+    // system("pwd");
+    if((dirp = opendir(pathname)) == NULL || chdir(pathname) == -1){
+        fprintf(stderr, "opendir: chdir error for %s\n",pathname);
+        printf("%s\n",strerror(errno));
+        exit(1);
+    }
+    while((dentry = readdir(dirp)) != NULL){
+        if(dentry->d_ino == 0)
+            continue;
+    
+        memcpy(filename, dentry->d_name, NAME_LEN);
+
+        if(stat(filename, &statbuf) == -1){
+            fprintf(stderr, "stat error for %s\n", filename);
+            printf("%s\n",strerror(errno));
+            exit(1);
+        }
+        strcpy(ansDirname[i], filename);
+        if(S_ISDIR(statbuf.st_mode)){  // if directory
+            if(strncmp(".", filename, 1) == 0 || strncmp("..", filename, 2) == 0)
+                continue;
+            if(strcmp(filename, "score_table.csv") == 0) continue;
+            chdir(filename);    // change dir to child dir
+            system("pwd");
+
+            for(int i=0; i<problemNum; i++){
+                if(ansFile[i].type == 2){
+                    printf("runAnsProgram in %s\n", ansFile[i].name);
+
+                    memset(buf1, 0, 50);
+                    memset(buf2, 0, 50);
+                    memset(cmd, 0, 50);
+                    
+                    strcpy(cmd, "gcc -o ");
+
+                    // fd of c file in ans dir
+                    fd = ansFile[i].fd;
+                    
+                    strcpy(buf1, ansFile[i].name);
+
+                    strcpy(buf2, buf1);
+                    len = strlen(buf1);
+                    // printf("%s %s %s %s\n",ansFile[i].name, buf1, buf2, cmd);
+                    buf1[len-2] = 0;
+                    
+                    strcat(buf1, ".stdexe ");
+                    strcat(cmd, buf1);
+                    strcat(cmd, buf2);
+                    // printf("cmd = %s\n",cmd);
+                    system(cmd);
+                    // system("pwd");
+                    
+                    // 만약 에러가 나지 않으면 실행 후 결과를 파일에 출력
+                    // printStdProgram(buf1);
+                    // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
+
+                }
+            }
+            
+        }
+        chdir("..");
+        i++;
     }
 }
 
