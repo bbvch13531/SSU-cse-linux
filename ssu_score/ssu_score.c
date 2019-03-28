@@ -320,11 +320,13 @@ void readANS(char *pathname){
                      i++;
                 }
             }
+            closedir(dirp2);
             chdir("..");
             if(dentry1->d_ino == 0) continue;
         }
     }
     problemNum = i;
+    closedir(dirp1);
     chdir("..");
 
     for(int i=0; i<problemNum; i++){
@@ -432,7 +434,7 @@ void readSTD(char *pathname){
                     }
                 }
             }
-            
+            closedir(dirp2);
             chdir("..");
             if(dentry1->d_ino == 0) continue;
             i++;
@@ -451,6 +453,7 @@ void readSTD(char *pathname){
             }
         }
     }
+    closedir(dirp1);
 }
 
 // STD dirpath 와 20190000 dirpath, return fd of dirpathname
