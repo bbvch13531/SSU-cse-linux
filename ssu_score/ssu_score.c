@@ -325,14 +325,14 @@ void readANS(char *pathname){
                 }
             }
             if(closedir(dirp2) == 0)
-                printf("closedir dirp2");
+                printf("closedir dirp2\n");
             chdir("..");
             if(dentry1->d_ino == 0) continue;
         }
     }
     problemNum = i;
     if(closedir(dirp1) == 0)
-        printf("closedir dirp1");
+        printf("closedir dirp1\n");
     chdir("..");
 
     for(int i=0; i<problemNum; i++){
@@ -381,7 +381,7 @@ void readSTD(char *pathname){
                 continue;
             
             if((dirp2 = opendir(filename1)) == NULL){
-                fprintf(stderr, "opendir error for %s\n", filename1);
+                fprintf(stderr, "opendir error for %sin readSTD\n", filename1);
                 printf("%s\n",strerror(errno));
                 exit(1);
             }
@@ -432,7 +432,7 @@ void readSTD(char *pathname){
                 j++;
             }
             if(closedir(dirp2) == 0)
-                printf("closedir dirp2");
+                printf("closedir dirp2\n");
             for(int l=0; l<problemNum; l++){
                 for(int k=l; k<problemNum; k++){
                     if(stdFile[i].file[l].id > stdFile[i].file[k].id){
@@ -453,7 +453,7 @@ void readSTD(char *pathname){
     
     studentNum = i;
     if(closedir(dirp1) == 0)
-        printf("closedir dirp1");
+        printf("closedir dirp1\n");
     for(int l=0; l<studentNum; l++){
         for(int k=l; k<studentNum; k++){
             if(strcmp(stdFile[l].stdName, stdFile[k].stdName) > 0){
@@ -477,7 +477,7 @@ void readSTDfd(char *stdpath, char *pathname){
     int i = 0;
     chdir("..");
     if((dirp = opendir(pathname)) == NULL){
-        fprintf(stderr, "opendir error for %s\n", pathname);
+        fprintf(stderr, "opendir error for %s in readSTDfd\n", pathname);
         exit(1);
     }
     chdir(pathname);
@@ -512,7 +512,8 @@ void readSTDfd(char *stdpath, char *pathname){
         }
         i++;
     }
-
+    if(closedir(dirp) == 0)
+        printf("closedir dirp\n");
 }
 int strToNum(char *name){
     // 1-1.txt 10-1.c 2-3.txt 5-2.txt를 11, 101, 23, 52 으로 만들고 싶다
