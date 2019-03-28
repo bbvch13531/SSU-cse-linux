@@ -388,7 +388,7 @@ void readSTD(char *pathname){
             
             chdir(filename1);
             printf("%15s\n",filename1);
-            readSTDfd(pathname, filename1);
+            // readSTDfd(pathname, filename1);
             j=0;
             while((dentry2 = readdir(dirp2)) != NULL){
                 if(dentry2->d_ino == 0)
@@ -407,7 +407,16 @@ void readSTD(char *pathname){
 
                 if(S_ISREG(statbuf2.st_mode)){
                     // printf("%s\n",filename2);
-                    
+                    if(strstr(filename2, ".txt")){
+                        stdFile[i].file[j].type = 1;
+                    }
+                    else if(strstr(filename2, ".c")){  // .c file 
+                        stdFile[i].file[j].type = 2;
+                    }
+                    else{   //others
+                        stdFile[i].file[j].type = 3;
+                        
+                    }
                     fd_std[j] = open(dentry2->d_name,O_RDONLY);
                     // stdFile[i].file[j].fd = fd_std[j];
                     // printf("%d\n",stdFile[i].file[j].fd);
@@ -422,12 +431,7 @@ void readSTD(char *pathname){
                     // }
                         
                     // .txt file
-                    if(strstr(filename2, ".txt")){
-                        stdFile[i].file[j].type = 1;
-                    }
-                    else {  // .c file 
-                        stdFile[i].file[j].type = 2;
-                    }
+                    
                 }
                 j++;
             }
@@ -572,12 +576,15 @@ void runStdProgram(char *pathname){
 
     // system("pwd");
 
-    for(int i=0; i<5; i++){
+    for(int i=0; i<studentNum; i++){
         for(int j=0; j<problemNum; j++){
             if(stdFile[i].file[j].type ==2){
+                printf("runStdProgram in %s %s\n", stdFile[i].stdName, stdFile[i].file[j].name);
+
                 memset(buf1, 0, 50);
                 memset(buf2, 0, 50);
                 memset(cmd, 0, 50);
+                
                 strcpy(cmd, "gcc -o ");
                 // printf("%s %s\n", stdFile[i].stdName, stdFile[i].file[j].name);
                 // fd of c file in std dir
@@ -585,14 +592,16 @@ void runStdProgram(char *pathname){
                 chdir(stdFile[i].stdName);
                 
                 strcpy(buf1, stdFile[i].file[j].name);                
+
                 strcpy(buf2, buf1);
                 len = strlen(buf1);
+                // printf("%s %s %s %s\n",stdFile[i].file[j].name, buf1, buf2, cmd);
                 buf1[len-2] = 0;
+                
                 strcat(buf1, ".stdexe ");
-
                 strcat(cmd, buf1);
                 strcat(cmd, buf2);
-                printf("cmd = %s\n",cmd);
+                // printf("cmd = %s\n",cmd);
                 system(cmd);
                 // system("pwd");
                 // printStdProgram(buf1);
