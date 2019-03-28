@@ -30,7 +30,8 @@ void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoi
 void readANS(char *pathname);
 void readSTD(char *pathname);
 int strToNum(char *name);
-
+void runStdProgram(char *pathname);
+void printStdProgram(char *pathname);
 int fd_ans[110], fd_std[110][110]; // ANS/files, STD/num/files의 fd를 저장
 char stdDirname[110][200];
 int problemNum = 0, studentNum = 0; // number of problem and students
@@ -102,16 +103,15 @@ int main(int argc, char** argv){
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
     csvfd = checkScoreTable(answer_dir);
     
-    // test debug
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     readANS(answer_dir);
     
-    for(int i=0; i<problemNum; i++){
-        printf("%s %d\n",ansFile[i].name, ansFile[i].type);
-    }
+    // for(int i=0; i<problemNum; i++){
+    //     printf("%s %d\n",ansFile[i].name, ansFile[i].type);
+    // }
 
     readSTD(student_dir);
-
+    runStdProgram(student_dir);
 
     // for(int i=0; i<studentNum; i++){
     //     printf("%s\n",stdFile[i].stdName);
@@ -120,10 +120,10 @@ int main(int argc, char** argv){
     //     }
     // }
 
-    scoreType = selectType();
-    selectProblemPoint(scoreType,scorePoints);
+    // scoreType = selectType();
+    // selectProblemPoint(scoreType,scorePoints);
 
-    fillScoreTable(csvfd, ansFile, scoreType, scorePoints);
+    // fillScoreTable(csvfd, ansFile, scoreType, scorePoints);
 
 
     // printf("%d",scorePoints[1]);
@@ -131,6 +131,8 @@ int main(int argc, char** argv){
     //  STD, ANS 디렉토리 읽음
     //  .txt면 바로 비교
     //  .c면 컴파일 후 실행, 실행결과를 비교
+    //  std의 .c를 컴파일 후 실행파일을 저장, 실행결과를 파일에 저장
+    //  ans의 .c파일도 똑같이!
     exit(0);
 }
 
@@ -240,7 +242,6 @@ void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoi
     // scoreType에 따라서 scorePoint의 내용을 csv파일에 쓴다.
 }
 
-
 void readANS(char *pathname){
     struct dirent *dentry1, *dentry2;
     struct stat statbuf1, statbuf2;
@@ -257,7 +258,7 @@ void readANS(char *pathname){
     while((dentry1 = readdir(dirp1)) != NULL){
         if(dentry1->d_ino == 0)
             continue;
-
+    
         memcpy(filename1, dentry1->d_name, NAME_LEN);
 
         if(stat(filename1, &statbuf1) == -1){
@@ -493,4 +494,47 @@ int strToNum(char *name){
     // printf("  res2 = %d\n", res);
     // printf("num = %d\n",num);
     return num;
+}
+
+//
+
+void runStdProgram(char *pathname){
+    char cmd[50], buf1[50], buf2[50];
+    int fd,len;
+
+    // system("pwd");
+
+    for(int i=0; i<studentNum; i++){
+        for(int j=0; j<problemNum; j++){
+            if(stdFile[i].file[j].type ==2){
+                memset(buf1, 0, 50);
+                memset(buf2, 0, 50);
+                memset(cmd, 0, 50);
+                strcpy(cmd, "gcc -o ");
+                // printf("%s %s\n", stdFile[i].stdName, stdFile[i].file[j].name);
+                // fd of c file in std dir
+                fd = stdFile[i].file[j].fd;
+                chdir(stdFile[i].stdName);
+
+                
+                strcpy(buf1, stdFile[i].file[j].name);                
+                strcpy(buf2, buf1);
+                len = strlen(buf1);
+                buf1[len-2] = 0;
+                strcat(buf1, ".stdexe ");
+
+                strcat(cmd, buf1);
+                strcat(cmd, buf2);
+                printf("cmd = %s\n",cmd);
+                system(cmd);
+                // system("pwd");
+                // printStdProgram(buf1);
+                chdir("..");
+            }
+        }
+    }
+}
+
+void printStdProgram(char *pathname){
+    system("pwd");
 }
