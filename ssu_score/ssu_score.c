@@ -256,6 +256,7 @@ void readANS(char *pathname){
 
     if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
         fprintf(stderr, "opendir: chdir error for %s\n",pathname);
+        printf("%s\n",strerror(errno));
         exit(1);
     }
 
@@ -267,6 +268,7 @@ void readANS(char *pathname){
 
         if(stat(filename1, &statbuf1) == -1){
             fprintf(stderr, "stat error for %s\n", filename1);
+            printf("%s\n",strerror(errno));
             exit(1);
         }
 
@@ -275,6 +277,7 @@ void readANS(char *pathname){
                 continue;
             if((dirp2 = opendir(filename1)) == NULL){
                 fprintf(stderr, "opendir error for %s\n", filename2);
+                printf("%s\n",strerror(errno));
                 exit(1);
             }
             if(strcmp(filename1, "score_table.csv") == 0) continue;
@@ -291,6 +294,7 @@ void readANS(char *pathname){
                 
                 if(stat(filename2, &statbuf2) == -1){
                     fprintf(stderr, "stat error for %s\n", filename2);
+                    printf("%s\n",strerror(errno));
                     exit(1);
                 }
 
@@ -320,13 +324,15 @@ void readANS(char *pathname){
                      i++;
                 }
             }
-            closedir(dirp2);
+            if(closedir(dirp2) == 0)
+                printf("closedir dirp2");
             chdir("..");
             if(dentry1->d_ino == 0) continue;
         }
     }
     problemNum = i;
-    closedir(dirp1);
+    if(closedir(dirp1) == 0)
+        printf("closedir dirp1");
     chdir("..");
 
     for(int i=0; i<problemNum; i++){
@@ -352,6 +358,7 @@ void readSTD(char *pathname){
 
     if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
         fprintf(stderr, "opendir: chdir error for %s\n",pathname);
+        printf("%s\n",strerror(errno));
         exit(1);
     }
 
@@ -365,7 +372,7 @@ void readSTD(char *pathname){
         // printf("%s\n",filename1);
         if(stat(filename1, &statbuf1) == -1){
             fprintf(stderr, "stat error for %s\n", filename1);
-            perror("stat error: ");
+            printf("%s\n",strerror(errno));
             exit(1);
         }
 
@@ -375,6 +382,7 @@ void readSTD(char *pathname){
             
             if((dirp2 = opendir(filename1)) == NULL){
                 fprintf(stderr, "opendir error for %s\n", filename1);
+                printf("%s\n",strerror(errno));
                 exit(1);
             }
             
@@ -393,6 +401,7 @@ void readSTD(char *pathname){
                 
                 if(stat(filename2, &statbuf2) == -1){
                     fprintf(stderr, "stat error for %s\n", filename2);
+                    printf("%s\n",strerror(errno));
                     exit(1);
                 }
 
@@ -420,9 +429,10 @@ void readSTD(char *pathname){
                         stdFile[i].file[j].type = 2;
                     }
                 }
-                
                 j++;
             }
+            if(closedir(dirp2) == 0)
+                printf("closedir dirp2");
             for(int l=0; l<problemNum; l++){
                 for(int k=l; k<problemNum; k++){
                     if(stdFile[i].file[l].id > stdFile[i].file[k].id){
@@ -434,7 +444,7 @@ void readSTD(char *pathname){
                     }
                 }
             }
-            closedir(dirp2);
+            
             chdir("..");
             if(dentry1->d_ino == 0) continue;
             i++;
@@ -442,6 +452,8 @@ void readSTD(char *pathname){
     }
     
     studentNum = i;
+    if(closedir(dirp1) == 0)
+        printf("closedir dirp1");
     for(int l=0; l<studentNum; l++){
         for(int k=l; k<studentNum; k++){
             if(strcmp(stdFile[l].stdName, stdFile[k].stdName) > 0){
@@ -453,7 +465,6 @@ void readSTD(char *pathname){
             }
         }
     }
-    closedir(dirp1);
 }
 
 // STD dirpath 와 20190000 dirpath, return fd of dirpathname
@@ -484,7 +495,7 @@ void readSTDfd(char *stdpath, char *pathname){
         
         if(stat(filename, &statbuf) == -1){
             fprintf(stderr, "stat error for %s\n", filename);
-            printf("errno = %s\n",strerror(errno));
+            printf("%s\n",strerror(errno));
             exit(1);
         }
         if(S_ISREG(statbuf.st_mode)){
