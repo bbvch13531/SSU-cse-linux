@@ -12,6 +12,7 @@ void itimer_event_thread(void *params);
 
 int main(int argc, char **argv){
     pthread_t thread;
+    struct itimerval itimer;
     sigset_t sigset;
     int sig_no = 0;
     int rc;

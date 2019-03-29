@@ -17,6 +17,7 @@ int counter = 0;
 struct thread_data threadArr;
 char *messages;
 pthread_t tid, mtid;
+
 int main(int argc, char** argv){
     
     int fd,sum;

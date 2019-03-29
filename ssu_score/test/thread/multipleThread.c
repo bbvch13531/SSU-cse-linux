@@ -15,6 +15,7 @@ typedef struct _thread_args
 void *startSigThread(void*); // signal processing thread func
 void *startThread(void*);    // worker thread func
 
+
 void cleanThread(thread_args* tArgs); // thread 종료 담당 
 void sa_handler_usr(int nSigNum);     // signal handler func
 
@@ -86,7 +87,7 @@ void *startSigThread(void* pArgs)
                 break;
             case SIGTERM:
                 printf("[signal SIGTERM]\n");
-                exit(EXIT_SUCCESS);
+                // exit(EXIT_SUCCESS);
             default:
             break;
         }
