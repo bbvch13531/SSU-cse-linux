@@ -5,3 +5,5 @@ main
 *.gch
 .DS_Store
 lorem_ipsum.txt
+STD_DIR
+ANS_DIR
