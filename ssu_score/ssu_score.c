@@ -7,10 +7,14 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
 #include <pthread.h>
+#include <time.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 
 #define NAME_LEN 200
+#define TIMEOUT 2
 
 typedef struct {
     char name[NAME_LEN];
@@ -26,7 +30,6 @@ typedef struct {
 
 typedef struct {
     int tid;
-
 } Thread_Data;
 
 void showHelp(void);
@@ -44,7 +47,10 @@ void printSTDProgram(char *pathname);
 // thread
 void *watchdog(void *arg);
 void *workerThread(void *arg);
+void cleanup(void *arg);
 
+// signal
+void sig_handler(int nSigNum);
 
 int fd_ans[110], fd_std[110]; // ANS/files, STD/num/files의 fd를 저장
 char ansDirname[110][200];
@@ -317,7 +323,7 @@ void readDIR(int type, char *pathname){
             if((filecnt = scandir(ansName, &namelist2, NULL, alphasort)) == -1){
                 fprintf(stderr, "opendir: chdir error for %s\n",ansName);
                 printf("%s\n",strerror(errno));
-                exit(1); 
+                exit(1);
             }
 
             for(int j=0; j<filecnt; j++){
@@ -326,6 +332,9 @@ void readDIR(int type, char *pathname){
                 
                 if(strcmp(".", fileName) == 0 || strcmp("..", fileName) == 0)
                 continue;
+                if(strstr(fileName, ".stdexe") || strstr(fileName, ".stdout")){
+                    continue;
+                }
                 chdir(ansName);
                 // system("pwd");
                 if(stat(fileName, &statbuf2) == -1){
@@ -430,58 +439,9 @@ void readDIR(int type, char *pathname){
     }
     }
 }
-// STD dirpath 와 20190000 dirpath, return fd of dirpathname
-// void readSTDfd(char *stdpath, char *pathname){
-//     struct dirent *dentry;
-//     struct stat statbuf;
-//     char filename[200];
-//     char buf[1024];
-//     DIR *dirp;
-//     int i = 0;
-    
-//     if((dirp = opendir(pathname)) == NULL){
-//         fprintf(stderr, "opendir error for %s in readSTDfd\n", pathname);
-//         exit(1);
-//     }
-//     chdir(pathname);
-//     // printf("%15s\n",pathname);
-
-
-//     while((dentry = readdir(dirp)) != NULL){
-//         if(dentry->d_ino == 0)
-//             continue;
-//         memcpy(filename, dentry->d_name, NAME_LEN);
-
-//         if(strncmp(".", filename, 1) == 0 || strncmp("..", filename, 2) == 0)
-//             continue;
-//         // printf("%s\n",filename);
-        
-//         if(stat(filename, &statbuf) == -1){
-//             fprintf(stderr, "stat error for %s\n", filename);
-//             printf("%s\n",strerror(errno));
-//             exit(1);
-//         }
-//         if(S_ISREG(statbuf.st_mode)){
-//             // printf("%s\n",filename2);
-            
-//             fd_std[i] = open(dentry->d_name,O_RDONLY);
-//             // printf("%d\n",stdFile[i].file[j].fd);
-//             // printf("%s\n",dentry->d_name );
-
-//             // printf("%s %d\n",stdFile[i].file[j].name, stdFile[i].file[j].id);
-//             // while(read(fd_std[i], buf, 1024)){
-//             //     printf("%s\n",buf);
-//             // }
-//         }
-//         i++;
-//     }
-//     chdir("..");
-//     if(closedir(dirp) == 0)
-//         printf("closedir dirp\n");
-// }
 int strToNum(char *name){
     // 1-1.txt 10-1.c 2-3.txt 5-2.txt를 11, 101, 23, 52 으로 만들고 싶다
-
+    
     int len = strlen(name);
     int idx1, idx2, num=0, res;
     const char *ptr;
@@ -531,17 +491,31 @@ int strToNum(char *name){
 //
 
 void runStdProgram(char *pathname){
+    sigset_t sigset;
     char cmd[50], buf1[50], buf2[50], problemName[50];
-    int fd,len;
+    char fileerror[50];
+    int fd,len, fd_err;
 
     system("pwd");
     chdir(pathname);
+
+    // setup main thread signal
+
+    signal(SIGALRM, sig_handler);
+    // sigemptyset(&sigset);
+    // sigaddset(&sigset, SIGALRM);
+    // sigprocmask(SIG_BLOCK, &sigset, NULL);
+
+    // pthread_sigmask(SIG_BLOCK, &sigset, NULL);
+
+    // pthread_create(&wtid, NULL, (void *)watchdog, NULL);
 
     for(int i=0; i<studentNum; i++){
         for(int j=0; j<problemNum; j++){
             if(stdFile[i].file[j].type ==2){
                 printf("runStdProgram in %s %s\n", stdFile[i].stdName, stdFile[i].file[j].name);
 
+               
                 memset(buf1, 0, 50);
                 memset(buf2, 0, 50);
                 memset(cmd, 0, 50);
@@ -559,17 +533,37 @@ void runStdProgram(char *pathname){
                 // printf("%s %s %s %s\n",stdFile[i].file[j].name, buf1, buf2, cmd);
                 buf1[len-2] = 0;
                 strcpy(problemName, buf1);  // problemName
+                strcpy(fileerror, buf1);
+
                 strcat(buf1, ".stdexe ");
                 strcat(cmd, buf1);
                 strcat(cmd, buf2);
-                printf("cmd = %s\n",cmd);
+                // printf("cmd = %s\n",cmd);
 
                 strcat(cmd, " -lpthread"); // -lpthread option
-                system(cmd);
-                // system("pwd");
                 
+                
+                strcat(fileerror, "_error.txt");
+                
+                if((fd_err = open(fileerror, O_RDWR|O_CREAT|O_TRUNC, 0644)) < 0){
+                    fprintf(stderr,"open error for test.txt\n");
+                    printf("%s\n",strerror(errno));
+                    exit(1);
+                }
+                // 에러는 fd_err
+                dup2(fd_err, 2);
+                
+                // 컴파일 에러 처리해야함..
+                system(cmd);
+
+                alarm(TIMEOUT);
+
+                pthread_create(&tid, NULL, (void *)workerThread, (void *)problemName);
+
+                pthread_join(tid, NULL);
+
                 // 만약 에러가 나지 않으면 실행 후 결과를 파일에 출력
-                printSTDProgram(problemName);
+                // printSTDProgram(problemName);
                 // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
 
                 chdir("..");
@@ -577,7 +571,9 @@ void runStdProgram(char *pathname){
         }
     }
     chdir("..");
-    printf("runSTDprogrma ends!\n");
+    // printf("runSTDprogrma ends!\n");
+
+    // pthread_join(wtid, NULL);
 }
 void runAnsProgram(char *pathname){
     struct dirent *dentry1, *dentry2;
@@ -707,30 +703,93 @@ void printANSProgram(char *pathname){
 }
 void printSTDProgram(char *pathname){
     char cmd[50] = "./", fileout[50];
-    int fd, saved_stdout;
-    system("pwd");
+    int fd_out, saved_stdout;
+    // system("pwd");
     
     strcpy(fileout, pathname);
     strcat(fileout, ".stdout");
 
-    if((fd = open(fileout, O_RDWR|O_CREAT|O_TRUNC, 0644)) < 0){
+    if((fd_out = open(fileout, O_RDWR|O_CREAT|O_TRUNC, 0644)) < 0){
         fprintf(stderr,"open error for test.txt\n");
         printf("%s\n",strerror(errno));
         exit(1);
     }
 
+
     strcat(cmd, pathname);
     strcat(cmd, ".stdexe");
 
     saved_stdout = dup(1);
-    dup2(fd, 1);
+    dup2(fd_out, 1);
 
+    // 에러 생기면 dup2 로 에러파일에 출력
     system(cmd);
     dup2(saved_stdout, 1);
 }
 void *watchdog(void *arg){
+    sigset_t alrm_sigs;
+    int nErrno, nSigNum;
+    int flag = 0;
+    int cnt=0;
 
+    sigemptyset(&alrm_sigs);
+    sigaddset(&alrm_sigs, SIGALRM);
+
+    while(1){
+        if(flag == 1){
+            flag = 0;
+        }
+        if( cnt == 3) break;
+        nErrno = sigwait(&alrm_sigs, &nSigNum);
+        if(nErrno > 0){
+            perror("sigwait error\n");
+            return NULL;
+        }
+        // signal no. 에 따라서 signal handler 함수 호출 혹은 종료
+        switch(nSigNum){
+            case SIGALRM:
+                // printf("[signal SIGALRM]\n");
+                sig_handler(nSigNum);
+            default:
+                flag = 1;
+                break;
+        }
+        cnt++;
+    }
+    pthread_exit(0);
+    // printf("watchdog ends!\n");
 }
 void *workerThread(void *arg){
+    int saved_stdout;
+    char *pathname;
+    pathname = (char *)arg;
+    
+    saved_stdout = dup(1);
 
+    pthread_cleanup_push(cleanup, (void *)saved_stdout);
+
+    // printf("workerThread tid = %u\n",pthread_self());
+    
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
+    printSTDProgram(pathname);
+    
+    // printf("workerThread ends!\n");
+
+    pthread_cleanup_pop(0);
+}
+
+void sig_handler(int nSigNum){
+    // printf("Thread tid : %lu\n",pthread_self());
+
+    pthread_cancel(tid);
+    // pthread_kill(tid, SIGKILL);
+    // syscall(SYS_tkill, tidNum, 9);
+    // tkill(tidNum, SIGTERM);
+}
+void cleanup(void *arg){
+    int saved_stdout = (int) arg;
+    dup2(saved_stdout, 1);
+    // printf("thread ends!\nalarm starts!\n");
+    // alarm(3);
 }
