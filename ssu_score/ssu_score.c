@@ -39,7 +39,8 @@ void readDIR(int type, char *pathname);
 int strToNum(char *name);
 void runStdProgram(char *pathname);
 void runAnsProgram(char *pathname);
-void printStdProgram(char *pathname);
+void printANSProgram(char *pathname);
+void printSTDProgram(char *pathname);
 // thread
 void *watchdog(void *arg);
 void *workerThread(void *arg);
@@ -117,32 +118,36 @@ int main(int argc, char** argv){
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
     csvfd = checkScoreTable(answer_dir);
     
+    
+    readDIR(1, answer_dir);
+
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     // readANS(answer_dir);
     // for(int i=0; i<problemNum; i++){
     //     printf("%s %d %d\n",ansFile[i].name, ansFile[i].type, ansFile[i].id);
     // }
-    readDIR(1, answer_dir);
+
     readDIR(2, student_dir);
 
-    // readSTD(student_dir);
+    // for(int i=0; i<studentNum; i++){
+    //     printf("%s\n",stdFile[i].stdName);
+    //     for(int j=0; j<problemNum; j++){
+    //         printf("%s\n",stdFile[i].file[j].name);
+    //     }
+    // }
+
     system("pwd");
-    // readSTD1(student_dir);
     // for(int i=0; i<problemNum; i++){
     //     printf("%s\n",ansDirname[i]);
     // }
     // STD 의 .c파일을 컴파일하고 실행시킴.
     // runStdProgram(student_dir);
-    printf("runAnsProgram\n");
+    
 
     // runAnsProgram(answer_dir);
-    // runStdProgram(student_dir);
-    for(int i=0; i<studentNum; i++){
-        printf("%s\n",stdFile[i].stdName);
-        for(int j=0; j<problemNum; j++){
-            printf("%s\n",stdFile[i].file[j].name);
-        }
-    }
+    printf("runAnsProgram end!\n");
+    runStdProgram(student_dir);
+    
 
     // scoreType = selectType();
     // selectProblemPoint(scoreType,scorePoints);
@@ -526,7 +531,7 @@ int strToNum(char *name){
 //
 
 void runStdProgram(char *pathname){
-    char cmd[50], buf1[50], buf2[50];
+    char cmd[50], buf1[50], buf2[50], problemName[50];
     int fd,len;
 
     system("pwd");
@@ -553,16 +558,18 @@ void runStdProgram(char *pathname){
                 len = strlen(buf1);
                 // printf("%s %s %s %s\n",stdFile[i].file[j].name, buf1, buf2, cmd);
                 buf1[len-2] = 0;
-                
+                strcpy(problemName, buf1);  // problemName
                 strcat(buf1, ".stdexe ");
                 strcat(cmd, buf1);
                 strcat(cmd, buf2);
                 printf("cmd = %s\n",cmd);
+
+                strcat(cmd, " -lpthread"); // -lpthread option
                 system(cmd);
                 // system("pwd");
                 
                 // 만약 에러가 나지 않으면 실행 후 결과를 파일에 출력
-                // printStdProgram(buf1);
+                printSTDProgram(problemName);
                 // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
 
                 chdir("..");
@@ -570,6 +577,7 @@ void runStdProgram(char *pathname){
         }
     }
     chdir("..");
+    printf("runSTDprogrma ends!\n");
 }
 void runAnsProgram(char *pathname){
     struct dirent *dentry1, *dentry2;
@@ -598,7 +606,7 @@ void runAnsProgram(char *pathname){
             printf("%s\n",strerror(errno));
             exit(1);
         }
-        printf("runAnsProgram %s\n",filename1);
+        printf("runAnsProgram dir %s\n",filename1);
         if(S_ISDIR(statbuf1.st_mode)){  // if directory
             if(strncmp(".", filename1, 1) == 0 || strncmp("..", filename1, 2) == 0)
                 continue;
@@ -630,7 +638,7 @@ void runAnsProgram(char *pathname){
                 if(S_ISREG(statbuf2.st_mode)){
                     // printf("%s\n",filename2);
                     if(strstr(filename2, ".c")){
-                        printf("runAnsProgram in %s\n", filename2);
+                        printf("runAnsProgram file in %s\n", filename2);
 
                         memset(buf1, 0, 50);
                         memset(buf2, 0, 50);
@@ -652,11 +660,13 @@ void runAnsProgram(char *pathname){
                         strcat(cmd, buf1);
                         strcat(cmd, buf2);
                         // printf("cmd = %s\n",cmd);
+                        
+                        strcat(cmd, " -lpthread");   // -lpthread opt
                         system(cmd);
                         // system("pwd");
                         
                         // 실행 후 결과를 파일에 출력
-                        printStdProgram(buf1);
+                        printANSProgram(buf1);
                         // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
                         i++;
                     }
@@ -676,22 +686,48 @@ void runAnsProgram(char *pathname){
     chdir("..");
 }
 
-void printStdProgram(char *pathname){
+void printANSProgram(char *pathname){
     char buf[50]="./";
-    int fd;
+    int fd, saved_stdout;
     system("pwd");
 
     strcat(buf, pathname);
     if((fd = open("test.txt", O_RDWR|O_CREAT|O_TRUNC, 0644)) < 0){
         fprintf(stderr,"open error for test.txt\n");
+        printf("%s\n",strerror(errno));
         exit(1);
     }
-
+    saved_stdout = dup(1);
     dup2(fd, 1);
     // printf("fd = %d\n",fd);
     system(buf);
-}
 
+    dup2(saved_stdout, 1);
+
+}
+void printSTDProgram(char *pathname){
+    char cmd[50] = "./", fileout[50];
+    int fd, saved_stdout;
+    system("pwd");
+    
+    strcpy(fileout, pathname);
+    strcat(fileout, ".stdout");
+
+    if((fd = open(fileout, O_RDWR|O_CREAT|O_TRUNC, 0644)) < 0){
+        fprintf(stderr,"open error for test.txt\n");
+        printf("%s\n",strerror(errno));
+        exit(1);
+    }
+
+    strcat(cmd, pathname);
+    strcat(cmd, ".stdexe");
+
+    saved_stdout = dup(1);
+    dup2(fd, 1);
+
+    system(cmd);
+    dup2(saved_stdout, 1);
+}
 void *watchdog(void *arg){
 
 }
