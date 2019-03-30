@@ -34,8 +34,8 @@ int checkScoreTable(char *pathname);
 int selectType(void);
 void selectProblemPoint(int scoreType, double* scorePoints);
 void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoints);
-void readANS(char *pathname);
-void readSTD(char *pathname);
+
+void readDIR(int type, char *pathname);
 int strToNum(char *name);
 void runStdProgram(char *pathname);
 void runAnsProgram(char *pathname);
@@ -44,8 +44,6 @@ void printStdProgram(char *pathname);
 void *watchdog(void *arg);
 void *workerThread(void *arg);
 
-// test
-void readANS1(char *pathname);
 
 int fd_ans[110], fd_std[110]; // ANS/files, STD/num/files의 fd를 저장
 char ansDirname[110][200];
@@ -121,12 +119,15 @@ int main(int argc, char** argv){
     
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     // readANS(answer_dir);
-    readANS1(answer_dir);
-    for(int i=0; i<problemNum; i++){
-        printf("%s %d %d\n",ansFile[i].name, ansFile[i].type, ansFile[i].id);
-    }
+    // for(int i=0; i<problemNum; i++){
+    //     printf("%s %d %d\n",ansFile[i].name, ansFile[i].type, ansFile[i].id);
+    // }
+    readDIR(1, answer_dir);
+    readDIR(2, student_dir);
 
     // readSTD(student_dir);
+    system("pwd");
+    // readSTD1(student_dir);
     // for(int i=0; i<problemNum; i++){
     //     printf("%s\n",ansDirname[i]);
     // }
@@ -136,12 +137,12 @@ int main(int argc, char** argv){
 
     // runAnsProgram(answer_dir);
     // runStdProgram(student_dir);
-    // for(int i=0; i<studentNum; i++){
-    //     printf("%s\n",stdFile[i].stdName);
-    //     for(int j=0; j<10; j++){
-    //         printf("%s\n",stdFile[i].file[j].name);
-    //     }
-    // }
+    for(int i=0; i<studentNum; i++){
+        printf("%s\n",stdFile[i].stdName);
+        for(int j=0; j<problemNum; j++){
+            printf("%s\n",stdFile[i].file[j].name);
+        }
+    }
 
     // scoreType = selectType();
     // selectProblemPoint(scoreType,scorePoints);
@@ -264,18 +265,23 @@ void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoi
     // ansFIle의 이름 받아와서 행 만들고
     // scoreType에 따라서 scorePoint의 내용을 csv파일에 쓴다.
 }
-void readANS1(char *pathname){
+void readDIR(int type, char *pathname){
     struct dirent **namelist1, **namelist2;
     struct stat statbuf1, statbuf2;
     char ansName[50], fileName[50];
     int dircnt=0,filecnt=0;
     printf("%s\n",pathname);
     
-    
     if((dircnt = scandir(pathname, &namelist1, NULL, alphasort)) == -1){
         fprintf(stderr, "opendir: chdir error for %s\n",pathname);
         printf("%s\n",strerror(errno));
         exit(1);
+    }
+    if(type == 1){
+        problemNum = dircnt;
+    }
+    else{
+        studentNum = dircnt;
     }
     for(int i=0; i<dircnt; i++){
         chdir(pathname);
@@ -295,7 +301,12 @@ void readANS1(char *pathname){
         
         if(S_ISDIR(statbuf1.st_mode)){
             // printf("%s\n",ansName);
-            strcpy(ansDirname[i], ansName);
+            if(type == 1){
+                strcpy(ansDirname[i], ansName);
+            }
+            else {
+                strcpy(stdFile[i].stdName, ansName);
+            }
             // system("pwd");
             // chdir(ansName);    // change dir to child dir
             if((filecnt = scandir(ansName, &namelist2, NULL, alphasort)) == -1){
@@ -305,6 +316,7 @@ void readANS1(char *pathname){
             }
 
             for(int j=0; j<filecnt; j++){
+                
                 strcpy(fileName, namelist2[j]->d_name);
                 
                 if(strcmp(".", fileName) == 0 || strcmp("..", fileName) == 0)
@@ -317,243 +329,45 @@ void readANS1(char *pathname){
                     exit(1);
                 }
                 // printf("%s\n",fileName);
-
-                 if(S_ISREG(statbuf2.st_mode)){
-                    ansFile[i].fd = open(namelist2[j]->d_name, O_RDONLY);
-                    
-                    memcpy(ansFile[i].name, namelist2[j]->d_name, NAME_LEN);
-                    ansFile[i].id = strToNum(ansFile[i].name);
-
-                    if(strstr(fileName, ".txt")){
-                        ansFile[i].type = 1;
-                    }
-                    else {  // .c file 
-                        ansFile[i].type = 2;
-                    }
-                 }
-            }
-            for(int j=0; j<filecnt; j++){
-                free(namelist2[j]);
-            }
-            free(namelist2);
-
-        }
-            
-        chdir("..");
-    }
-    printf("%d\n",dircnt);
-    for(int i=0; i<dircnt; i++){
-        free(namelist1[i]);
-    }
-    free(namelist1);
-
-    problemNum = dircnt;
-    for(int i=0; i<problemNum; i++){
-        for(int j=i; j<problemNum; j++){
-            if(ansFile[i].id > ansFile[j].id){
-                AnsFile tmp;
-                tmp = ansFile[i];
-                ansFile[i] = ansFile[j];
-                ansFile[j] = tmp;
-            }
-        }
-    }
-    // ansFile 의 처음 3개는 . .. scroe_table.csv가 들어있음!
-}
-void readANS(char *pathname){
-    struct dirent *dentry1, *dentry2;
-
-    struct stat statbuf1, statbuf2;
-    char filename1[200], filename2[200];
-    char curdir[200], buf[1024];
-    int i = 0, j = 0;
-    DIR *dirp1, *dirp2;
-
-    if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
-        fprintf(stderr, "opendir: chdir error for %s\n",pathname);
-        printf("%s\n",strerror(errno));
-        exit(1);
-    }
-
-    while((dentry1 = readdir(dirp1)) != NULL){
-        if(dentry1->d_ino == 0)
-            continue;
-    
-        memcpy(filename1, dentry1->d_name, NAME_LEN);
-
-        if(stat(filename1, &statbuf1) == -1){
-            fprintf(stderr, "stat error for %s\n", filename1);
-            printf("%s\n",strerror(errno));
-            exit(1);
-        }
-        strcpy(ansDirname[j], filename1);
-        if(S_ISDIR(statbuf1.st_mode)){  // if directory
-            if(strncmp(".", filename1, 1) == 0 || strncmp("..", filename1, 2) == 0)
-                continue;
-            if((dirp2 = opendir(filename1)) == NULL){
-                fprintf(stderr, "opendir error for %s\n", filename2);
-                printf("%s\n",strerror(errno));
-                exit(1);
-            }
-            if(strcmp(filename1, "score_table.csv") == 0) continue;
-            chdir(filename1);    // change dir to child dir
-
-            while((dentry2 = readdir(dirp2)) != NULL){
-                if(dentry1->d_ino == 0)
-                    continue;
-                memcpy(filename2, dentry2->d_name, NAME_LEN); 
-
-                if(strncmp(".", filename2, 1) == 0 || strncmp("..", filename2, 2) == 0)
-                    continue;
-                // printf("%s\n",filename2);
                 
-                if(stat(filename2, &statbuf2) == -1){
-                    fprintf(stderr, "stat error for %s\n", filename2);
-                    printf("%s\n",strerror(errno));
-                    exit(1);
-                }
-
                 if(S_ISREG(statbuf2.st_mode)){
-                    // printf("%s\n",filename2);
+                    if(type == 1){  // ANS_DIR
+                        ansFile[i].fd = open(namelist2[j]->d_name, O_RDONLY);
                     
-                    fd_ans[i] = open(dentry2->d_name,O_RDONLY);
-                    ansFile[i].fd = fd_ans[i];
+                        memcpy(ansFile[i].name, namelist2[j]->d_name, NAME_LEN);
+                        ansFile[i].id = strToNum(ansFile[i].name);
 
-                    memcpy(ansFile[i].name, dentry2->d_name, NAME_LEN);
-                    
-                    // strToNum
-                    ansFile[i].id = strToNum(ansFile[i].name);
-
-                    // while(read(fd_ans[i], buf, 1024)){
-                    //     // printf("%s\n",buf);
-                    // }
-                    
-
-                    // .txt file
-                    if(strstr(filename2, ".txt")){
-                        ansFile[i].type = 1;
+                        if(strstr(fileName, ".txt")){
+                            ansFile[i].type = 1;
+                        }
+                        else {  // .c file 
+                            ansFile[i].type = 2;
+                        }
                     }
-                    else {  // .c file 
-                        ansFile[i].type = 2;
+                    else{       // STD_DIR
+                        if(strstr(fileName, ".txt")){
+                            stdFile[i].file[j].type = 1;
+                        }
+                        else if(strstr(fileName, ".c")){  // .c file 
+                            stdFile[i].file[j].type = 2;
+                        }
+                        else{   //others
+                            stdFile[i].file[j].type = 3;
+                            
+                        }
+                        // fd_std[j] = open(namelist2[j]->d_name,O_RDONLY);
+                        // stdFile[i].file[j].fd = fd_std[j];
+                        // printf("%d\n",stdFile[i].file[j].fd);
+                        // printf("%s\n",dentry2->d_name );
+                        memcpy(stdFile[i].file[j].name, namelist2[j]->d_name, NAME_LEN);
+                        
+                        // strToNum
+                        stdFile[i].file[j].id = strToNum(stdFile[i].file[j].name);
                     }
-                     i++;
                 }
             }
-            if(closedir(dirp2) == 0){
-                // printf("closedir dirp2\n");
-            }
-            chdir("..");
-            if(dentry1->d_ino == 0) continue;
-        }
-        j++;
-    }
-    problemNum = i;
-    if(closedir(dirp1) == 0){
-        // printf("closedir dirp1\n");
-    }
-    chdir("..");
-
-    for(int i=0; i<problemNum; i++){
-        for(int j=i; j<problemNum; j++){
-            if(ansFile[i].id > ansFile[j].id){
-                AnsFile tmp;
-                tmp = ansFile[i];
-                ansFile[i] = ansFile[j];
-                ansFile[j] = tmp;
-            }
-        }
-    }
-
-}
-
-void readSTD(char *pathname){
-    struct dirent *dentry1, *dentry2;
-    struct stat statbuf1, statbuf2;
-    char filename1[200], filename2[200];
-    char curdir[200], buf[1024];
-    int i = 0, j = 0;
-    DIR *dirp1, *dirp2;
-
-    if((dirp1 = opendir(pathname)) == NULL || chdir(pathname) == -1){
-        fprintf(stderr, "opendir: chdir error for %s\n",pathname);
-        printf("%s\n",strerror(errno));
-        exit(1);
-    }
-
-    while((dentry1 = readdir(dirp1)) != NULL){
-        if(dentry1->d_ino == 0)
-            continue;
-        memcpy(filename1, dentry1->d_name, NAME_LEN);
-        if(strcmp(filename1, "score_table.csv") == 0) continue;
-        memcpy(stdFile[i].stdName, filename1, NAME_LEN);
-        // printf("%s\n",filename1);
-        if(stat(filename1, &statbuf1) == -1){
-            fprintf(stderr, "stat error for %s\n", filename1);
-            printf("%s\n",strerror(errno));
-            exit(1);
-        }
-
-        if(S_ISDIR(statbuf1.st_mode)){  // if directory
-            if(strncmp(".", filename1, 1) == 0 || strncmp("..", filename1, 2) == 0)
-                continue;
-            
-            if((dirp2 = opendir(filename1)) == NULL){
-                fprintf(stderr, "opendir error for %sin readSTD\n", filename1);
-                printf("%s\n",strerror(errno));
-                exit(1);
-            }
-            
-            chdir(filename1);
-            // printf("%15s\n",filename1);
-            j=0;
-            while((dentry2 = readdir(dirp2)) != NULL){
-                if(dentry2->d_ino == 0)
-                    continue;
-                memcpy(filename2, dentry2->d_name, NAME_LEN); 
-
-                if(strncmp(".", filename2, 1) == 0 || strncmp("..", filename2, 2) == 0)
-                    continue;
-                // printf("%s\n",filename2);
+            if(type == 2){
                 
-                if(stat(filename2, &statbuf2) == -1){
-                    fprintf(stderr, "stat error for %s\n", filename2);
-                    printf("%s\n",strerror(errno));
-                    exit(1);
-                }
-
-                if(S_ISREG(statbuf2.st_mode)){
-                    // printf("%s\n",filename2);
-                    if(strstr(filename2, ".txt")){
-                        stdFile[i].file[j].type = 1;
-                    }
-                    else if(strstr(filename2, ".c")){  // .c file 
-                        stdFile[i].file[j].type = 2;
-                    }
-                    else{   //others
-                        stdFile[i].file[j].type = 3;
-                        
-                    }
-                    fd_std[j] = open(dentry2->d_name,O_RDONLY);
-                    // stdFile[i].file[j].fd = fd_std[j];
-                    // printf("%d\n",stdFile[i].file[j].fd);
-                    // printf("%s\n",dentry2->d_name );
-                    memcpy(stdFile[i].file[j].name, dentry2->d_name, NAME_LEN);
-                    
-                    // strToNum
-                    stdFile[i].file[j].id = strToNum(stdFile[i].file[j].name);
-                    // printf("%s %d\n",stdFile[i].file[j].name, stdFile[i].file[j].id);
-                    // while(read(fd_std[i][j], buf, 1024)){
-                    //     printf("%s\n",buf);
-                    // }
-                        
-                    // .txt file
-                    
-                }
-                j++;
-            }
-            if(closedir(dirp2) == 0){
-                // printf("closedir dirp2\n");
-            }
             for(int l=0; l<problemNum; l++){
                 for(int k=l; k<problemNum; k++){
                     if(stdFile[i].file[l].id > stdFile[i].file[k].id){
@@ -566,17 +380,39 @@ void readSTD(char *pathname){
                 }
             }
             
-            chdir("..");
-            if(dentry1->d_ino == 0) continue;
-            i++;
+            }
+            for(int j=0; j<filecnt; j++){
+                free(namelist2[j]);
+            }
+            free(namelist2);
+        }
+        chdir("..");
+    }
+    printf("%d\n",dircnt);
+    for(int i=0; i<dircnt; i++){
+        free(namelist1[i]);
+    }
+    free(namelist1);
+    
+    chdir("..");
+
+    if(type == 1){
+        for(int i=0; i<problemNum; i++){
+            for(int j=i; j<problemNum; j++){
+                if(ansFile[i].id > ansFile[j].id){
+                    AnsFile tmp;
+                    tmp = ansFile[i];
+                    ansFile[i] = ansFile[j];
+                    ansFile[j] = tmp;
+                }
+            
+            }
         }
     }
-    
-    studentNum = i;
-    if(closedir(dirp1) == 0){
-        // printf("closedir dirp1\n");
-    }
-    for(int l=0; l<studentNum; l++){
+    // ansFile 의 처음 3개는 . .. scroe_table.csv가 들어있음!
+
+    else {
+        for(int l=0; l<studentNum; l++){
         for(int k=l; k<studentNum; k++){
             if(strcmp(stdFile[l].stdName, stdFile[k].stdName) > 0){
 
@@ -587,9 +423,8 @@ void readSTD(char *pathname){
             }
         }
     }
-    chdir("..");
+    }
 }
-
 // STD dirpath 와 20190000 dirpath, return fd of dirpathname
 // void readSTDfd(char *stdpath, char *pathname){
 //     struct dirent *dentry;
