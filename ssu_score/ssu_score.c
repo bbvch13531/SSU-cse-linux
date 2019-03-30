@@ -122,9 +122,9 @@ int main(int argc, char** argv){
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     // readANS(answer_dir);
     readANS1(answer_dir);
-    // for(int i=0; i<problemNum; i++){
-    //     printf("%s %d\n",ansFile[i].name, ansFile[i].type);
-    // }
+    for(int i=0; i<problemNum; i++){
+        printf("%s %d %d\n",ansFile[i].name, ansFile[i].type, ansFile[i].id);
+    }
 
     // readSTD(student_dir);
     // for(int i=0; i<problemNum; i++){
@@ -269,7 +269,7 @@ void readANS1(char *pathname){
     struct stat statbuf1, statbuf2;
     char ansName[50], fileName[50];
     int dircnt=0,filecnt=0;
-    // printf("%s\n",pathname);
+    printf("%s\n",pathname);
     
     
     if((dircnt = scandir(pathname, &namelist1, NULL, alphasort)) == -1){
@@ -277,26 +277,25 @@ void readANS1(char *pathname){
         printf("%s\n",strerror(errno));
         exit(1);
     }
-    
     for(int i=0; i<dircnt; i++){
         chdir(pathname);
-        strcpy(ansName, namelist1[i]->d_name);
-        if(strcmp(".", ansName) == 0 || strcmp("..", ansName) == 0)
-                continue;
-        
-
-        printf("%s\n",ansName);
         // system("pwd");
+        strcpy(ansName, namelist1[i]->d_name);
         
+        if(strcmp(".", ansName) == 0 || strcmp("..", ansName) == 0)
+            continue;
+        
+        if(strcmp(ansName, "score_table.csv") == 0) continue;
+        // printf("%s\n",namelist1[i]->d_name);
         if(stat(ansName, &statbuf1) == -1){
             fprintf(stderr, "stat error for %s\n", ansName);
             printf("%s\n",strerror(errno));
             exit(1);
         }
-
+        
         if(S_ISDIR(statbuf1.st_mode)){
-            
-            if(strcmp(ansName, "score_table.csv") == 0) continue;
+            // printf("%s\n",ansName);
+            strcpy(ansDirname[i], ansName);
             // system("pwd");
             // chdir(ansName);    // change dir to child dir
             if((filecnt = scandir(ansName, &namelist2, NULL, alphasort)) == -1){
@@ -304,20 +303,42 @@ void readANS1(char *pathname){
                 printf("%s\n",strerror(errno));
                 exit(1); 
             }
-            
+
             for(int j=0; j<filecnt; j++){
                 strcpy(fileName, namelist2[j]->d_name);
+                
                 if(strcmp(".", fileName) == 0 || strcmp("..", fileName) == 0)
                 continue;
-                printf("%s\n",fileName);
-            }
+                chdir(ansName);
+                // system("pwd");
+                if(stat(fileName, &statbuf2) == -1){
+                    fprintf(stderr, "stat error for %s\n", fileName);
+                    printf("%s\n",strerror(errno));
+                    exit(1);
+                }
+                // printf("%s\n",fileName);
 
+                 if(S_ISREG(statbuf2.st_mode)){
+                    ansFile[i].fd = open(namelist2[j]->d_name, O_RDONLY);
+                    
+                    memcpy(ansFile[i].name, namelist2[j]->d_name, NAME_LEN);
+                    ansFile[i].id = strToNum(ansFile[i].name);
+
+                    if(strstr(fileName, ".txt")){
+                        ansFile[i].type = 1;
+                    }
+                    else {  // .c file 
+                        ansFile[i].type = 2;
+                    }
+                 }
+            }
             for(int j=0; j<filecnt; j++){
                 free(namelist2[j]);
             }
             free(namelist2);
-            
+
         }
+            
         chdir("..");
     }
     printf("%d\n",dircnt);
@@ -325,6 +346,19 @@ void readANS1(char *pathname){
         free(namelist1[i]);
     }
     free(namelist1);
+
+    problemNum = dircnt;
+    for(int i=0; i<problemNum; i++){
+        for(int j=i; j<problemNum; j++){
+            if(ansFile[i].id > ansFile[j].id){
+                AnsFile tmp;
+                tmp = ansFile[i];
+                ansFile[i] = ansFile[j];
+                ansFile[j] = tmp;
+            }
+        }
+    }
+    // ansFile 의 처음 3개는 . .. scroe_table.csv가 들어있음!
 }
 void readANS(char *pathname){
     struct dirent *dentry1, *dentry2;
