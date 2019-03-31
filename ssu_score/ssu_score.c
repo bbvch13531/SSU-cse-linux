@@ -55,6 +55,8 @@ void printSTDProgram(char *pathname);
 int compareResult(char *pathname1, char *pathname2);
 int matchStdout(char *pathname1, char *pathname2);
 int compareFiles(int fd1, int fd2);
+int isAlpha(char ch);
+
 // thread
 void *watchdog(void *arg);
 void *workerThread(void *arg);
@@ -745,7 +747,10 @@ void runAnsProgram(char *pathname){
 
             sprintf(buf2, "../../%s/%s/%s/%s",pathname, stdFile[i].stdName, ansFile[i].dirName,filename2);
 
-            sprintf(cmd, "gcc -o %s %s -lpthread",buf1, buf2);
+            // -t 옵션 들어올 때만 -lpthread
+            // sprintf(cmd, "gcc -o %s %s -lpthread",buf1, buf2);
+
+            sprintf(cmd, "gcc -o %s %s",buf1, buf2);
 
             // printf("cmd = %s\n",cmd);
             
@@ -913,10 +918,10 @@ int compareResult(char *pathname1, char *pathname2){
 }
 
 int matchStdout(char *pathname1, char *pathname2){
-
     char buf1[NAME_LEN], buf2[NAME_LEN], buf3[NAME_LEN];
     char ansBlank[2048], ansProgram[2048], stdBlank[2048], stdProgram[2048];
     int ansout_fd[110], stdout_fd[110];
+    int isCorrect = 0;
     // read ANS program
     chdir("ANS");
     for(int i=0; i<problemNum; i++){
@@ -953,6 +958,7 @@ int matchStdout(char *pathname1, char *pathname2){
         chdir(buf1);
         system("pwd");
         for(int j=0; j<problemNum; j++){
+            isCorrect = 0;
             strcpy(buf3, ansFile[j].name);
             strcpy(buf2, ansFile[j].dirName);
             
@@ -967,14 +973,78 @@ int matchStdout(char *pathname1, char *pathname2){
                     printf("%s\n",strerror(errno));
                     exit(1);
                 }
-                printf("fd = %d\n",stdout_fd[j]);
+                // printf("fd = %d\n",stdout_fd[j]);
 
                 //여기서 비교
-                compareFiles(ansout_fd[j], stdout_fd[j]);
+                isCorrect = compareFiles(ansout_fd[j], stdout_fd[j]);
+                lseek(ansout_fd[j], 0, SEEK_SET);
             }
         }
         chdir("..");
     }
+}
+
+int compareFiles(int fd1, int fd2){
+    // 대소문자, 공백 허용
+    char ch1, ch2;
+    int isSame = 0, res1, res2;
+    // ch1 : ANS, ch2 : STD
+
+    while(1){
+        isSame = 0;
+        if((res1 = read(fd1, &ch1, 1)) > 0 && (res2 = read(fd2, &ch2, 1)) > 0){
+            if(ch1 == ' '){
+                while(1){
+                    read(fd1, &ch1, 1);
+                    if(ch1 != ' ')
+                        break;
+                }
+            }
+            if(ch2 == ' '){
+                while(1){
+                    read(fd2, &ch2, 1);
+                    if(ch2 != ' ')
+                        break;
+                }
+            }
+            // printf("%c %c\n",ch1,ch2);
+            if(isAlpha(ch1) && isAlpha(ch2)){
+                if(ch1 == ch2 || ch1 + 32 == ch2 || ch1 - 32 == ch2){
+                    isSame = 1;
+                }
+            }
+            else{
+                if(ch1 == ch2){
+                    isSame = 1;
+                }
+            }
+        }
+        if(isSame == 0){
+            break;
+        }
+        if(res1 == 0 && res2 == 0){
+            isSame = 1;
+            break;
+        }
+        if(res1 == 0 || res2 == 0){
+            isSame = 0;
+            break;
+        }
+        
+    }
+    if(isSame == 1){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+int isAlpha(char ch){
+    if('a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z'){
+        return 1;
+    }
+    else
+        return 0;
 }
 
 void *watchdog(void *arg){
