@@ -160,7 +160,6 @@ int main(int argc, char** argv){
     readDIR(1, answer_dir);
 
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
-    // readANS(answer_dir);
     
     // for(int i=0; i<problemNum; i++){
     //     printf("%d %s %d %d\n",i, ansFile[i].name, ansFile[i].type, ansFile[i].id);
@@ -715,44 +714,57 @@ void runAnsProgram(char *pathname){
     // ANS/문제번호 생성
     // ANS/문제번호/문제번호.exe .stdout 생성
     umask(0);
-    mkdir("ANS",S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if(mkdir("ANS", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1){
+        fprintf(stderr, "mkdir error for ANS\n");
+        system("pwd");
+        printf("%s\n",strerror(errno));
+        exit(1);
+    }
     // mkdir("ANS",775);
-    chdir("ANS");
+    chdir("./ANS");
 
-    // printf("runAnsProgram\n---------------------\n");
-    // system("pwd");
+    printf("runAnsProgram\n---------------------\n");
+    system("pwd");
     for(int i=0; i<problemNum; i++){
         // printf("../%s/%s/%s %d\n",pathname, ansFile[i].dirName, ansFile[i].name, i);
     }
-    // printf("problemNum = %d\n",problemNum);
+    printf("problemNum = %d\n",problemNum);
     for(int i=0; i<problemNum; i++){
         strcpy(filename1, ansFile[i].dirName);
-        // printf("make dir %s %d\n",filename1, i);
+        printf("make dir %s %d\n",filename1, i);
         strcpy(filename2, ansFile[i].name);
-        if(strcmp(filename1, "") == 0)
+        if(strcmp(filename1, "") == 0){
+            printf("continue %s\n",filename1);
             continue;
+        }
         if(strstr(filename2, ".c")){
-            mkdir(filename1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH); 
-            // mkdir(filename1, 775); 
 
+            // strcat
+            system("pwd");
+            printf("filename1 %s\n",filename1);
+            if(mkdir(filename1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1){
+                fprintf(stderr, "mkdir error for %s\n",filename1);
+                printf("%s\n",strerror(errno));
+                exit(1);
+            } 
+            // mkdir(filename1, 775); 
             chdir(filename1);
-            // system("pwd");
             
             // printf("filename2 = %s\n",filename2);
             if(strstr(filename2, ".c")){
-            // printf("runAnsProgram file in %s\n", filename2);
+            printf("runAnsProgram file in %s\n", filename2);
 
             
             sprintf(buf1, "%s.stdexe", ansFile[i].dirName); //11.stdexe
 
-            sprintf(buf2, "../../%s/%s/%s/%s",pathname, stdFile[i].stdName, ansFile[i].dirName,filename2);
+            sprintf(buf2, "../../%s/%s/%s",pathname, ansFile[i].dirName,filename2);
 
             // -t 옵션 들어올 때만 -lpthread
             // sprintf(cmd, "gcc -o %s %s -lpthread",buf1, buf2);
 
             sprintf(cmd, "gcc -o %s %s",buf1, buf2);
 
-            // printf("cmd = %s\n",cmd);
+            printf("cmd = %s\n",cmd);
             
             system(cmd);
             // system("pwd");
@@ -761,8 +773,8 @@ void runAnsProgram(char *pathname){
             printANSProgram(ansFile[i].dirName);
             // 에러가 나면 에러파일 생성 후 결과를 파일에 출력
             }
+            chdir("..");
         }
-        chdir("..");
     }
     chdir("..");
 }
@@ -865,7 +877,7 @@ int compareResult(char *pathname1, char *pathname2){
     //     for(int j=0; j<problemNum; j++){
     //     // printf("compareResult %s\n",stdFile[i].file[j].name);
     //         if(strcmp(stdFile[i].file[j].name, "") == 0) continue;
-            
+    
     //         strcpy(fileName, stdFile[i].file[j].name);
     //         // printf("STD fileName = %s\n", fileName);
 
@@ -978,10 +990,13 @@ int matchStdout(char *pathname1, char *pathname2){
                 //여기서 비교
                 isCorrect = compareFiles(ansout_fd[j], stdout_fd[j]);
                 lseek(ansout_fd[j], 0, SEEK_SET);
+                printf("std %s is %d\n",buf1, isCorrect);
             }
         }
         chdir("..");
     }
+
+    
 }
 
 int compareFiles(int fd1, int fd2){
@@ -1022,13 +1037,11 @@ int compareFiles(int fd1, int fd2){
         if(isSame == 0){
             break;
         }
-        if(res1 == 0 && res2 == 0){
-            isSame = 1;
-            break;
-        }
         if(res1 == 0 || res2 == 0){
-            isSame = 0;
-            break;
+            if(isSame == 1)
+                return 1;
+            else
+                return 0;
         }
         
     }
