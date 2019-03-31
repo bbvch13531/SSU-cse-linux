@@ -1006,8 +1006,8 @@ int compareFiles(int fd1, int fd2){
     // ch1 : ANS, ch2 : STD
 
     while(1){
-        isSame = 0;
         if((res1 = read(fd1, &ch1, 1)) > 0 && (res2 = read(fd2, &ch2, 1)) > 0){
+            isSame = 0;
             if(ch1 == ' '){
                 while(1){
                     read(fd1, &ch1, 1);
@@ -1034,14 +1034,14 @@ int compareFiles(int fd1, int fd2){
                 }
             }
         }
-        if(isSame == 0){
-            break;
-        }
         if(res1 == 0 || res2 == 0){
             if(isSame == 1)
                 return 1;
             else
                 return 0;
+        }
+        if(isSame == 0){
+            break;
         }
         
     }
