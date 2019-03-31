@@ -54,18 +54,18 @@ void cleanup(void *arg);
 // signal
 void sig_handler(int nSigNum);
 
+int flag = 0;   // opt flag
 int fd_ans[110]; // ANS/files, STD/num/files의 fd를 저장
 char ansDirname[110][200];
 int problemNum = 0, studentNum = 0; // number of problem and students
 int csvfd; // score_table.csv 's fd
-
 AnsFile ansFile[110];
 StdFile stdFile[110];
 
 pthread_t tid, wtid;
 int main(int argc, char** argv){
     int opt;
-    int flag = 0, scoreType;
+    int scoreType;
     int tmp;
     double scorePoints[110];
     char *student_dir, *answer_dir;
@@ -79,12 +79,13 @@ int main(int argc, char** argv){
     student_dir = argv[2];
     answer_dir = argv[3];
     
-    printf("%s %s",student_dir, answer_dir);
+    printf("STD = %s ANS = %s\n",student_dir, answer_dir);
 
-    while((opt = getopt(argc, argv, "epthc")) == -1){
+    while((opt = getopt(argc, argv, "epthc")) != -1){
         switch(opt){
             case 'e':
                 flag |= 1;
+                
                 break;
             case 'p':
                 flag |= 2;
@@ -99,11 +100,13 @@ int main(int argc, char** argv){
                 flag |= 16;
                 break;
             case '?':
+                flag |= 32;
                 printf("Unknown flag : %c\n", optopt);
                 break;
         }
     }
     printf("%x\n",flag);
+    
     /*
     if(flag & 1){
         printf("e\n");
@@ -124,6 +127,7 @@ int main(int argc, char** argv){
     */
 
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
+    
     csvfd = checkScoreTable(answer_dir);
     
     
@@ -131,12 +135,12 @@ int main(int argc, char** argv){
 
     // ANS_DIR 읽고 어떤 문제가 있는지 저장 (.txt, .c 구분)
     // readANS(answer_dir);
-    printf("---------------------\n");
-    for(int i=0; i<problemNum; i++){
-        printf("%d %s %d %d\n",i, ansFile[i].name, ansFile[i].type, ansFile[i].id);
-    }
-
-    // readDIR(2, student_dir);
+    
+    // for(int i=0; i<problemNum; i++){
+    //     printf("%d %s %d %d\n",i, ansFile[i].name, ansFile[i].type, ansFile[i].id);
+    // }
+    
+    readDIR(2, student_dir);
 
     system("pwd");
     // for(int i=0; i<problemNum; i++){
@@ -157,11 +161,20 @@ int main(int argc, char** argv){
 
     fillScoreTable(csvfd, ansFile, scoreType, scorePoints);
 
-
+    lseek(csvfd, 0,SEEK_SET);
+    char ch;
+    while(1){
+        
+        if(read(csvfd, &ch, 1) > 0){
+            putchar(ch);
+        }
+        else break;
+        // printf("%s",buf1);
+    }
     // printf("%d",scorePoints[1]);
     
     printf("runAnsProgram end!\n");
-    // runStdProgram(student_dir);
+    runStdProgram(student_dir);
     
     // ANS와 STD를 비교
     
@@ -199,7 +212,8 @@ int checkScoreTable(char *pathname){
     memcpy(table, pathname, NAME_LEN);
     // printf("scoretable : %s\n",pathname);
     strcat(table, "/score_table.csv");
-
+    printf("checkScoreTable\n");
+    system("pwd");
     if((fd = open(table, O_RDWR)) < 0){
         printf("score_table.csv file doens't exist in TRUEDIR!\n");
         if((fd = creat(table, 0644)) < 0){
@@ -208,6 +222,7 @@ int checkScoreTable(char *pathname){
         }
     }
 
+    
     return fd;
 }
 
@@ -257,18 +272,18 @@ void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoi
         if(strcmp(ansFile[i].name, "") == 0) continue;
         write(csvfd, ansFile[i].name, strlen(ansFile[i].name));
         write(csvfd, ", ", 2);
-    
+
         if(scoreType == 1){
             // 빈칸, 프로그램 문제 구분
             if(ansFile[i].type == 1){ // blank
-                snprintf(dtoc, 10, "%3lf", scorePoints[0]);                                   
+                snprintf(dtoc, 10, "%3lf", scorePoints[0]);
                 write(csvfd, dtoc, strlen(dtoc));
                 // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[0]);
             }
             else if (ansFile[i].type == 2){   // program
                 snprintf(dtoc, 10, "%3lf", scorePoints[1]);
                 write(csvfd, dtoc, strlen(dtoc));
-                printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[1]);
+                // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[1]);
             }
         }
         else{
@@ -277,7 +292,6 @@ void fillScoreTable(int csvfd, AnsFile *ansFile, int scoreType, double *scorePoi
             // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[i]);
         }
         write(csvfd, "\n",1);
-        
     }
     // ansFIle의 이름 받아와서 행 만들고
     // scoreType에 따라서 scorePoint의 내용을 csv파일에 쓴다.
@@ -296,7 +310,7 @@ void readDIR(int type, char *pathname){
     }
     if(type == 1){
         problemNum = dircnt;
-        printf("problemNum = %d\n",problemNum);
+        // printf("problemNum = %d\n",problemNum);
     }
     else{
         studentNum = dircnt;
@@ -371,7 +385,6 @@ void readDIR(int type, char *pathname){
                             ansFile[i].type = 2;
 
                             ansFile[i].id = strToNum(ansFile[i].name);
-                            printf(".c : %s\n",ansFile[i].name);
                         }
                     }
                     else{       // STD_DIR
@@ -510,6 +523,7 @@ void runStdProgram(char *pathname){
     char cmd[50], buf1[50], buf2[50], problemName[50];
     char fileerror[50];
     int fd,len, fd_err;
+    off_t errorSize;
 
     system("pwd");
     chdir(pathname);
@@ -570,6 +584,15 @@ void runStdProgram(char *pathname){
                 
                 // 컴파일 에러 처리해야함..
                 system(cmd);
+
+                errorSize = lseek(fd_err, 0, SEEK_END);
+                
+                if(errorSize == 0){
+                    char rmcmd[50];
+                    strcpy(rmcmd, "rm ");
+                    strcat(rmcmd, fileerror);
+                    system(rmcmd);
+                }
 
                 alarm(TIMEOUT);
 
@@ -755,7 +778,7 @@ int compareResult(char *pathname){
     //fd_ans를 읽어서 pathname(STD)와 비교한다.
     struct dirent **namelist1, **namelist2;
     struct stat statbuf1, statbuf2;
-    char ansName[50], fileName[50], buf1[2048], buf2[2048];
+    char ansName[50], fileName[50], buf1[2048], buf2[2048],ch;
     int dircnt=0, filecnt=0, len;
     int fd_std[110];
     double probPoints[110];
@@ -767,21 +790,25 @@ int compareResult(char *pathname){
 
 
     // read score_table.csv
-    while((len = read(csvfd, buf1, 1)) > 0){
-        if(strcmp(buf1, "\n")){
-            offsetLine[lineCnt] = offset;
-            lineCnt++;
-        }
-        offset++;
-        printf("%s",buf1);
-        // 1바이트씩 읽으면서 "\n"의 offset을 offsetLine[lineCnt]에 저장한다.
-        // lseek한다.
-    }
+    // 배열에 문제번호의 배점을 저장
+    // filename과 일치하는 이름의 배점을 가져온다.
+    // 맞으면 += score
 
-    for(int i=0; i<lineCnt; i++){
-        printf("%d ",offsetLine[i]);
-    }
-    printf("\tlinecnt\n");
+
+    
+    // while((len = read(csvfd, buf1, 2)) > 0){
+    //     if(strcmp(buf1, "\n") == 0){
+    //         offsetLine[lineCnt] = offset;
+    //         lineCnt++;
+    //     }
+    //     offset++;
+    //     printf("%s",buf1);
+    //     // 1바이트씩 읽으면서 "\n"의 offset을 offsetLine[lineCnt]에 저장한다.
+    //     // lseek한다.
+    // }
+
+    printf("csvfd = %d\n",csvfd);
+    
 
     for(int i=0; i<studentNum; i++){
         // STD[i] open
@@ -828,7 +855,7 @@ int compareResult(char *pathname){
             // while((len = read(fd_std[j], buf1, 2048)) > 0){
             //     printf("%s\n",buf1);
             // }
-           
+
             // ANS[j] open
             // STD[i][j] open
 
