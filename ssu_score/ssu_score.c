@@ -89,7 +89,10 @@ int main(int argc, char** argv){
     char tmpstr[200], cpyoptarg[50];
 
     first = time(NULL);
-    
+    if(argc >= 3){
+        student_dir = argv[1];
+        answer_dir = argv[2];
+    }
     while((opt = getopt(argc, argv, "e:pt:hc:")) != -1){
         switch(opt){
             case 'h':
@@ -98,21 +101,15 @@ int main(int argc, char** argv){
                 break;
             case 'e':
                 flag |= 1;
-                student_dir = argv[1];
-                answer_dir = argv[2];
                 strcpy(cpyoptarg, optarg);
                 handle('e', argc, argv, optind, cpyoptarg);
                 break;
             case 'p':
                 flag |= 2;
-                student_dir = argv[1];
-                answer_dir = argv[2];
                 handle('p', argc, argv, optind, cpyoptarg);                
                 break;
             case 't':
                 flag |= 4;
-                student_dir = argv[1];
-                answer_dir = argv[2];
                 strcpy(cpyoptarg, optarg);
                 handle('t', argc, argv, optind, cpyoptarg);
                 break;
@@ -127,7 +124,6 @@ int main(int argc, char** argv){
                 break;
         }
     }
-    // printf("%x\n",flag);
 
     if(flag == 0){      // no option
         if(argc != 3){
@@ -138,38 +134,41 @@ int main(int argc, char** argv){
     // -c option에서 STD, ANS 없을 때 처리해야함...
     
     if(flag & 1){
-        printf("e\n");
         mkdir(earg, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-    }
-    if(flag & 2){
-        printf("p\n");
-    }
-    if(flag & 4){
-        printf("t\n");
-    }
-    if(flag & 8){
-        printf("h\n");
     }
     if(flag & 16){
-        printf("c\n");
+        
+        // ANS/score.csv가 있으면 출력
+        if(access("ANS/score.csv", F_OK) == 0){
+            for(int i = 0; i < studentNum; i++){
+                int j = 0;
+                while(strcmp(cargs[j],"") != 0){
+                    if(strcmp(stdFile[i].stdName, cargs[j]) == 0){
+                        printf("%s's score : %.1lf\n",stdFile[i].stdName, stdFile[i].score);
+                    }
+                    j++;
+                }
+            }
+        }
+        else{
+            fprintf(stderr, "score.csv is not exists error!\n");
+            exit(1);
+        }
     }
     
     //  score_table.csv 파일이 있는지 확인. 없으면 생성 
 
-    printf("STD = %s ANS = %s\n",student_dir, answer_dir);
+    // printf("STD = %s ANS = %s\n",student_dir, answer_dir);
 
     umask(0);
 
     if(mkdir("STD", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1){
         fprintf(stderr, "mkdir error for ANS\n");
-        system("pwd");
         printf("%s\n",strerror(errno));
         exit(1);
     }
     if(mkdir("ANS", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1){
         fprintf(stderr, "mkdir error for ANS\n");
-        system("pwd");
         printf("%s\n",strerror(errno));
         exit(1);
     }
@@ -195,7 +194,7 @@ int main(int argc, char** argv){
     // for(int i=0; i<problemNum; i++){
     //     printf("name: %s type: %d\n",ansFile[i].name, ansFile[i].type);
     // }
-    printf("problemnum = %d\n",problemNum);
+    // printf("problemnum = %d\n",problemNum);
     // STD 의 .c파일을 컴파일하고 실행시킴.
     
     // for(int i=0; i<studentNum; i++){
@@ -212,7 +211,7 @@ int main(int argc, char** argv){
 
 
     runAnsProgram(answer_dir);
-    printf("runAnsProgram end!\n");
+    // printf("runAnsProgram end!\n");
     runStdProgram(student_dir);
 
     // lseek(csvfd, 0,SEEK_SET);
@@ -260,10 +259,7 @@ int main(int argc, char** argv){
 
 void handle(char opt,int argc, char** argv, int optind, char* optarg){
     int maxArg = 0;
-    if(opt != 'c'){
-        student_dir = argv[1];
-        answer_dir = argv[2];
-    }
+
     if(opt == 'e'){
         // 이전 argv와 현재 optarg가 다르면 (처리되지 않은 인자가 있으면)
         // 인자가 1개가 아니면 error
@@ -271,7 +267,8 @@ void handle(char opt,int argc, char** argv, int optind, char* optarg){
         // argv[optind] 가 NULL이나 -phct가 아니면 에러!
         if(optind == argc || strchr(argv[optind],'-')){
             strcpy(earg, argv[optind-1]);
-            printf("VALID -e option %s\n",earg);
+            // printf("VALID -e option %s\n",earg);
+
         }
         else{
             fprintf(stderr, "INVALID -e option\n");
@@ -279,7 +276,7 @@ void handle(char opt,int argc, char** argv, int optind, char* optarg){
         }
     }
     else if(opt == 'p'){
-        printf("argv[optind] = %s optind = %d argc = %d\n",argv[optind], optind, argc);
+        // printf("argv[optind] = %s optind = %d argc = %d\n",argv[optind], optind, argc);
         if(optind == argc || strstr(argv[optind], "-")){
             printf("VALID -p option\n");
         }
@@ -294,6 +291,7 @@ void handle(char opt,int argc, char** argv, int optind, char* optarg){
         //     printf("%s\n",argv[optind]);
         //     maxArg ++;
         // }
+
         strcpy(targs[0], optarg);
         for(int i=optind; i<argc && *argv[i] != '-'; i++){
             if(maxArg == 4) break;
@@ -339,7 +337,6 @@ int checkScoreTable(char *pathname, int *isScoreExist){
     // printf("scoretable : %s\n",pathname);
     strcat(table, "/score_table.csv");
     // printf("checkScoreTable\n");
-    system("pwd");
     if((fd = open(table, O_RDWR)) < 0){
         printf("score_table.csv file doens't exist in TRUEDIR!\n");
         if((fd = creat(table, 0644)) < 0){
@@ -763,7 +760,7 @@ void runStdProgram(char *pathname){
 
             }
         }
-        printf("../%s/%s/ \n",pathname, stdFile[i].stdName);
+        // printf("../%s/%s/ \n",pathname, stdFile[i].stdName);
         chdir("..");
     }
     chdir("..");
@@ -786,7 +783,7 @@ void runAnsProgram(char *pathname){
     // mkdir("ANS",775);
     chdir("./ANS");
 
-    printf("runAnsProgram\n---------------------\n");
+    // printf("runAnsProgram\n---------------------\n");
     // system("pwd");
     for(int i=0; i<problemNum; i++){
         // printf("../%s/%s/%s %d\n",pathname, ansFile[i].dirName, ansFile[i].name, i);
@@ -797,14 +794,14 @@ void runAnsProgram(char *pathname){
         // printf("make dir %s %d\n",filename1, i);
         strcpy(filename2, ansFile[i].name);
         if(strcmp(filename1, "") == 0){
-            printf("continue %s\n",filename1);
+            // printf("continue %s\n",filename1);
             continue;
         }
         if(strstr(filename2, ".c")){
 
             // strcat
-            system("pwd");
-            printf("filename1 %s\n",filename1);
+            // system("pwd");
+            // printf("filename1 %s\n",filename1);
             if(mkdir(filename1, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1){
                 fprintf(stderr, "mkdir error for %s\n",filename1);
                 printf("%s\n",strerror(errno));
@@ -815,7 +812,7 @@ void runAnsProgram(char *pathname){
             
             // printf("filename2 = %s\n",filename2);
             if(strstr(filename2, ".c")){
-            printf("runAnsProgram file in %s\n", filename2);
+            // printf("runAnsProgram file in %s\n", filename2);
 
             
             sprintf(buf1, "%s.stdexe", ansFile[i].dirName); //11.stdexe
@@ -851,7 +848,6 @@ void runAnsProgram(char *pathname){
 void printANSProgram(char *pathname){
     char buf[50]="./", fileout[50];
     int fd, saved_stdout;
-    system("pwd");
 
     strcpy(fileout, pathname);
     strcat(fileout, ".stdout");
@@ -1022,79 +1018,6 @@ int compareResult(char *pathname1, char *pathname2){
         }
         write(fd_score, "\n", 1);
     }
-    // while((len = read(csvfd, buf1, 2)) > 0){
-    //     if(strcmp(buf1, "\n") == 0){
-    //         offsetLine[lineCnt] = offset;
-    //         lineCnt++;
-    //     }
-    //     offset++;
-    //     printf("%s",buf1);
-    //     // 1바이트씩 읽으면서 "\n"의 offset을 offsetLine[lineCnt]에 저장한다.
-    //     // lseek한다.
-    // }
-
-    
-
-    // for(int i=0; i<studentNum; i++){
-    //     // STD[i] open
-    //     // if(strlen(stdFile[i].stdName) == 0 ) continue;
-    //     if( strcmp(stdFile[i].stdName, "") == 0 ) continue;
-    //     strcpy(ansName, stdFile[i].stdName);
-    //     chdir(ansName);
-    //     // system("pwd");
-    //     for(int j=0; j<problemNum; j++){
-    //     // printf("compareResult %s\n",stdFile[i].file[j].name);
-    //         if(strcmp(stdFile[i].file[j].name, "") == 0) continue;
-    
-    //         strcpy(fileName, stdFile[i].file[j].name);
-    //         // printf("STD fileName = %s\n", fileName);
-
-    //         for(int k=0; k<problemNum; k++){
-    //             if(strcmp(fileName, ansFile[k].name) == 0){
-
-    //                 // 요기에 score_table.csv
-    //                 // read(fd_ans, buf2, 2048);
-    //                 // printf("%s\n",buf2);
-    //                 // printf("ANS = %10s, STD = %10s in  %10s\n",ansFile[k].name, fileName, stdFile[i].stdName);
-    //                 if(strstr(fileName, ".txt")){
-    //                     // matchBlank
-    //                 }
-    //                 else if(strstr(fileName, ".c")){
-    //                     // match .stdout
-    //                     // 요기에 ANS.stdout과 STD.stdout을 보내서 비교한다.
-    //                 }
-                    
-    //             }
-    //         }
-
-    //         if((fd_std[j] = open(fileName, O_RDONLY)) < 0){
-    //             fprintf(stderr, "open error for %s\n",fileName);
-    //             printf("%s\n",strerror(errno));
-    //             exit(1);
-    //         }
-    //         close(fd_std[j]);   // close fd_std[j]. 매우 중요함. Too many open files 를 보고 싶지 않다면 close 할 것.
-            
-            
-    //         // printf("before read\n");
-            
-    //         // while((len = read(fd_std[j], buf1, 2048)) > 0){
-    //         //     printf("%s\n",buf1);
-    //         // }
-
-    //         // ANS[j] open
-    //         // STD[i][j] open
-
-    //         // if .txt, matchBlank
-
-    //         // else .c, match .stdout
-
-    //         // if correct, find score_table.csv and score ++
-
-    //     }
-    //     chdir("..");
-    //     // close STD[i]
-    //     // printf("20190000 is finished... score is 46.8\n");
-    // }
 }
 
 int matchStdout(char *pathname1, char *pathname2){
@@ -1136,7 +1059,7 @@ int matchStdout(char *pathname1, char *pathname2){
         if(strcmp(buf1, "") == 0)
             continue;
         chdir(buf1);
-        system("pwd");
+        // system("pwd");
         for(int j=0; j<problemNum; j++){
             isCorrect = 0;
             strcpy(buf3, ansFile[j].name);
