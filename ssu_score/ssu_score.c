@@ -82,11 +82,13 @@ StdFile stdFile[110];
 pthread_t tid, wtid;
 char *student_dir, *answer_dir;
 
+time_t first, second;
 int main(int argc, char** argv){
     int opt, isScoreExist=0;
     int tmp;
     char tmpstr[200], cpyoptarg[50];
 
+    first = time(NULL);
     
     while((opt = getopt(argc, argv, "e:pt:hc:")) != -1){
         switch(opt){
@@ -243,6 +245,9 @@ int main(int argc, char** argv){
     //  .c면 컴파일 후 실행, 실행결과를 비교
     //  std의 .c를 컴파일 후 실행파일을 저장, 실행결과를 파일에 저장
     //  ans의 .c파일도 똑같이!
+
+    second = time(NULL);
+    printf("Time : %f seconds\n",difftime(second, first));
     exit(0);
 }
 
