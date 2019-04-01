@@ -80,15 +80,20 @@ AnsFile ansFile[110];
 StdFile stdFile[110];
 
 pthread_t tid, wtid;
+char *student_dir, *answer_dir;
+
 int main(int argc, char** argv){
     int opt, isScoreExist=0;
     int tmp;
-    char *student_dir, *answer_dir;
     char tmpstr[200], cpyoptarg[50];
 
     
     while((opt = getopt(argc, argv, "e:pt:hc:")) != -1){
         switch(opt){
+            case 'h':
+                flag |= 8;
+                handle('h', argc, argv, optind, cpyoptarg);
+                break;
             case 'e':
                 flag |= 1;
                 student_dir = argv[1];
@@ -109,12 +114,6 @@ int main(int argc, char** argv){
                 strcpy(cpyoptarg, optarg);
                 handle('t', argc, argv, optind, cpyoptarg);
                 break;
-            case 'h':
-                flag |= 8;
-                student_dir = argv[1];
-                answer_dir = argv[2];
-                handle('h', argc, argv, optind, cpyoptarg);
-                break;
             case 'c':
                 flag |= 16;
                 strcpy(cpyoptarg, optarg);
@@ -122,13 +121,12 @@ int main(int argc, char** argv){
                 break;
             case '?':
                 flag |= 32;
-                student_dir = argv[1];
-                answer_dir = argv[2];
                 printf("Unknown flag : %c\n", optopt);
                 break;
         }
     }
     // printf("%x\n",flag);
+
     if(flag == 0){      // no option
         if(argc != 3){
             fprintf(stderr, "Usage : %s <STD_DIR> <ANS_DIR>", argv[0]);
@@ -215,8 +213,6 @@ int main(int argc, char** argv){
     printf("runAnsProgram end!\n");
     runStdProgram(student_dir);
 
-
-
     // lseek(csvfd, 0,SEEK_SET);
     // char ch;
     // while(1){
@@ -228,7 +224,7 @@ int main(int argc, char** argv){
     //     // printf("%s",buf1);
     // }
     // printf("%d",scorePoints[1]);
-    
+
 
 
     // runAnsProgram(answer_dir);
@@ -237,9 +233,10 @@ int main(int argc, char** argv){
     // // ANS와 STD를 비교
     
     compareResult(answer_dir, student_dir);
-
-
     
+    if(flag & 8){
+        showHelp();
+    }
     //  문제 배점 입력
     //  STD, ANS 디렉토리 읽음
     //  .txt면 바로 비교
@@ -251,7 +248,10 @@ int main(int argc, char** argv){
 
 void handle(char opt,int argc, char** argv, int optind, char* optarg){
     int maxArg = 0;
-
+    if(opt != 'c'){
+        student_dir = argv[1];
+        answer_dir = argv[2];
+    }
     if(opt == 'e'){
         // 이전 argv와 현재 optarg가 다르면 (처리되지 않은 인자가 있으면)
         // 인자가 1개가 아니면 error
@@ -265,7 +265,6 @@ void handle(char opt,int argc, char** argv, int optind, char* optarg){
             fprintf(stderr, "INVALID -e option\n");
             exit(1);
         }
-       
     }
     else if(opt == 'p'){
         printf("argv[optind] = %s optind = %d argc = %d\n",argv[optind], optind, argc);
@@ -393,18 +392,18 @@ void fillScoreTable(int csvfd, AnsFile *ansFile){
         if(scoreType == 1){
             // 빈칸, 프로그램 문제 구분
             if(ansFile[i].type == 1){ // blank
-                snprintf(dtoc, 10, "%3lf", scorePoints[0]);
+                snprintf(dtoc, 10, "%.1lf", scorePoints[0]);
                 write(csvfd, dtoc, strlen(dtoc));
                 // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[0]);
             }
             else if (ansFile[i].type == 2){   // program
-                snprintf(dtoc, 10, "%3lf", scorePoints[1]);
+                snprintf(dtoc, 10, "%.1lf", scorePoints[1]);
                 write(csvfd, dtoc, strlen(dtoc));
                 // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[1]);
             }
         }
         else{
-            snprintf(dtoc, 10, "%3lf", scorePoints[i]);
+            snprintf(dtoc, 10, "%.1lf", scorePoints[i]);
             write(csvfd, dtoc, strlen(dtoc));
             // printf("%s is type %d, score is %lf\n", ansFile[i].name, ansFile[i].type, scorePoints[i]);
         }
@@ -668,7 +667,7 @@ void runStdProgram(char *pathname){
     // mkdir("ANS",775);
     chdir("STD");
 
-    printf("runStdProgram\n---------------------\n");
+    printf("grading student's test papers..\n");
     // system("pwd");
 
 
@@ -695,7 +694,7 @@ void runStdProgram(char *pathname){
             
             if(strstr(filename2, ".c")){
                 strcpy(filename3, ansFile[j].dirName);
-                printf("../%s/%s/%s %d\n",pathname, stdFile[i].stdName, ansFile[j].dirName, i);
+                // printf("../%s/%s/%s %d\n",pathname, stdFile[i].stdName, ansFile[j].dirName, i);
                 
                 // gcc -o 11.stdexe ../../STD_DIR/20190001/11.c -lpthread
                 sprintf(cmd, "gcc -o %s.stdexe ../../%s/%s/%s.c",filename3, pathname, filename1, filename3);
@@ -752,6 +751,7 @@ void runStdProgram(char *pathname){
 
             }
         }
+        printf("../%s/%s/ \n",pathname, stdFile[i].stdName);
         chdir("..");
     }
     chdir("..");
@@ -821,7 +821,7 @@ void runAnsProgram(char *pathname){
                     }
                 }
             }
-            printf("cmd = %s\n",cmd);
+            // printf("cmd = %s\n",cmd);
             
             system(cmd);
             // system("pwd");
@@ -898,8 +898,6 @@ int compareResult(char *pathname1, char *pathname2){
 
     int offset=0;
 
-    system("pwd");
-
     // read score_table.csv
     // 배열에 문제번호의 배점을 저장
     // filename과 일치하는 이름의 배점을 가져온다.
@@ -918,6 +916,7 @@ int compareResult(char *pathname1, char *pathname2){
     int i = 0, j, strcnt = 0;
     while(i < studentNum){
         strcpy(stdName, stdFile[i].stdName);
+
         // printf("while\n");
         // printf("stdName %s\n",stdName);
         if(strcmp(stdName,"") == 0){
@@ -941,26 +940,31 @@ int compareResult(char *pathname1, char *pathname2){
         //     continue;
 
         // printf("stdName %s\n",stdName);
-        for(int j=0; j<=problemNum; j++){
+        for(int j=0; j<=problemNum+1; j++){
             // if(strcmp(ansFile[j].name,"") == 0)
             //     continue;
 
-            printf("write ansFile[%d].name %s\n", j, ansFile[j].name);
+            // printf("write ansFile[%d].name %s\n", j, ansFile[j].name);
             if(i == 0){
                 if(j == 0){
                     write(fd_score, " ", 1);
                 }
                 else{
                     // write(fd_score, "2,", 2);     
-                    
-                    write(fd_score, ", ", 2);
-                    write(fd_score, ansFile[j-1].name, strlen(ansFile[j-1].name));
-                    printf("write %s in score.csv\n",ansFile[j-1].name);
+                    if(j != problemNum + 1){
+                        write(fd_score, ", ", 2);
+                        write(fd_score, ansFile[j-1].name, strlen(ansFile[j-1].name));
+                        // printf("write %s in score.csv\n",ansFile[j-1].name);
+                    }
+                    else{
+                         write(fd_score, ", ", 2);
+                         write(fd_score, "sum", 3);
+                    }
                 }
             }
             else{
                 if(j == 0){
-
+                    
                     write(fd_score, stdFile[i-1].stdName, strlen(stdFile[i-1].stdName));
                     write(fd_score, ", ", 2);
 
@@ -968,31 +972,38 @@ int compareResult(char *pathname1, char *pathname2){
                 }
                 else{
                     double writeNum;
-                    if(stdFile[i-1].file[j-1].isCorrect == 1){
-                        if(ansFile[j-1].type == 1){   //.txt
-                            if(scoreType == 1){
-                                writeNum = scorePoints[0];
-                            }
-                            else{
-                                writeNum = scorePoints[j-1];
-                            }
-                        }
-                        else if(ansFile[j-1].type == 2){ // .c
-                            if(scoreType == 1){
-                                writeNum = scorePoints[1];
-                            }
-                            else{
-                                writeNum = scorePoints[j-1];
-                            }
-                        }
-                    }
-                    else {
-                        writeNum = 0;
-                    }
                     char writestr[50];
-                    sprintf(writestr,"%3lf",writeNum);
-                    write(fd_score, writestr, strlen(writestr)); 
-                    write(fd_score, ", ", 2);
+                    if(j != problemNum + 1){
+                        if(stdFile[i-1].file[j-1].isCorrect == 1){
+                            if(ansFile[j-1].type == 1){   //.txt
+                                if(scoreType == 1){
+                                    writeNum = scorePoints[0];
+                                }
+                                else{
+                                    writeNum = scorePoints[j-1];
+                                }
+                            }
+                            else if(ansFile[j-1].type == 2){ // .c
+                                if(scoreType == 1){
+                                    writeNum = scorePoints[1];
+                                }
+                                else{
+                                    writeNum = scorePoints[j-1];
+                                }
+                            }
+                        }
+                        else {
+                            writeNum = 0;
+                        }
+                        
+                        sprintf(writestr,"%.1lf",writeNum);
+                        write(fd_score, writestr, strlen(writestr)); 
+                        write(fd_score, ", ", 2);
+                    }
+                    else{
+                        sprintf(writestr,"%.1lf",stdFile[i-1].score);
+                        write(fd_score, writestr, strlen(writestr)); 
+                    }
                 }
             }
 
@@ -1135,7 +1146,7 @@ int matchStdout(char *pathname1, char *pathname2){
                 //여기서 비교
                 isCorrect = compareFiles(ansout_fd[j], stdout_fd[j]);
                 lseek(ansout_fd[j], 0, SEEK_SET);
-                printf("std %s is %d\n",buf1, isCorrect);
+                // printf("std %s is %d\n",buf1, isCorrect);
                 
                 stdFile[i].file[j].isCorrect = isCorrect;
                 
@@ -1154,7 +1165,11 @@ int matchStdout(char *pathname1, char *pathname2){
             }
         }
         chdir("..");
-        // printf("stdFile[%d].score = %lf",i,stdFile[i].score);
+        if(flag & 2){
+            printf("%s is finished.. score : %.1lf\n",stdFile[i].stdName, stdFile[i].score);
+        }
+        else 
+            printf("%s is finished..\n",stdFile[i].stdName);
     }
     chdir("..");
 }
