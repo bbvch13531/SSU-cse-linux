@@ -247,7 +247,14 @@ int main(int argc, char** argv){
     //  ans의 .c파일도 똑같이!
 
     second = time(NULL);
-    printf("Time : %f seconds\n",difftime(second, first));
+    if(flag & 2){
+        double average = 0;
+        for(int i=0; i<studentNum; i++){
+            average += stdFile[i].score;
+        }
+        printf("Total average : %.1lf\n",average/studentNum);
+    }
+    printf("Execute time : %f seconds\n",difftime(second, first));
     exit(0);
 }
 
