@@ -195,12 +195,13 @@ int main(int argc, char** argv){
     // for(int i=0; i<problemNum; i++){
     //     printf("name: %s type: %d\n",ansFile[i].name, ansFile[i].type);
     // }
+    printf("problemnum = %d\n",problemNum);
     // STD 의 .c파일을 컴파일하고 실행시킴.
     
     // for(int i=0; i<studentNum; i++){
     //     printf("%s\n",stdFile[i].stdName);
     //     for(int j=0; j<problemNum; j++){
-    //         printf("%s\n",stdFile[i].file[j].name);
+    //         // printf("%s\n",stdFile[i].file[j].name);
     //     }
     // }
 
@@ -503,7 +504,7 @@ void readDIR(int type, char *pathname){
                             ansFile[cnt1].id = strToNum(ansFile[cnt1].name);
                             ansFile[cnt1].type = 1;
                         }
-                        else if(strstr(fileName, ".c")){  // .c file 
+                        else if(strstr(fileName, ".c") && !strstr(fileName, ".csv")){  // .c file 
                             ansFile[cnt1].fd = open(namelist2[j]->d_name, O_RDONLY);
                             memcpy(ansFile[cnt1].name, namelist2[j]->d_name, NAME_LEN);
                             ansFile[cnt1].type = 2;
@@ -697,7 +698,14 @@ void runStdProgram(char *pathname){
                 printf("../%s/%s/%s %d\n",pathname, stdFile[i].stdName, ansFile[j].dirName, i);
                 
                 // gcc -o 11.stdexe ../../STD_DIR/20190001/11.c -lpthread
-                sprintf(cmd, "gcc -o %s.stdexe ../../%s/%s/%s.c -lpthread",filename3, pathname, filename1, filename3);
+                sprintf(cmd, "gcc -o %s.stdexe ../../%s/%s/%s.c",filename3, pathname, filename1, filename3);
+                if(flag & 4){
+                    for(int k=0; k<5; k++){
+                        if(strcmp(targs[k], filename3) == 0){
+                            strcat(cmd," -lpthread");
+                        }
+                    }
+                }
                 // printf("cmd = %s\n",cmd);
                 // chdir(filename2);
 
@@ -806,7 +814,13 @@ void runAnsProgram(char *pathname){
             // sprintf(cmd, "gcc -o %s %s -lpthread",buf1, buf2);
 
             sprintf(cmd, "gcc -o %s %s",buf1, buf2);
-
+            if(flag & 4){   // t option
+                for(int k=0; k<5; k++){
+                    if(strcmp(targs[k], ansFile[i].dirName) == 0){
+                        strcat(cmd, " -lpthread");
+                    }
+                }
+            }
             printf("cmd = %s\n",cmd);
             
             system(cmd);
@@ -923,15 +937,15 @@ int compareResult(char *pathname1, char *pathname2){
         i++;
     }
     for(int i=0; i<=studentNum; i++){
-        if(strcmp(stdFile[i].stdName,"") == 0)
-            continue;
+        // if(strcmp(stdFile[i].stdName,"") == 0)
+        //     continue;
 
         // printf("stdName %s\n",stdName);
         for(int j=0; j<=problemNum; j++){
-            if(strcmp(ansFile[j].name,"") == 0)
-                continue;
+            // if(strcmp(ansFile[j].name,"") == 0)
+            //     continue;
 
-            // printf("ansName %s\n",ansName);
+            printf("write ansFile[%d].name %s\n", j, ansFile[j].name);
             if(i == 0){
                 if(j == 0){
                     write(fd_score, " ", 1);
@@ -941,12 +955,13 @@ int compareResult(char *pathname1, char *pathname2){
                     
                     write(fd_score, ", ", 2);
                     write(fd_score, ansFile[j-1].name, strlen(ansFile[j-1].name));
+                    printf("write %s in score.csv\n",ansFile[j-1].name);
                 }
             }
             else{
                 if(j == 0){
 
-                    write(fd_score, stdFile[i-1].stdName, strlen(stdName));
+                    write(fd_score, stdFile[i-1].stdName, strlen(stdFile[i-1].stdName));
                     write(fd_score, ", ", 2);
 
                     // write(fd_score, "3", 1);   
