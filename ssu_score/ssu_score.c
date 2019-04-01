@@ -922,15 +922,13 @@ int compareResult(char *pathname1, char *pathname2){
         }
         i++;
     }
-    for(int i=0; i<=10; i++){
-        strcpy(stdName, stdFile[i].stdName);
-        if(strcmp(stdName,"") == 0)
+    for(int i=0; i<=studentNum; i++){
+        if(strcmp(stdFile[i].stdName,"") == 0)
             continue;
 
         // printf("stdName %s\n",stdName);
         for(int j=0; j<=problemNum; j++){
-            strcpy(ansName, ansFile[j].name);
-            if(strcmp(ansName,"") == 0)
+            if(strcmp(ansFile[j].name,"") == 0)
                 continue;
 
             // printf("ansName %s\n",ansName);
@@ -942,33 +940,34 @@ int compareResult(char *pathname1, char *pathname2){
                     // write(fd_score, "2,", 2);     
                     
                     write(fd_score, ", ", 2);
-                    write(fd_score, ansName, strlen(ansName));
+                    write(fd_score, ansFile[j-1].name, strlen(ansFile[j-1].name));
                 }
             }
             else{
                 if(j == 0){
 
-                    write(fd_score, stdName, strlen(stdName));
+                    write(fd_score, stdFile[i-1].stdName, strlen(stdName));
+                    write(fd_score, ", ", 2);
 
                     // write(fd_score, "3", 1);   
                 }
                 else{
                     double writeNum;
-                    if(stdFile[i].file[j].isCorrect == 1){
-                        if(ansFile[j].type == 1){   //.txt
+                    if(stdFile[i-1].file[j-1].isCorrect == 1){
+                        if(ansFile[j-1].type == 1){   //.txt
                             if(scoreType == 1){
                                 writeNum = scorePoints[0];
                             }
                             else{
-                                writeNum = scorePoints[j];
+                                writeNum = scorePoints[j-1];
                             }
                         }
-                        else if(ansFile[j].type == 2){ // .c
+                        else if(ansFile[j-1].type == 2){ // .c
                             if(scoreType == 1){
                                 writeNum = scorePoints[1];
                             }
                             else{
-                                writeNum = scorePoints[j];
+                                writeNum = scorePoints[j-1];
                             }
                         }
                     }
