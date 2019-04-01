@@ -97,7 +97,8 @@ int main(int argc, char** argv){
         switch(opt){
             case 'h':
                 flag |= 8;
-                handle('h', argc, argv, optind, cpyoptarg);
+                showHelp();
+                exit(0);
                 break;
             case 'e':
                 flag |= 1;
@@ -235,9 +236,6 @@ int main(int argc, char** argv){
     
     compareResult(answer_dir, student_dir);
     
-    if(flag & 8){
-        showHelp();
-    }
     //  문제 배점 입력
     //  STD, ANS 디렉토리 읽음
     //  .txt면 바로 비교
@@ -300,9 +298,6 @@ void handle(char opt,int argc, char** argv, int optind, char* optarg){
             strcpy(targs[j+1], argv[i]);
             maxArg ++;
         }
-    }
-    else if(opt == 'h'){
-        showHelp();
     }
     else if(opt == 'c'){
         strcpy(cargs[0], optarg);
