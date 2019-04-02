@@ -4,12 +4,12 @@
 //student record size = 250 bytes
 typedef struct _Student
 {
-	char id[11];		//ÇĞ¹ø: 10 bytes
-	char name[31];		//ÀÌ¸§: 30 bytes
-	char address[71];	//ÁÖ¼Ò: 70 bytes
-	char univ[31];		//ÇĞ±³: 30 bytes
-	char dept[41];		//ÇĞ°ú: 40 bytes
-	char others[71];	//±×¿Ü: 70 bytes
+	char id[11];		//í•™ë²ˆ: 10 bytes
+	char name[31];		//ì´ë¦„: 30 bytes
+	char address[71];	//ì£¼ì†Œ: 70 bytes
+	char univ[31];		//í•™êµ: 30 bytes
+	char dept[41];		//í•™ê³¼: 40 bytes
+	char others[71];	//ê·¸ì™¸: 70 bytes
 } Student;
 
 #endif
