@@ -52,7 +52,7 @@ int ssu_do_grep(void){
     while((dirp = readdir(dp)) != NULL){
         if(strcmp(dirp->d_name, ".") && strcmp(dirp->d_name, "..")){
             strcpy(ptr, dirp->d_name);
-
+            // printf("%s\n",ptr);
             if(ssu_do_grep() < 0)
                 break;
         }
@@ -74,6 +74,7 @@ void ssu_make_grep(int argc, char *argv[]){
 int main(int argc, char * argv[]){
     struct timeval begin_t, end_t;
     
+    gettimeofday(&begin_t, NULL);
     if(argc < 2){
         fprintf(stderr, "usage: %s <-CVbchilnsvwx> <-num> <-A num> <-B num> <-f file>\n"
             "       <-e> expr <directory>\n", argv[0]);
@@ -95,9 +96,8 @@ int main(int argc, char * argv[]){
     ssu_make_grep(argc, argv);
     ssu_do_grep();
 
-    gettimeofday(&begin_t, NULL);
-    
     gettimeofday(&end_t, NULL);
     ssu_runtime(&begin_t, &end_t);
+
     exit(0);
 }
