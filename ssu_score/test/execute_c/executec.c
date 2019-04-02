@@ -23,7 +23,7 @@ int main(int argc, char** argv){
             2 : Standard error
         Change File Descriptor pointing STDOUT to fd_wr
     */
-    system("gcc -o example1 example1.c");
-    system("./example1");
+    system("gcc -o example1.stdexe example1.c");
+    system("./example1.stdexe");
     exit(0);
 }
