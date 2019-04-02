@@ -1,0 +1,44 @@
+extern char **environ : extern char *environ[]
+char *envp[] : char **envp
+putenv("TZ=PST8PDT") : putenv("TZ=PST8PDT");
+putenv("WARNING=Don't use envp after putenv()") : putenv("WARNING=Don't use envp after putenv()");
+getenv("WARNING")
+execv("/usr/bin/find",args)<0 : execv("find",args)<0 : execv("/usr/bin/find",args)==-1 : execv("find",args)==-1
+wait3(&status,0,&rusage)==pid
+WIFEXITED(stat)
+WIFSIGNALED(stat)
+&rusage->ru_utime
+#include <sys/wait.h>
+execlp("date","date",(char*)0) : execlp("date","date",0) : execlp("date","date") : execlp("date", "date", NULL) : execlp("/bin/date", "date", NULL) : execlp("date","date",(char*)0); : execlp("date","date",0); : execlp("date","date"); : execlp("date", "date", NULL); : execlp("/bin/date", "date", NULL);
+execlp("who","who",(char*)0) : execlp("who","who",0) : execlp("who","who") : execlp("who", "who", NULL) : execlp("who","who",(char*)0); : execlp("who","who",0); : execlp("who","who"); : execlp("who", "who", NULL);
+(pid=wait(&status))!=-1 : (pid=wait(&status))<0 : (pid = wait(&status))>0 : ( pid = wait( (int *)0) ) != -1
+struct tms
+(start=times(&tms_start))==-1 : (start=times(&tms_start))<0
+(end=times(&tms_end))==-1 : (end=times(&tms_end))<0
+#include <pthread.h>
+pthread_create(&tid,NULL,ssu_thread,NULL)!=0 : pthread_create(&tid, NULL, ssu_thread, NULL) < 0 : pthread_create(&tid, NULL, &ssu_thread, NULL) != 0 : pthread_create(&tid, NULL, &ssu_thread, NULL) < 0
+tid=pthread_self() : tid = gettid() : tid=pthread_self(); : tid = gettid();
+-lpthread
+#include <pthread.h>
+pthread_create(&tid1,NULL,ssu_thread1,NULL)!=0 : pthread_create(&tid1, NULL, &ssu_thread1, NULL) != 0 : pthread_create(&tid1, NULL, ssu_thread1, NULL) < 0 : pthread_create(&tid1, NULL, &ssu_thread1, NULL) < 0 : pthread_create(&tid1, NULL, ssu_thread1, NULL) : pthread_create(&tid1, NULL, &ssu_thread1, NULL)
+pthread_create(&tid2,NULL,ssu_thread2,NULL)!=0 : pthread_create(&tid2,NULL,&ssu_thread2,NULL)!=0 : pthread_create(&tid2, NULL, ssu_thread2,NULL) < 0 : pthread_create(&tid2, NULL, &ssu_thread2,NULL) < 0 : pthread_create(&tid2, NULL, &ssu_thread2, NULL) : pthread_create(&tid2, NULL, ssu_thread2, NULL)
+pthread_join(tid1,NULL) : pthread_join(tid1, (void *)0) : pthread_join(tid1,NULL); : pthread_join(tid1, (void *)0);
+pthread_mutex_t lock= PTHREAD_MUTEX_INITIALIZER : pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond=PTHREAD_COND_INITIALIZER : pthread_cond_t cond=PTHREAD_COND_INITIALIZER;
+pthread_cond_wait(&cond,&lock) : pthread_cond_wait(&cond, &lock); : pthread_cond_wait(&cond, &mutex) : pthread_cond_wait(&cond, &mutex);
+glo_val<VALUE_STOP1 || glo_val>VALUE_STOP2 : glo_val < 3 || glo_val > 6 : glo_val < VALUE_STOP1 | glo_val > VALUE_STOP2
+pthread_cond_signal(&cond) : pthread_cond_signal(&cond);STDOUT_FILENO,O_NONBLOCK : 1,O_NONBLOCK
+(val=fcntl(fd,F_GETFL,0))<0 : (val=fcntl(fd,F_GETFL,0))==-1
+val |=flags : val = val | flags : val |=flags; : val = val | flags;
+fcntl(fd,F_SETFL,val)<0 : fcntl(fd,F_SETFL,val)==-1 : (val = fcntl(fd, F_SETFL, 0)) < 0
+val&=~flags : val=val&~flags : val=val&(~flags) : val&=~flags; : val=val&~flags; : val=val&(~flags);
+(fd1=open(filename,O_RDWR|O_APPEND,0644))<0 : (fd1=open(filename,O_APPEND|O_RDWR))<0
+(fd1=open(filename,O_APPEND|O_RDWR))==-1 : (fd1=open(filename,O_RDWR|O_APPEND,0644))==-1 : (fd1 = open(filename, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0644)) < 0
+fcntl(fd1,F_SETFD,FD_CLOEXEC)==-1 : fcntl(fd1,F_SETFD,FD_CLOEXEC)<0
+flag &O_APPEND : flag &O_APPEND ==O_APPEND
+flag &FD_CLOEXEC : flag &FD_CLOEXEC==FD_CLOEXEC
+#include <signal.h>
+sigset_t
+sigemptyset(&sig_set) : sigemptyset(&sig_set);
+sigaddset(&sig_set,SIGINT) : sigaddset(&sig_set,SIGINT);
+sigprocmask(SIG_BLOCK,&sig_set,NULL) : sigprocmask(SIG_BLOCK,&sig_set,NULL);

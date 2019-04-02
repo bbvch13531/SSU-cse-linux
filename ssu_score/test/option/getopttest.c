@@ -11,7 +11,7 @@ int main(int argc, char **argv){
     
     int opt;
     int flag=0;
-    char file_name[50], cpyoptarg[50];
+    char file_name[50], cpyoptarg[50], STD[50], ANS[50];
     while((opt = getopt(argc, argv, "e:pt:hc:")) != -1){
         memset(cpyoptarg, 0, sizeof(cpyoptarg));
 
@@ -111,7 +111,7 @@ int main(int argc, char **argv){
 
 void handle(char opt,int argc, char** argv, int optind, char* optarg){
     int maxArg = 0;
-
+    printf("optind = %d, optarg = %s\n",optind, optarg);
     if(opt == 'e'){
         // 이전 argv와 현재 optarg가 다르면 (처리되지 않은 인자가 있으면)
         // 인자가 1개가 아니면 error
