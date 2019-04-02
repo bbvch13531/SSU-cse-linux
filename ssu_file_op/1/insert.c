@@ -8,7 +8,9 @@
 
 #define SIZE 10
 #define BLOCK_SIZE 10
+
 char buf1[BLOCK_SIZE+1], buf2[BLOCK_SIZE+1], tmp[BLOCK_SIZE+1];
+
 int main(int argc, char** argv){
     int fd,cnt=0;
     int len, offset;
@@ -55,9 +57,10 @@ int main(int argc, char** argv){
     }
 
     // offset에 buf write
-    printf("ERROR : %s\n",strerror(errno));
+    // printf("ERROR : %s\n",strerror(errno));
     lseek(fd, offset, SEEK_SET);
     write(fd, data, BLOCK_SIZE);
 
+    printf("Insert susscessed!");
     return 0;
 }
