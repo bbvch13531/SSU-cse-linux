@@ -8,7 +8,7 @@
 
 int main(int argc, char * argv[]){
     struct timeval begin_t, end_t;
-    struct utimebuf time_buf;
+    struct utimbuf time_buf;
     struct stat statbuf;
     int fd, i;
     gettimeofday(&begin_t, NULL);
@@ -19,12 +19,12 @@ int main(int argc, char * argv[]){
             continue;
         }
 
-        if((fd = open(argv[i], O_RDWR | O_TRUNK)) < 0){
+        if((fd = open(argv[i], O_RDWR | O_TRUNC)) < 0){
             fprintf(stderr, "open error for %s\n",argv[i]);
             continue;
         }
 
-        close(Fd);
+        close(fd);
         time_buf.actime = statbuf.st_atime;
         time_buf.modtime = statbuf.st_mtime;
 
