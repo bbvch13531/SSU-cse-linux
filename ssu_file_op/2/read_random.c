@@ -22,16 +22,17 @@ int main(int argc, char **argv){
 	int *read_order_list;
 	int num_of_records;
 	int nextOffset;
-	char fname[100], buf[100];
+	char fname[100];
 	char id[11], name[31], address[71], univ[31], dept[41], others[71];
-	Student *student_list;
+	double seconds;
 	Student student;
+	time_t begin, end;
 
 	strcpy(fname, argv[1]);
 	num_of_records = atoi(argv[2]);
 	
+	begin = time(NULL);
 	fp = fopen(fname, "r+");
-	printf("%s %d\n", fname, num_of_records);
 	read_order_list = (int *)malloc(sizeof(int) * num_of_records);
 
 	// 이 함수를 실행하면 'read_order_list' 배열에 읽어야 할 레코드 번호들이 순서대로 나열되어 저장됨
@@ -40,9 +41,7 @@ int main(int argc, char **argv){
 	// printf("Gen finished!\n");
 	// 'read_order_list'를 이용하여 표준 입력으로 받은 레코드 파일로부터 레코드를 random하게 읽어들이고,
     // 이때 걸리는 시간을 측정하는 코드 구현함
-	for(int i=0; i<num_of_records; i++){
-		printf("%d ",read_order_list[i]);
-	}
+
 	for(int i=0; i<num_of_records; i++){
 		nextOffset = read_order_list[i];
 		// printf("offset = %d \n", nextOffset);
@@ -54,7 +53,7 @@ int main(int argc, char **argv){
 
 		fread(name, 1, 31, fp);
 		strcpy(student.name, name);
-		// printf("name = %s\n",name);
+		// printf("name = %s\n",namegi);
 
 		fread(address, 1, 71, fp);
 		strcpy(student.address, address);
@@ -72,10 +71,12 @@ int main(int argc, char **argv){
 		strcpy(student.others, others);
 		// printf("others = %s\n",others);
 
-		printf("student = %s %s %s %s %s %s\n",student.id, student.name, student.address, student.univ, student.dept,student.others);
+		// printf("student = %s %s %s %s %s %s\n",student.id, student.name, student.address, student.univ, student.dept,student.others);
 	
 	}
-
+	end = time(NULL);
+	seconds = difftime(begin, end);
+	printf("%.f us", seconds);
 
 	return 0;
 }

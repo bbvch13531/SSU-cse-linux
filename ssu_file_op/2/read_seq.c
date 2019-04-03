@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include "record.h"
 // 필요하면 header file 추가 가능
 
@@ -18,10 +19,12 @@ int main(int argc, char **argv)
 	Student student;
 	strcpy(fname, argv[1]);
 	num = atoi(argv[2]);
+	time_t begin, end;
+	double seconds;
 
-	printf("%s %d\n",fname, num);
 	fp = fopen(fname, "r");
 
+	begin = time(NULL);
 	for(int i=0; i<num; i++){
 
 		fread(id, 1, 11, fp);
@@ -48,11 +51,13 @@ int main(int argc, char **argv)
 		strcpy(student.others, others);
 		// printf("others = %s\n",others);
 
-		printf("student = %s %s %s %s %s %s\n",student.id, student.name, student.address, student.univ, student.dept,student.others);
+		// printf("student = %s %s %s %s %s %s\n",student.id, student.name, student.address, student.univ, student.dept,student.others);
 		
 		// fread(buf, 1, 1, fp);
 	}
-
+	end = time(NULL);
+	seconds = difftime(begin, end);
+	printf("%.f us", seconds);
 	// 표준입력으로 받은 레코드 파일로부터 전체 레코드를 "순차적"으로 읽어들이고,
 	// 이때 걸리는 시간을 측정하는 코드 구현함.
 	// 파일 i/o 시간 비용 측정 실험이므로 읽어들인 레코드를 굳이 학생 구조체 
