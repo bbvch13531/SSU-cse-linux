@@ -6,12 +6,10 @@
 #include "record.h"
 // 필요하면 header file 추가 가능
 
-
 #define SUFFLE_NUM	10000	// 이 값은 마음대로 수정할 수 있음
 
 void GenRecordSequence(int *list, int n);
 void swap(int *a, int *b);
-
 
 //
 // argv[1]: 레코드 파일명
@@ -24,14 +22,14 @@ int main(int argc, char **argv){
 	int nextOffset;
 	char fname[100];
 	char id[11], name[31], address[71], univ[31], dept[41], others[71];
-	double seconds;
+
 	Student student;
-	time_t begin, end;
+	struct timeval begin, end;
 
 	strcpy(fname, argv[1]);
 	num_of_records = atoi(argv[2]);
 	
-	begin = time(NULL);
+	gettimeofday(&begin, NULL);
 	fp = fopen(fname, "r+");
 	read_order_list = (int *)malloc(sizeof(int) * num_of_records);
 
@@ -74,10 +72,9 @@ int main(int argc, char **argv){
 		// printf("student = %s %s %s %s %s %s\n",student.id, student.name, student.address, student.univ, student.dept,student.others);
 	
 	}
-	end = time(NULL);
-	seconds = difftime(begin, end);
-	printf("%.f us", seconds);
-
+	gettimeofday(&end, NULL);
+	printf("%ld us", (end.tv_sec*1000 + end.tv_usec) - (begin.tv_sec*1000 + begin.tv_usec));
+	
 	return 0;
 }
 
@@ -86,13 +83,11 @@ void GenRecordSequence(int *list, int n){
 
 	srand((unsigned int)time(0));
 
-	for(i=0; i<n; i++)
-	{
+	for(i=0; i<n; i++){
 		list[i] = i;
 	}
 	
-	for(i=0; i<SUFFLE_NUM; i++)
-	{
+	for(i=0; i<SUFFLE_NUM; i++){
 		j = rand() % n;
 		k = rand() % n;
 		swap(&list[j], &list[k]);
