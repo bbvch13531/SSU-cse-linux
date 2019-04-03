@@ -21,13 +21,19 @@ int main(int argc, char **argv){
     fp = fopen("students.dat", "w+");
     printf("size of student = %ld\nsize of others = %ld",sizeof(Student), sizeof(student.others));
     for(int i=0; i<num; i++){
-        fwrite(student.id, sizeof(char), strlen(student.id)+1, fp);
-        fwrite(student.name, sizeof(char), strlen(student.name)+1, fp);
-        fwrite(student.address, sizeof(char), strlen(student.address)+1, fp);
-        fwrite(student.univ, sizeof(char), strlen(student.univ)+1, fp);
-        fwrite(student.dept, sizeof(char), strlen(student.dept)+1, fp);
-        fwrite(student.others, sizeof(char), strlen(student.others)+1, fp);
+        // fwrite(student.id, sizeof(char), strlen(student.id)+1, fp);
+        // fwrite(student.name, sizeof(char), strlen(student.name)+1, fp);
+        // fwrite(student.address, sizeof(char), strlen(student.address)+1, fp);
+        // fwrite(student.univ, sizeof(char), strlen(student.univ)+1, fp);
+        // fwrite(student.dept, sizeof(char), strlen(student.dept)+1, fp);
+        // fwrite(student.others, sizeof(char), strlen(student.others)+1, fp);
         
+        fwrite(student.id, sizeof(char), 11, fp);
+        fwrite(student.name, sizeof(char), 31, fp);
+        fwrite(student.address, sizeof(char), 71, fp);
+        fwrite(student.univ, sizeof(char), 31, fp);
+        fwrite(student.dept, sizeof(char), 41, fp);
+        fwrite(student.others, sizeof(char), 71, fp);
         fwrite("\n", sizeof(char), 1, fp);
     }
     
