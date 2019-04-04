@@ -30,12 +30,12 @@ int main(int argc, char **argv){
         // fwrite(student.dept, sizeof(char), strlen(student.dept)+1, fp);
         // fwrite(student.others, sizeof(char), strlen(student.others)+1, fp);
         
-        fwrite(student.id, sizeof(char), 11, fp);
-        fwrite(student.name, sizeof(char), 31, fp);
-        fwrite(student.address, sizeof(char), 71, fp);
-        fwrite(student.univ, sizeof(char), 31, fp);
-        fwrite(student.dept, sizeof(char), 41, fp);
-        fwrite(student.others, sizeof(char), 71, fp);
+        fwrite(student.id, sizeof(char), 10, fp);
+        fwrite(student.name, sizeof(char), 30, fp);
+        fwrite(student.address, sizeof(char), 70, fp);
+        fwrite(student.univ, sizeof(char), 30, fp);
+        fwrite(student.dept, sizeof(char), 40, fp);
+        fwrite(student.others, sizeof(char), 70, fp);
         // fwrite("\n", sizeof(char), 1, fp);
     }
     
