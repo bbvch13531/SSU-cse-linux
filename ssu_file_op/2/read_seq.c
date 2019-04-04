@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 #include "record.h"
 // 필요하면 header file 추가 가능
 
