@@ -37,8 +37,9 @@ int main(int argc, char** argv){
     else {
         for (int i = 0; i < n; i++) {
             printf("%s\n", namelist[i]->d_name);
+            
             free(namelist[i]);
-            }
+        }
     }
 
     free(namelist);
@@ -57,13 +58,11 @@ int main(int argc, char** argv){
             printf("%-14s\n",filename);
         }
 
-
         else {
             printf("%-14s is directory\n",filename);
 
         }
     }
-
     // while((dentry = readdir(dirp2)) != NULL){
     //     if(dentry->d_ino == 0)
     //         continue;
