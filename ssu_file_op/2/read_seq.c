@@ -27,27 +27,27 @@ int main(int argc, char **argv){
 	gettimeofday(&begin, NULL);
 	for(int i=0; i<num; i++){
 
-		fread(id, 1, 11, fp);
+		fread(id, 1, 10, fp);
 		strcpy(student.id, id);
 		// printf("id = %s\n",id);
 
-		fread(name, 1, 31, fp);
+		fread(name, 1, 30, fp);
 		strcpy(student.name, name);
 		// printf("name = %s\n",name);
 
-		fread(address, 1, 71, fp);
+		fread(address, 1, 70, fp);
 		strcpy(student.address, address);
 		// printf("address = %s\n",address);
 
-		fread(univ, 1, 31, fp);
+		fread(univ, 1, 30, fp);
 		strcpy(student.univ, univ);
 		// printf("univ = %s\n",univ);
 
-		fread(dept, 1, 41, fp);
+		fread(dept, 1, 40, fp);
 		strcpy(student.dept, dept);
 		// printf("dept = %s\n",dept);
 
-		fread(others, 1, 71, fp);
+		fread(others, 1, 70, fp);
 		strcpy(student.others, others);
 		// printf("others = %s\n",others);
 
