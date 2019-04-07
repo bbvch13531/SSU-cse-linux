@@ -15,5 +15,6 @@ int main(void){
         printf("Success!\n");
         printf("Opening  \"%s\" in \"r\" mode!\n", fname);
     }
+    fclose(fp);
     exit(0);
 }
