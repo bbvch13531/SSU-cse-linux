@@ -1,3 +1,4 @@
+// 20142468 Kyungyoung Heo
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,15 +17,13 @@ void ftl_read(int lsn, char *sectorbuf);
 // file system이 flash memory로부터 512B씩 데이터를 저장하거나 데이터를 읽어 오기 위해서는
 // 본인이 구현한 FTL의 ftl_write()와 ftl_read()를 호출하면 됨
 //
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 	char *blockbuf;
     char sectorbuf[SECTOR_SIZE];
 	int lsn, i;
 
     devicefp = fopen("flashmemory", "w+b");
-	if(devicefp == NULL)
-	{
+	if(devicefp == NULL){
 		printf("file open error\n");
 		exit(1);
 	}
@@ -35,8 +34,7 @@ int main(int argc, char *argv[])
     blockbuf = (char *)malloc(BLOCK_SIZE);
 	memset(blockbuf, 0xFF, BLOCK_SIZE);
 
-	for(i = 0; i < BLOCKS_PER_DEVICE; i++)
-	{
+	for(i = 0; i < BLOCKS_PER_DEVICE; i++){
 		fwrite(blockbuf, BLOCK_SIZE, 1, devicefp);
 	}
 
