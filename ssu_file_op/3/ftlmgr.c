@@ -48,6 +48,7 @@ void ftl_read(int lsn, char *sectorbuf){
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	
+	// addressMappingTable[lbn]이 -1이 아니면!
 	pbn = addressMappingTable[lbn];
 
 	ppn = pbn * PAGES_PER_BLOCK;
@@ -64,6 +65,27 @@ void ftl_read(int lsn, char *sectorbuf){
 // 따라야한다.
 //
 void ftl_write(int lsn, char *sectorbuf){
+	int lbn, pbn, ppn, offset;
+
+	lbn = lsn / PAGES_PER_BLOCK;
+	offset = lsn % PAGES_PER_BLOCK;
+	
+	// addressMappingTable[lbn]이 -1이 아니면!
+	pbn = addressMappingTable[lbn];
+	if(pbn == -1){
+		for(int i=0; i<DATABLKS_PER_DEVICE; i++){
+		if(addressMappingTable[i] == -1){
+			addressMappingTable[i];
+			}
+		}	
+	}
+	else{
+		// read spare to check if page is empty or not.
+		// if(){
+
+		// }
+	}
+	
 
 	return;
 }
