@@ -18,7 +18,7 @@ extern FILE *devicefp;
 // main()함수에서 반드시 먼저 호출이 되어야 한다.
 //
 
-int addressMappingTable[BLOCKS_PER_DEVICE][3];
+int addressMappingTable[DATABLKS_PER_DEVICE];
 
 void ftl_open(){
 	//
@@ -29,7 +29,9 @@ void ftl_open(){
     // 하고, 그 이후 필요할 때마다 block을 하나씩 할당을 해 주면 됩니다. 어떤 순서대로 할당하는지는
     // 각자 알아서 판단하면 되는데, free block들을 어떻게 유지 관리할 지는 스스로 생각해 보기
     // 바랍니다.
-
+	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
+		addressMappingTable[i] = -1;
+	}
 	// BLOCK_PER_DEVICE 개의 table row 생성
 	return;
 }
@@ -41,6 +43,17 @@ void ftl_open(){
 // 즉, 이 함수에서 메모리를 할당받으면 안된다.
 //
 void ftl_read(int lsn, char *sectorbuf){
+	int lbn, pbn, ppn, offset;
+	
+	lbn = lsn / PAGES_PER_BLOCK;
+	offset = lsn % PAGES_PER_BLOCK;
+	
+	pbn = addressMappingTable[lbn];
+
+	ppn = pbn * PAGES_PER_BLOCK;
+	ppn += offset;
+	
+	dd_read(ppn, sectorbuf);
 
 	return;
 }
