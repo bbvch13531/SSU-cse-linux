@@ -85,7 +85,7 @@ void ftl_write(int lsn, char *sectorbuf){
 				pbn = i;
 			}
 		}
-		print("ftl_write pbn = %d\b",pbn);
+		printf("ftl_write pbn = %d\b",pbn);
 	}
 	else{
 		ppn = pbn * PAGES_PER_BLOCK + offset;

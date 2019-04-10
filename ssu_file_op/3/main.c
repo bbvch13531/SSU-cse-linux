@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
 		ftl_write(i, sectorbuf);
 	}
 
-	for(int i=0; i<10; i++){
+	for(int i=0; i<22; i++){
 		// ftl_read(i, readbuf);
 		printf("%d %s\n", i, readbuf);
 	}
