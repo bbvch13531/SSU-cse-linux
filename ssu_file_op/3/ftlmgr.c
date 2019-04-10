@@ -85,20 +85,23 @@ void ftl_write(int lsn, char *sectorbuf){
 				pbn = i;
 			}
 		}
+		print("ftl_write pbn = %d\b",pbn);
 	}
 	else{
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		dd_read(ppn, sectorbuf);
-		isFree = sectorbuf[0];
+		isFree = sectorbuf[SECTOR_SIZE];
 		// read spare to check if page is empty or not.
 		
 		if(isFree == -1){	// free page
 			dd_write(ppn, sectorbuf);
+			printf("ftl_write in free page\n");
 		}
 		else{	// out-of-place update
 			dd_write(freeblock, sectorbuf);
 			dd_erase(ppn);
 			freeblock = ppn;
+			printf("ftl_write out-of-place update freeblock : %d, ppn : %d\n", freeblock, ppn);
 		}
 	}
 	
@@ -107,7 +110,7 @@ void ftl_write(int lsn, char *sectorbuf){
 }
 
 /*
-	page = spare(16) + sector(512)
+	page = sector(512) + spare(16)
 	spare
 	0: free page이면 -1, 아니면 1
 	1: 

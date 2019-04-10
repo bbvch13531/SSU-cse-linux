@@ -11,13 +11,13 @@
 #define TRUE				1
 #define	FALSE				0
 
-#define	SECTOR_SIZE			512			
-#define	SPARE_SIZE			16			
+#define	SECTOR_SIZE			512
+#define	SPARE_SIZE			16
 #define	PAGE_SIZE			(SECTOR_SIZE+SPARE_SIZE)
 #define SECTORS_PER_PAGE	1
 #define	PAGES_PER_BLOCK		4  // 상수값 수정 가능
 #define	BLOCK_SIZE			(PAGE_SIZE*PAGES_PER_BLOCK)
-#define	BLOCKS_PER_DEVICE	32 // 상수값 수정 가능
+#define	BLOCKS_PER_DEVICE	8 // 상수값 수정 가능
 #define DATABLKS_PER_DEVICE	(BLOCKS_PER_DEVICE - 1)	// 한 개의 free block을 유지
 
 #endif
