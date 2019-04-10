@@ -1,6 +1,7 @@
 .vscode/
 *.out
 a.out
+*.o
 main
 *.gch
 .DS_Store
