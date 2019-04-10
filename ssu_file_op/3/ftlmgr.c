@@ -53,11 +53,9 @@ void ftl_read(int lsn, char *sectorbuf){
 	// addressMappingTable[lbn]이 -1이 아니면!
 	pbn = addressMappingTable[lbn];
 
-	ppn = pbn * PAGES_PER_BLOCK;
-	ppn += offset;
-	
+	ppn = pbn * PAGES_PER_BLOCK + offset;
+	printf("ftl_read lbn : %d, pbn : %d, ppn : %d\n",lbn,pbn,ppn);
 	dd_read(ppn, sectorbuf);
-
 	return;
 }
 
@@ -70,45 +68,59 @@ void ftl_write(int lsn, char *sectorbuf){
 	int lbn, pbn, ppn, offset;
 	int isFree;
 
-    // char sectorbuf[SECTOR_SIZE];
+    char buf[PAGE_SIZE];
 
+	strcpy(buf, sectorbuf);
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	
 	// addressMappingTable[lbn]이 -1이 아니면!
 	pbn = addressMappingTable[lbn];
 
+    printf("pbn = %d\n", pbn);
+
 	if(pbn == -1){	// pbn is not assign in address mapping table
 		for(int i=0; i<DATABLKS_PER_DEVICE; i++){
 			if(addressMappingTable[i] == -1){
 				addressMappingTable[i] = i;
 				pbn = i;
+				break;
 			}
 		}
-		printf("ftl_write pbn = %d\b",pbn);
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		buf[SECTOR_SIZE] = 1;
+		dd_write(ppn, buf);
+
+		printf("ftl_write in free1 page lsn : %d, ppn : %d\n", lsn, ppn);
 	}
 	else{
 		ppn = pbn * PAGES_PER_BLOCK + offset;
-		dd_read(ppn, sectorbuf);
-		isFree = sectorbuf[SECTOR_SIZE];
+		dd_read(ppn, buf);
+		isFree = buf[SECTOR_SIZE];
 		// read spare to check if page is empty or not.
-		
+		printf("ppn = %d, isFree = %d\n",ppn, isFree);
 		if(isFree == -1){	// free page
-			sectorbuf[SECTOR_SIZE] = 1;
-			dd_write(ppn, sectorbuf);
-			printf("ftl_write in free page\n");
+			buf[SECTOR_SIZE] = 1;
+			dd_write(ppn, buf);
+			printf("%s\n\n",buf);
+			printf("ftl_write in free2 page lbn : %d, pbn: %d, ppn : %d\n", lbn, pbn, ppn);
 		}
 		else{	// out-of-place update
-			dd_write(freeblock, sectorbuf);
+			dd_write(freeblock, buf);
 			dd_erase(ppn);
-			freeblock = ppn;
-			printf("ftl_write out-of-place update freeblock : %d, ppn : %d\n", freeblock, ppn);
+			addressMappingTable[lbn] = freeblock;
+			printf("ftl_write out-of-place update freeblock : %d, lsn : %d, pbn: %d, ppn : %d\n", freeblock, lsn, pbn, ppn);
+			freeblock = ppn / PAGES_PER_BLOCK;
 		}
 	}
 
 	return;
 }
-
+void print(){
+	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
+		printf("%d %d\n", i, addressMappingTable[i]);
+	}
+}
 /*
 	page = sector(512) + spare(16)
 	spare

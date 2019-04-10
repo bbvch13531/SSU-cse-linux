@@ -19,7 +19,7 @@ void ftl_read(int lsn, char *sectorbuf);
 //
 int main(int argc, char *argv[]){
 	char *blockbuf;
-    char sectorbuf[SECTOR_SIZE], readbuf[SECTOR_SIZE];
+    char sectorbuf[PAGE_SIZE], readbuf[PAGE_SIZE];
 	int lsn, i;
 
     devicefp = fopen("flashmemory", "w+b");
@@ -45,16 +45,33 @@ int main(int argc, char *argv[]){
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
 	//
-	memcpy(sectorbuf, "thisistest", sizeof(SECTOR_SIZE));
-	// strcpy(sectorbuf, "thisistest");
-	for(int i=0; i<20; i++){
-		ftl_write(i, sectorbuf);
+	memset(sectorbuf, 0, sizeof(PAGE_SIZE));
+	char bufbuf[PAGE_SIZE];
+	for(int i=0; i<SECTOR_SIZE-1; i++){
+		bufbuf[i] = '0';
 	}
+	
+	strcpy(sectorbuf, bufbuf);
+		
+	ftl_write(0, sectorbuf);
+	// ftl_write(1, sectorbuf);
+	ftl_write(3, sectorbuf);
+	ftl_read(3, readbuf);
+		printf("%s\n",readbuf);
 
-	for(int i=0; i<20; i++){
-		// ftl_read(i, readbuf);
-		printf("%d %s\n", i, readbuf);
-	}
+	// for(int i=0; i<11; i++){
+	// 	bufbuf[0] = '0'+(i%26);
+	// 	// memcpy(sectorbuf, bufbuf, sizeof(PAGE_SIZE));
+	// 	strcpy(sectorbuf, bufbuf);
+	// 	ftl_write(i, sectorbuf);
+	// }
+    // printf("overwrite\n");
+	// print();
+	// for(int i=0; i<11; i++){
+	// 	ftl_read(i, readbuf);
+	// 	printf("%d %s %d\n", i,readbuf, readbuf[SECTOR_SIZE]);
+	// }
+	print();
 
 	fclose(devicefp);
 
