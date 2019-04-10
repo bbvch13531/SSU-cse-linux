@@ -10,7 +10,6 @@
 #include <time.h>
 #include "blkmap.h"
 
-#define isFREE 1 
 extern FILE *devicefp;
 
 //
@@ -45,17 +44,16 @@ void ftl_open(){
 // 즉, 이 함수에서 메모리를 할당받으면 안된다.
 //
 void ftl_read(int lsn, char *sectorbuf){
-	int lbn, pbn, ppn, offset;
-	
-	lbn = lsn / PAGES_PER_BLOCK;
-	offset = lsn % PAGES_PER_BLOCK;
-	
-	// addressMappingTable[lbn]이 -1이 아니면!
+	int lbn, offset, pbn, ppn;
+
+	lbn = lsn / DATABLKS_PER_DEVICE;
+	offset = lsn % DATABLKS_PER_DEVICE;
 	pbn = addressMappingTable[lbn];
 
 	ppn = pbn * PAGES_PER_BLOCK + offset;
-	printf("ftl_read lbn : %d, pbn : %d, ppn : %d\n",lbn,pbn,ppn);
+
 	dd_read(ppn, sectorbuf);
+
 	return;
 }
 
@@ -65,57 +63,39 @@ void ftl_read(int lsn, char *sectorbuf){
 // 따라야한다.
 //
 void ftl_write(int lsn, char *sectorbuf){
-	int lbn, pbn, ppn, offset;
-	int isFree;
+	int lbn, offset, pbn, ppn, freeparity;
 
-    char buf[PAGE_SIZE];
-
-	strcpy(buf, sectorbuf);
-	lbn = lsn / PAGES_PER_BLOCK;
-	offset = lsn % PAGES_PER_BLOCK;
-	
-	// addressMappingTable[lbn]이 -1이 아니면!
+	lbn = lsn / DATABLKS_PER_DEVICE;
+	offset = lsn % DATABLKS_PER_DEVICE;
 	pbn = addressMappingTable[lbn];
 
-    printf("pbn = %d\n", pbn);
-
-	if(pbn == -1){	// pbn is not assign in address mapping table
+	if(pbn == -1){	// address mapping table is not initialized
+		// assign first empty block
 		for(int i=0; i<DATABLKS_PER_DEVICE; i++){
 			if(addressMappingTable[i] == -1){
-				addressMappingTable[i] = i;
 				pbn = i;
+				addressMappingTable[i] = i;
 				break;
 			}
 		}
-		ppn = pbn * PAGES_PER_BLOCK + offset;
-		buf[SECTOR_SIZE] = 1;
-		dd_write(ppn, buf);
-
-		printf("ftl_write in free1 page lsn : %d, ppn : %d\n", lsn, ppn);
 	}
-	else{
-		ppn = pbn * PAGES_PER_BLOCK + offset;
-		dd_read(ppn, buf);
-		isFree = buf[SECTOR_SIZE];
-		// read spare to check if page is empty or not.
-		printf("ppn = %d, isFree = %d\n",ppn, isFree);
-		if(isFree == -1){	// free page
-			buf[SECTOR_SIZE] = 1;
-			dd_write(ppn, buf);
-			printf("%s\n\n",buf);
-			printf("ftl_write in free2 page lbn : %d, pbn: %d, ppn : %d\n", lbn, pbn, ppn);
-		}
-		else{	// out-of-place update
-			dd_write(freeblock, buf);
-			dd_erase(ppn);
-			addressMappingTable[lbn] = freeblock;
-			printf("ftl_write out-of-place update freeblock : %d, lsn : %d, pbn: %d, ppn : %d\n", freeblock, lsn, pbn, ppn);
-			freeblock = ppn / PAGES_PER_BLOCK;
-		}
-	}
+	// address mapping table is initialized
 
+	ftl_read(lsn, sectorbuf);
+	freeparity = sectorbuf[SECTOR_SIZE];
+	
+	if(freeparity == -1){	// free page
+		// assign to page
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		sectorbuf[SECTOR_SIZE] = 0;
+		dd_write(ppn, sectorbuf);
+	}
+	else{	// out-of-place update
+		freeblock
+	}
 	return;
 }
+
 void print(){
 	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
 		printf("%d %d\n", i, addressMappingTable[i]);
