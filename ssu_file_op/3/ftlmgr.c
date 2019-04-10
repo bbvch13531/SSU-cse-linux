@@ -10,7 +10,7 @@
 #include <time.h>
 #include "blkmap.h"
 
-#define isFREE 1 << 
+#define isFREE 1 
 extern FILE *devicefp;
 
 //
@@ -70,7 +70,7 @@ void ftl_write(int lsn, char *sectorbuf){
 	int lbn, pbn, ppn, offset;
 	int isFree;
 
-    char sectorbuf[SECTOR_SIZE];
+    // char sectorbuf[SECTOR_SIZE];
 
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
@@ -96,7 +96,9 @@ void ftl_write(int lsn, char *sectorbuf){
 			dd_write(ppn, sectorbuf);
 		}
 		else{	// out-of-place update
-
+			dd_write(freeblock, sectorbuf);
+			dd_erase(ppn);
+			freeblock = ppn;
 		}
 	}
 	

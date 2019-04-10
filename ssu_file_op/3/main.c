@@ -19,7 +19,7 @@ void ftl_read(int lsn, char *sectorbuf);
 //
 int main(int argc, char *argv[]){
 	char *blockbuf;
-    char sectorbuf[SECTOR_SIZE];
+    char sectorbuf[SECTOR_SIZE], readbuf[SECTOR_SIZE];
 	int lsn, i;
 
     devicefp = fopen("flashmemory", "w+b");
@@ -45,7 +45,16 @@ int main(int argc, char *argv[]){
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
 	//
+	memcpy(sectorbuf + SPARE_SIZE, "thisistest", sizeof(SECTOR_SIZE));
+	// strcpy(sectorbuf, "thisistest");
+	for(int i=0; i<10; i++){
+		ftl_write(i, sectorbuf);
+	}
 
+	for(int i=0; i<10; i++){
+		ftl_read(i, readbuf);
+		printf("%d %s\n", i, readbuf);
+	}
 
 	fclose(devicefp);
 
