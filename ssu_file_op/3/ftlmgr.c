@@ -94,6 +94,7 @@ void ftl_write(int lsn, char *sectorbuf){
 		// read spare to check if page is empty or not.
 		
 		if(isFree == -1){	// free page
+			sectorbuf[SECTOR_SIZE] = 1;
 			dd_write(ppn, sectorbuf);
 			printf("ftl_write in free page\n");
 		}
@@ -104,7 +105,6 @@ void ftl_write(int lsn, char *sectorbuf){
 			printf("ftl_write out-of-place update freeblock : %d, ppn : %d\n", freeblock, ppn);
 		}
 	}
-	
 
 	return;
 }

@@ -47,11 +47,11 @@ int main(int argc, char *argv[]){
 	//
 	memcpy(sectorbuf, "thisistest", sizeof(SECTOR_SIZE));
 	// strcpy(sectorbuf, "thisistest");
-	for(int i=0; i<10; i++){
+	for(int i=0; i<20; i++){
 		ftl_write(i, sectorbuf);
 	}
 
-	for(int i=0; i<22; i++){
+	for(int i=0; i<20; i++){
 		// ftl_read(i, readbuf);
 		printf("%d %s\n", i, readbuf);
 	}
