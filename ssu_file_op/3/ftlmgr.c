@@ -10,6 +10,7 @@
 #include <time.h>
 #include "blkmap.h"
 
+#define isFREE 1 << 
 extern FILE *devicefp;
 
 //
@@ -19,6 +20,7 @@ extern FILE *devicefp;
 //
 
 int addressMappingTable[DATABLKS_PER_DEVICE];
+int freeblock = BLOCKS_PER_DEVICE - 1;	// free block은 N-1번째로 초기화
 
 void ftl_open(){
 	//
@@ -66,26 +68,45 @@ void ftl_read(int lsn, char *sectorbuf){
 //
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, pbn, ppn, offset;
+	int isFree;
+
+    char sectorbuf[SECTOR_SIZE];
 
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	
 	// addressMappingTable[lbn]이 -1이 아니면!
 	pbn = addressMappingTable[lbn];
-	if(pbn == -1){
+
+	if(pbn == -1){	// pbn is not assign in address mapping table
 		for(int i=0; i<DATABLKS_PER_DEVICE; i++){
-		if(addressMappingTable[i] == -1){
-			addressMappingTable[i];
+			if(addressMappingTable[i] == -1){
+				addressMappingTable[i] = i;
+				pbn = i;
 			}
-		}	
+		}
 	}
 	else{
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		dd_read(ppn, sectorbuf);
+		isFree = sectorbuf[0];
 		// read spare to check if page is empty or not.
-		// if(){
+		
+		if(isFree == -1){	// free page
+			dd_write(ppn, sectorbuf);
+		}
+		else{	// out-of-place update
 
-		// }
+		}
 	}
 	
 
 	return;
 }
+
+/*
+	page = spare(16) + sector(512)
+	spare
+	0: free page이면 -1, 아니면 1
+	1: 
+*/
