@@ -53,7 +53,7 @@ void ftl_read(int lsn, char *sectorbuf){
 	ppn = pbn * PAGES_PER_BLOCK + offset;
 
 	dd_read(ppn, sectorbuf);
-
+	printf("read ppn = %d\n",ppn);
 	return;
 }
 
@@ -64,7 +64,7 @@ void ftl_read(int lsn, char *sectorbuf){
 //
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn, freeparity;
-
+	char chkbuf[PAGE_SIZE];
 	lbn = lsn / DATABLKS_PER_DEVICE;
 	offset = lsn % DATABLKS_PER_DEVICE;
 	pbn = addressMappingTable[lbn];
@@ -81,20 +81,20 @@ void ftl_write(int lsn, char *sectorbuf){
 	}
 	// address mapping table is initialized
 
-	ftl_read(lsn, sectorbuf);
-	freeparity = sectorbuf[SECTOR_SIZE];
-	
+	ftl_read(lsn, chkbuf);
+	freeparity = chkbuf[SECTOR_SIZE];
 	if(freeparity == -1){	// free page
 		// assign to page
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		sectorbuf[SECTOR_SIZE] = 0;
 		dd_write(ppn, sectorbuf);
+        printf("write in free page ppn = %d\n",ppn);
 	}
 	else{	// out-of-place update
 		dd_write(freeblock, sectorbuf);
 		dd_erase(ppn);
 		freeblock = ppn;
-		
+        printf("write out-of-place update\n");		
 	}
 	return;
 }
