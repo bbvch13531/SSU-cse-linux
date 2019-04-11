@@ -41,7 +41,10 @@ int main(int argc, char *argv[]){
 	free(blockbuf);
 
 	ftl_open();    // ftl_read(), ftl_write() 호출하기 전에 이 함수를 반드시 호출해야 함
-
+	ftl_write(0, sectorbuf);
+	ftl_write(1, sectorbuf);
+	ftl_read(1, readbuf);
+	printf("%s\n",readbuf);
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
 	//

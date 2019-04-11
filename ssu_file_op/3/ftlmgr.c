@@ -91,7 +91,10 @@ void ftl_write(int lsn, char *sectorbuf){
 		dd_write(ppn, sectorbuf);
 	}
 	else{	// out-of-place update
-		freeblock
+		dd_write(freeblock, sectorbuf);
+		dd_erase(ppn);
+		freeblock = ppn;
+		
 	}
 	return;
 }
