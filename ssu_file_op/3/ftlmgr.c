@@ -46,8 +46,8 @@ void ftl_open(){
 void ftl_read(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
 
-	lbn = lsn / DATABLKS_PER_DEVICE;
-	offset = lsn % DATABLKS_PER_DEVICE;
+	lbn = lsn / PAGES_PER_BLOCK;
+	offset = lsn % PAGES_PER_BLOCK;
 	pbn = addressMappingTable[lbn];
 
 	ppn = pbn * PAGES_PER_BLOCK + offset;
@@ -62,11 +62,12 @@ void ftl_read(int lsn, char *sectorbuf){
 // 데이터를 저장한다. 당연히 flash memory의 어떤 주소에 저장할 것인지는 block mapping 기법을
 // 따라야한다.
 //
+
 void ftl_write(int lsn, char *sectorbuf){
-	int lbn, offset, pbn, ppn, freeparity;
+	int lbn, offset, pbn, ppn, freeparity, newpbn;
 	char chkbuf[PAGE_SIZE];
-	lbn = lsn / DATABLKS_PER_DEVICE;
-	offset = lsn % DATABLKS_PER_DEVICE;
+	lbn = lsn / PAGES_PER_BLOCK;
+	offset = lsn % PAGES_PER_BLOCK;
 	pbn = addressMappingTable[lbn];
 
 	if(pbn == -1){	// address mapping table is not initialized
@@ -78,23 +79,39 @@ void ftl_write(int lsn, char *sectorbuf){
 				break;
 			}
 		}
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		sectorbuf[SECTOR_SIZE] = 1;
+		dd_write(ppn, sectorbuf);
+		printf("write page first time lsn = %d, ppn = %d\n", lsn, ppn);
 	}
 	// address mapping table is initialized
+	else{
+		ftl_read(lsn, chkbuf);
+		freeparity = chkbuf[SECTOR_SIZE];
+		if(freeparity == -1){	// free page
+			// assign to page
+			ppn = pbn * PAGES_PER_BLOCK + offset;
+			sectorbuf[SECTOR_SIZE] = 1;
+			dd_write(ppn, sectorbuf);
+			printf("write in free page lsn = %d, ppn = %d\n", lsn, ppn);
+		}
+		else{	// out-of-place update
+			newpbn = freeblock * PAGES_PER_BLOCK;
+			addressMappingTable[lbn] = freeblock;
+			for(int i=0; i<PAGES_PER_BLOCK; i++){
+				ftl_read(pbn + i, chkbuf);
+				dd_write(newpbn + i, chkbuf);
+			}
+			// 의문 1. freeblock에 원래 block을 복사할 때 dd_read, dd_write해야하나?
+			// dd_read, dd_write하는 방향으로 구현함.
+			// 새로운 page는 다시 dd_Write. 흠... 이건 좀 아닌 것 같다. 질문하고 확인해볼 것.
+			
+			dd_write(newpbn + offset, sectorbuf);
 
-	ftl_read(lsn, chkbuf);
-	freeparity = chkbuf[SECTOR_SIZE];
-	if(freeparity == -1){	// free page
-		// assign to page
-		ppn = pbn * PAGES_PER_BLOCK + offset;
-		sectorbuf[SECTOR_SIZE] = 0;
-		dd_write(ppn, sectorbuf);
-        printf("write in free page ppn = %d\n",ppn);
-	}
-	else{	// out-of-place update
-		dd_write(freeblock, sectorbuf);
-		dd_erase(ppn);
-		freeblock = ppn;
-        printf("write out-of-place update\n");		
+			dd_erase(pbn);
+			printf("write out-of-place update lsn = %d, freeblock = %d, erase pbn = %d newpbn = %d\n",lsn, freeblock, pbn, newpbn);
+			freeblock = pbn;
+		}
 	}
 	return;
 }

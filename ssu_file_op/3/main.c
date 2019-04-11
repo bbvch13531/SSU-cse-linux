@@ -19,7 +19,7 @@ void ftl_read(int lsn, char *sectorbuf);
 //
 int main(int argc, char *argv[]){
 	char *blockbuf;
-    char sectorbuf[PAGE_SIZE], readbuf[PAGE_SIZE];
+    char sectorbuf[PAGE_SIZE], newdata[PAGE_SIZE], readbuf[PAGE_SIZE];
 	int lsn, i;
 
     devicefp = fopen("flashmemory", "w+b");
@@ -43,13 +43,25 @@ int main(int argc, char *argv[]){
 	ftl_open();    // ftl_read(), ftl_write() 호출하기 전에 이 함수를 반드시 호출해야 함
     for(int i=0; i<SECTOR_SIZE; i++){
         sectorbuf[i] = 'a';
+		newdata[i] = 'b';
     }
-	ftl_write(0, sectorbuf);
-	// dd_write(0, sectorbuf);
-	// ftl_write(0, sectorbuf);
-	ftl_read(0, readbuf);
+	
+	for(int i=0; i<12; i++){
+		sectorbuf[0] = 'a'+i;
+		ftl_write(i, sectorbuf);
+		print();
+		printf("\n");
+	}
+	
+	ftl_write(11, newdata);
+	for(int i=0; i<12; i++){
+		ftl_read(i, readbuf);
+		// dd_read(i,readbuf);
+		printf("%d %s\n",i, readbuf);
+	}
+	// ftl_read(11, readbuf);
+	// printf("%d %s\n",11, readbuf);
 	// dd_read(0,readbuf);
-	printf("%s\n",readbuf);
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
 	//
