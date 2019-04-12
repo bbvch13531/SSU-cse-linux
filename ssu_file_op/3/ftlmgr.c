@@ -95,21 +95,22 @@ void ftl_write(int lsn, char *sectorbuf){
 			dd_write(ppn, sectorbuf);
 			printf("write in free page lsn = %d, ppn = %d\n", lsn, ppn);
 		}
-		else{	// out-of-place update
+		else{	// in-place update
 			newpbn = freeblock * PAGES_PER_BLOCK;
 			addressMappingTable[lbn] = freeblock;
 			for(int i=0; i<PAGES_PER_BLOCK; i++){
 				ftl_read(pbn + i, chkbuf);
+				if(chkbuf)
 				dd_write(newpbn + i, chkbuf);
 			}
 			// 의문 1. freeblock에 원래 block을 복사할 때 dd_read, dd_write해야하나?
 			// dd_read, dd_write하는 방향으로 구현함.
 			// 새로운 page는 다시 dd_Write. 흠... 이건 좀 아닌 것 같다. 질문하고 확인해볼 것.
-			
+
 			dd_write(newpbn + offset, sectorbuf);
 
 			dd_erase(pbn);
-			printf("write out-of-place update lsn = %d, freeblock = %d, erase pbn = %d newpbn = %d\n",lsn, freeblock, pbn, newpbn);
+			printf("write in-place update lsn = %d, freeblock = %d, erase pbn = %d newpbn = %d\n",lsn, freeblock, pbn, newpbn);
 			freeblock = pbn;
 		}
 	}

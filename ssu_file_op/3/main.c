@@ -12,6 +12,9 @@ void ftl_open();
 void ftl_write(int lsn, char *sectorbuf);
 void ftl_read(int lsn, char *sectorbuf);
 
+void testFtl1();
+void testFtl2();
+void testFtl3();
 //
 // 이 함수는 file system의 역할을 수행한다고 생각하면 되고,
 // file system이 flash memory로부터 512B씩 데이터를 저장하거나 데이터를 읽어 오기 위해서는
@@ -69,4 +72,14 @@ int main(int argc, char *argv[]){
 	fclose(devicefp);
 
 	return 0;
+}
+
+void testFtl1(){
+
+}
+void testFtl2(){
+
+}
+void testFtl3(){
+	
 }
