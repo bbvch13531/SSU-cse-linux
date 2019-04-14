@@ -1,7 +1,7 @@
 #include <stdio.h>
 int main(void){
     int N;
-    
+
     printf("gugudan program\n");
     scanf("%d",&N);
 
