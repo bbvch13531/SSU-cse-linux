@@ -44,24 +44,7 @@ int main(int argc, char *argv[]){
 	free(blockbuf);
 
 	ftl_open();    // ftl_read(), ftl_write() 호출하기 전에 이 함수를 반드시 호출해야 함
-    for(int i=0; i<SECTOR_SIZE; i++){
-        sectorbuf[i] = 'a';
-		newdata[i] = 'b';
-    }
-	
-	for(int i=0; i<12; i++){
-		sectorbuf[0] = 'a'+i;
-		ftl_write(i, sectorbuf);
-		print();
-		printf("\n");
-	}
-	
-	ftl_write(11, newdata);
-	for(int i=0; i<12; i++){
-		ftl_read(i, readbuf);
-		// dd_read(i,readbuf);
-		printf("%d %s\n",i, readbuf);
-	}
+   	testFtl1();
 	// ftl_read(11, readbuf);
 	// printf("%d %s\n",11, readbuf);
 	// dd_read(0,readbuf);
@@ -75,11 +58,64 @@ int main(int argc, char *argv[]){
 }
 
 void testFtl1(){
+	//	PAGES_PER_BLOCK		4  // 상수값 수정 가능
+	//	BLOCKS_PER_DEVICE	4 // 상수값 수정 가능
 
+	char sectorbuf[PAGE_SIZE], newdata[PAGE_SIZE], readbuf[PAGE_SIZE];
+
+	for(int i=0; i<SECTOR_SIZE; i++){
+        sectorbuf[i] = 'a';
+		newdata[i] = 'b';
+    }
+	
+	for(int i=0; i<DATABLKS_PER_DEVICE * PAGES_PER_BLOCK; i++){
+		sectorbuf[0] = '0'+i;
+		ftl_write(i, sectorbuf);
+		// print();
+		printf("\n");
+	}
+
+	printf("ftl_write sectorbuf\n");
+	print();
+	ftl_write(10, newdata);
+	print();
+	ftl_write(0, newdata);
+	print();
+	ftl_write(3, newdata);
+	print();
+	ftl_write(9, newdata);
+	print();
+	// ftl_write(1, newdata);
+	// print();
+
+	printf("ftl_write newdata\n");
+	for(int i=0; i<DATABLKS_PER_DEVICE * PAGES_PER_BLOCK; i++){
+		ftl_read(i, readbuf);
+		printf("%d ", i);
+		for(int j=0; j<5; j++){
+			printf("%c", readbuf[j]);
+		}
+		printf("\n");
+	}
+	
 }
 void testFtl2(){
+	//	PAGES_PER_BLOCK		4  // 상수값 수정 가능
+	//	BLOCKS_PER_DEVICE	8 // 상수값 수정 가능
+	char sectorbuf[PAGE_SIZE], newdata[PAGE_SIZE], readbuf[PAGE_SIZE];
 
+	for(int i=0; i<SECTOR_SIZE; i++){
+        sectorbuf[i] = 'a';
+		newdata[i] = 'b';
+    }
 }
 void testFtl3(){
-	
+	//	PAGES_PER_BLOCK		8  // 상수값 수정 가능
+	//	BLOCKS_PER_DEVICE	8 // 상수값 수정 가능
+	char sectorbuf[PAGE_SIZE], newdata[PAGE_SIZE], readbuf[PAGE_SIZE];
+
+	for(int i=0; i<SECTOR_SIZE; i++){
+        sectorbuf[i] = 'a';
+		newdata[i] = 'b';
+    }
 }
