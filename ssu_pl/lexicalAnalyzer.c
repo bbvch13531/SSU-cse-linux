@@ -146,8 +146,16 @@ int lex(void){
             lexeme[3] = 0; 
             break;
     } /* End of switch */
-    
-    printf("Next token is : %d, Next lexeme is %s\n", nextToken, lexeme);
+    char output[30]="";
+    if(nextToken == IDENT)
+        strcpy(output, "IDENTIFIER");
+    else if(nextToken == INT_LIT)
+        strcpy(output, "INT_LIT");
+    else if(nextToken == EOF)
+        strcpy(output, "EOF");
+    else
+        strcpy(output, "OTHERS");
+    printf("Next token is : %s, Next lexeme is %s\n", output, lexeme);
     return nextToken;
 }
 
@@ -155,7 +163,7 @@ int lookup(char ch){
     switch (ch) { 
         case '=':
             addChar();
-            nextToken = ASSIGN_OP; 
+            nextToken = ASSIGN_OP;
             break;
         case '(':
             addChar();
