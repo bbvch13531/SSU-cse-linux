@@ -7,7 +7,7 @@
 // q1.java를 읽고 문자열을 자르는 테스트
 #include <sys/stat.h>
 void readtest1(void);
-
+int readchar(int);
 char buf[100][100];
 FILE *fp;
 
@@ -61,9 +61,18 @@ void readtest1(void){
         ch = buf1[i];
 
         // ch가 delimeter인지 확인
-        
-        chbuf[chlen] = ch;
-        chlen++;
+        if(isalpha(ch)){
+            chbuf[chlen++] = ch;
+
+            while()
+
+        }
+        else if(isdigit(ch)){
+
+        }
+        else{
+            //특수문자
+        }
 
         // chbuf가 keyword인지 확인.
         if(){
@@ -78,16 +87,29 @@ void readtest1(void){
     // strtok로 하면 delimeter이 NULL이 된다.
     // strchr 사용해야함.
 }
-char delimeters[][10]={
-    " ",
-    "(",
-    ")",
-    "{",
-    "}",
-    "[",
-    "]",
-    
+int readchar(int idx){
+
 }
+char delimeters[][10]={
+    ' ',
+    '(',
+    ')',
+    '{',
+    '}',
+    '[',
+    ']',
+    '.',
+    ';',
+    ',',
+    '\n',
+    '+',
+    '=',
+    '<',
+    '%%',   // '%'
+    '!',
+    '/'
+};  //25
+
 char keywords[][20]={
     "import",
     "public",
@@ -114,7 +136,7 @@ char keywords[][20]={
     "File",
     "FileWriter",
     "null"
-}
+}   //25
 /*
 public class q1 q1이름의 c파일을 만들어야 함.
 token:
