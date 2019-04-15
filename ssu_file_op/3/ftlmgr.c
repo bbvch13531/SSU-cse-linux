@@ -18,7 +18,7 @@ extern FILE *devicefp;
 // main()함수에서 반드시 먼저 호출이 되어야 한다.
 //
 
-int addressMappingTable[BLOCKS_PER_DEVICE];
+int addressMappingTable[DATABLKS_PER_DEVICE];
 int freeblock = BLOCKS_PER_DEVICE - 1;	// free block은 N-1번째로 초기화
 
 void ftl_open(){
@@ -30,7 +30,7 @@ void ftl_open(){
     // 하고, 그 이후 필요할 때마다 block을 하나씩 할당을 해 주면 됩니다. 어떤 순서대로 할당하는지는
     // 각자 알아서 판단하면 되는데, free block들을 어떻게 유지 관리할 지는 스스로 생각해 보기
     // 바랍니다.
-	for(int i=0; i<BLOCKS_PER_DEVICE; i++){
+	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
 		addressMappingTable[i] = -1;
 	}
 	// BLOCK_PER_DEVICE 개의 table row 생성
@@ -107,7 +107,6 @@ void ftl_write(int lsn, char *sectorbuf){
 			}
 
 			addressMappingTable[lbn] = freeblock;
-			addressMappingTable[pbn] = -1;
 			
 			// 의문 1. freeblock에 원래 block을 복사할 때 dd_read, dd_write해야하나?
 			// dd_read, dd_write하는 방향으로 구현함.
@@ -124,7 +123,7 @@ void ftl_write(int lsn, char *sectorbuf){
 }
 
 void print(){
-	for(int i=0; i<BLOCKS_PER_DEVICE; i++){
+	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
 		printf("%d %d\n", i, addressMappingTable[i]);
 	}
 }
