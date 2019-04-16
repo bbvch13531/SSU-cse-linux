@@ -6,9 +6,16 @@
 #include <pthread.h>
 // q1.java를 읽고 문자열을 자르는 테스트
 #include <sys/stat.h>
+
+#define EOF -1
+#define CHAR 0
+#define DIGIT 1
+#define OTHERS 2
+
 void readtest1(void);
 int readchar(int);
-char buf[100][100];
+void addchar(char);
+char buf[2000];
 FILE *fp;
 
 int main(int argc, char **argv){
@@ -17,7 +24,6 @@ int main(int argc, char **argv){
     char * str;
     char tokens[] = {"() {}.;,\"\n"};
     fp = fopen("../javafile/q1.java", "r");
-    
     
     readtest1();
     // while((n = fread(&ch,sizeof(char),1,fp)) > 0){
@@ -43,43 +49,43 @@ int main(int argc, char **argv){
     // }
     return 0;
 }
+
 void readtest1(void){
-    char buf1[2000], chbuf[500];
+    char chbuf[500];
     char ch;
     char * str;
     char tokens[] = {"() {}.;,\"\n"};
     int n, len, chlen;
-    while((n = fread(buf1,sizeof(char),2000,fp)) > 0){
+    int i = 0;
+    while((n = fread(buf,sizeof(char),2000,fp)) > 0){
         
         // if(ch == '\n') break;
         // '\n'을 구분자로 읽으면 될듯?
     }
-    len = strlen(buf1);
-    printf("%s\n",buf1);
+    len = strlen(buf);
+    printf("%s\n",buf);
     chlen = 0;
-    for(int i=0; i<len; i++){
-        ch = buf1[i];
+    
 
-        // ch가 delimeter인지 확인
-        if(isalpha(ch)){
-            chbuf[chlen++] = ch;
-
-            while()
-
-        }
-        else if(isdigit(ch)){
-
+    while(1){
+        if((ch = readchar(i)) != EOF){
+            if(ch == CHAR){                
+                while(1){
+                    i++;
+                    ch = readchar(i);
+                    
+                }
+            }
+            else if(ch == DIGIT){
+                
+            }
         }
         else{
-            //특수문자
-        }
 
-        // chbuf가 keyword인지 확인.
-        if(){
-
+            break;
         }
     }
-    // str = strtok(buf1, tokens);
+    // str = strtok(buf, tokens);
     // while(str != NULL){
     //     printf("tok = %c, %s\n",, str);
     //     str = strtok(NULL, tokens);
@@ -87,9 +93,36 @@ void readtest1(void){
     // strtok로 하면 delimeter이 NULL이 된다.
     // strchr 사용해야함.
 }
+
 int readchar(int idx){
+    int charType, res;
+    char ch;
+
+    ch = buf[idx];
+    
+    if(isalpha(ch)){
+        charType = CHAR;
+    }
+    else if(isdigit(ch)){
+        // digit이 아닐 때까지 읽는다.
+        charType = DIGIT;
+    }
+    else{
+        //특수문자
+
+        // if 특수문자이면
+        charType = OTHERS;
+
+        // EOF이면
+        charType = -1;
+    }
+    return charType;
+}
+
+void addchar(char ch){
 
 }
+
 char delimeters[][10]={
     ' ',
     '(',
