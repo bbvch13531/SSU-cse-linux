@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "calTime.h"
 
 #define BUFFER_SIZE 1024
 void ssu_setbuf(FILE *fp, char *buf);
 
 int main(void){
+    struct timeval begin_t, end_t;
     char buf[BUFFER_SIZE];
     char *fname = "/dev/pts/4";
     FILE *fp;
 
+    gettimeofday(&begin_t, NULL);
     if((fp = fopen(fname, "w")) == NULL){
         fprintf(stderr, "fopen error for %s\n", fname);
         exit(1);
@@ -33,6 +36,8 @@ int main(void){
     fprintf(fp, "\n");
     sleep(1);
 
+    gettimeofday(&end_t, NULL);
+    ssu_runtime(&begin_t, &end_t);
     exit(0);
 }
 
