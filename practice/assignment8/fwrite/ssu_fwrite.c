@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "calTime.h"
+
+
 struct ssu_id{
     char name[64];
     int id;
 };
 int main(void){
+    struct timeval begin_t, end_t;
     struct ssu_id test1, test2;
     char *fname = "ssu_exam.dat";
     FILE *fp;
 
+    gettimeofday(&begin_t, NULL);
     if((fp = fopen(fname, "w")) == NULL){
         fprintf(stderr, "fopen error for %s\n",fname);
         exit(1);
@@ -42,5 +47,8 @@ int main(void){
     printf("%d      %s\n", test2.id, test2.name);
 
     fclose(fp);
+
+    gettimeofday(&end_t, NULL);
+    ssu_runtime(&begin_t, &end_t);
     exit(0);
 }
