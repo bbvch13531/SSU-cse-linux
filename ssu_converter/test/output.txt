@@ -1,0 +1,27 @@
+importjavautilScanner
+
+publicclassq1
+	publicstaticvoidmainString] args{
+		Scannerscn= newScannerSystemin;
+
+		Systemoutprintf"Enterthenumber: ");
+
+		intnum
+		num= scnnextInt);
+		inteven0 odd0
+
+		forinti1 i=num i+){ // Checking..
+			ifi% 2== 0{
+				even=i
+			}
+			else
+				odd=i
+			}
+		}
+
+		Systemoutprintf"SumofEvennumber: %dn, even;
+		Systemoutprintf"SumofOddnumber: %dn, odd;
+
+		return;
+	}
+}

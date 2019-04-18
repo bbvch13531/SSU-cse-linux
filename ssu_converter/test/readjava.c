@@ -215,4 +215,16 @@ keywords
 "File",
 "FileWriter",
 "null"
+
+대응하는 관계
+public static void main(String[] args)
+int main(void)
+
+System.out.printf("")
+printf("")
+
+AAA = scn.nextInt();
+scanf("%d",&AAA);
+
+
 */

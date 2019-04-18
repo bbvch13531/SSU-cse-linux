@@ -12,15 +12,19 @@
 #define OTHERS 2
 
 int charType(char);
+int isReserved(char *);
 char buf[2000], word[500];
-FILE *fp;
+FILE *fp, *wfp;
 
+// 이전에 읽은 string을 비교해야함!!
 int main(int argc, char **argv){
     int n, len,buflen,idx=0;
     char ch;
     char * str;
-    
+    char *fname = "output.txt";
+
     fp = fopen("../javafile/q1.java", "r");
+    wfp = fopen(fname, "w");
     // fread(buf,sizeof(char),2000,fp);
     // len = strlen(buf);
 
@@ -47,6 +51,10 @@ int main(int argc, char **argv){
                     word[idx] = 0;
                     idx = 0;
                     printf("C = %s\n",word);
+                    fwrite(word, sizeof(char), strlen(word), wfp);
+                    if(isReserved(word) == 1){
+                        printf("Reserved\n");
+                    }
                     break;
                 }
             }
@@ -65,6 +73,7 @@ int main(int argc, char **argv){
                     word[idx] = 0;
                     idx = 0;
                     printf("D = %s\n",word);
+                    fwrite(word, sizeof(char), strlen(word), wfp);
                     break;
                 }
             }
@@ -74,11 +83,12 @@ int main(int argc, char **argv){
             word[idx] = 0;
             idx = 0;
             printf("O = %s\n",word);
+            fwrite(word, sizeof(char), strlen(word), wfp);
         }
         else{
             printf("EOF\n");
             break;
-            //EOF
+            //EOFs
         }
     }
 
@@ -98,4 +108,42 @@ int charType(char c){
     else{
         return OTHERS;
     }
+}
+int isReserved(char *c){
+    
+    char keywords[][20]={
+        "import",
+        "public",
+        "static",
+        "void",
+        "main",
+        "class",
+        "String",
+        "Scanner",
+        "System",
+        "out",
+        "in",
+        "printf",
+        "int",
+        "for",
+        "if",
+        "else",
+        "return",
+        "final",
+        "void",
+        "Stack",
+        "throws",
+        "IOException",
+        "File",
+        "FileWriter",
+        "null"
+    };   //25
+
+    for(int i=0; i<25; i++){
+        if(strcmp(keywords[i], c) == 0){
+            printf("%s\n",c);
+            return 1;
+        }
+    }
+    return 0;
 }
