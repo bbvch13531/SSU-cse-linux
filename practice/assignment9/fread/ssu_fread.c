@@ -20,7 +20,7 @@ int main(void){
     }
 
     if(fwrite(&blackbeard, sizeof(struct ssu_pirate), 1, fp2) != 1){    // 파일에 blackbeard 쓰기
-        fprintf(stderr, "fwrite error\n");
+        fprintf(stderr, "fwrite error fp2\n");
         exit(1);
     }
 
@@ -34,7 +34,7 @@ int main(void){
         exit(1);
     }
 
-    if(fwrite(&pirate, sizeof(struct ssu_pirate), 1, fp1) != 1){    // 파일에 pirate 쓰기
+    if(fread(&pirate, sizeof(struct ssu_pirate), 1, fp1) != 1){    // 파일에 pirate 쓰기
         fprintf(stderr, "fwrite error\n");
         exit(1);
     }
