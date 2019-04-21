@@ -10,11 +10,11 @@ int main(void){
     int a,b,i;
     gettimeofday(&begin_t, NULL);
 
-    setbuf(stdout, buf);
-    scanf("%d %d", &a, &b);
+    setbuf(stdout, buf);    // buf를 stdout의 버퍼로 설정
+    scanf("%d %d", &a, &b); // 숫자 두개 입력받기
 
     for(int i=0; buf[i] != '\n'; i++)
-        putchar(buf[i]);
+        putchar(buf[i]);    // 버퍼 출력
     
     putchar('\n');
     gettimeofday(&end_t, NULL);

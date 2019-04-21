@@ -10,15 +10,15 @@ int main(void){
     char buf[BUFFER_SIZE];
 
     gettimeofday(&begin_t, NULL);
-    setbuf(stdout, buf);
+    setbuf(stdout, buf);    // buf를 stdout의 버퍼로 설정
     printf("Hello, ");
     sleep(1);
     printf("OSLAB!!");
     sleep(1);
     printf("\n");
     sleep(1);
-
-    setbuf(stdout, NULL);
+    
+    setbuf(stdout, NULL);   // stdout의 버퍼를 NULL로 설정
     printf("HOW");
     sleep(1);
     printf(" are");
