@@ -9,7 +9,7 @@ void ssu_setbuf(FILE *fp, char *buf);
 int main(void){
     struct timeval begin_t, end_t;
     char buf[BUFFER_SIZE];
-    char *fname = "/dev/pts/4";
+    char *fname = "/dev/pts/1";
     FILE *fp;
 
     gettimeofday(&begin_t, NULL);
