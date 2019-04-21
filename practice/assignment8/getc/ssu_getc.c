@@ -9,8 +9,8 @@ int main(void){
     int character;
     gettimeofday(&begin_t, NULL);
 
-    while((character = getc(stdin)) != EOF){
-        if(putc(character, stdout) == EOF){
+    while((character = getc(stdin)) != EOF){    // stdin에서 한글자씩 입력 받기.
+        if(putc(character, stdout) == EOF){ // stdout에 한글자씩 출력
             fprintf(stderr, "standard output error\n");
             exit(1);
         }
