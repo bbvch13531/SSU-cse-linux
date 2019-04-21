@@ -17,7 +17,7 @@ int main(void){
             break;
         system(command);    // command 실행
     }
-    fprintf(stdout, "Good but...\n");
+    fprintf(stdout, "Good bye...\n");
     fflush(stdout); // 버퍼 비우기
 
     gettimeofday(&end_t, NULL);
