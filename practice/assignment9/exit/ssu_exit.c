@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include "calTime.h"
 int main(void){
     struct timeval begin_t, end_t;
