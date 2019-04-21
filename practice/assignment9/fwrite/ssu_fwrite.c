@@ -15,7 +15,7 @@ int main(void){
     FILE *fp;
 
     gettimeofday(&begin_t, NULL);
-    if((fp = fopen(fname, "w")) == NULL){
+    if((fp = fopen(fname, "w")) == NULL){   // 파일 읽기
         fprintf(stderr, "fopen error for %s\n",fname);
         exit(1);
     }
@@ -25,7 +25,7 @@ int main(void){
     printf("Input name >> ");
     scanf("%s", test1.name);
 
-    if(fwrite(&test1, sizeof(struct ssu_id), 1, fp) != 1){
+    if(fwrite(&test1, sizeof(struct ssu_id), 1, fp) != 1){  // 파일에 test1 쓰기
         fprintf(stderr, "fwrite error\n");
         exit(1);
     }
@@ -37,14 +37,14 @@ int main(void){
         exit(1);
     }
 
-    if(fread(&test2, sizeof(struct ssu_id), 1, fp) != 1){
+    if(fread(&test2, sizeof(struct ssu_id), 1, fp) != 1){   // 파일을 읽어서 test2에 저장
         fprintf(stderr, "fread error\n");
         exit(1);
     }
     
     printf("\nID    name\n");
     printf("============\n");
-    printf("%d      %s\n", test2.id, test2.name);
+    printf("%d      %s\n", test2.id, test2.name);   // 출력해서 확인
 
     fclose(fp);
 
