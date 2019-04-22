@@ -11,8 +11,8 @@ int main(int argc, char ** argv){
 
     gettimeofday(&begin_t, NULL);
     
-    if((pid = fork()) > 0){
-        first = 'A';
+    if((pid = fork()) > 0){ // fork 실행
+        first = 'A';    
         last = 'Z';
     }
     else if(pid == 0){
