@@ -11,7 +11,7 @@ int main(int argc, char ** argv){
 
     gettimeofday(&begin_t, NULL);
     
-    if((pid = fork()) > 0){
+    if((pid = fork()) < 0){
         fprintf(stderr, "fork error\n");
         exit(1);
     }
