@@ -11,15 +11,15 @@ int main(int argc, char ** argv){
 
     gettimeofday(&begin_t, NULL);
     
-    if((pid = fork()) > 0){ // fork 실행
+    if((pid = fork()) > 0){ // fork 실행 부모 프로세스
         first = 'A';    
         last = 'Z';
     }
-    else if(pid == 0){
+    else if(pid == 0){  // 자식 프로세스
         first = 'a';
         last = 'z';
     }
-    else{
+    else{ // 실패시
         fprintf(stderr, "%s\n", argv[0]);
         exit(1);
     }
@@ -27,7 +27,7 @@ int main(int argc, char ** argv){
     for(character = first; character <= last; character++){
         for(i=0; i<=100000; i++)
             ;
-        write(1, &character, 1);
+        write(1, &character, 1);    // stdout에 문자 출력
     }
     printf("\n");
     
