@@ -26,6 +26,7 @@ void ssu_local_func(void){
 
     if((pid = vfork()) == 0){
         printf("I'm child. My PID is %d\n", getpid());        
+        _exit(0);
     }
     else if(pid > 0){
         sleep(3);
