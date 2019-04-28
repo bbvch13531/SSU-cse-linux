@@ -21,7 +21,7 @@ int wordsAtLine[100], lines=0;
 
 char buf[2000], word[500];
 char cstr[100][50][50];
-FILE *fp, *wfp;
+FILE *fp, *wfp, *cfp;
 
 // 이전에 읽은 string을 비교해야함!!
 int main(int argc, char **argv){
@@ -29,8 +29,9 @@ int main(int argc, char **argv){
     char ch;
     char *fname = "output.txt";
     char * token;
-    fp = fopen("../javafile/q2.java", "r");
+    fp = fopen("../javafile/q1.java", "r");
     wfp = fopen(fname, "w");
+    cfp = fopen("test.c", "w");
     // fread(buf,sizeof(char),2000,fp);
     // len = strlen(buf);
 
@@ -151,19 +152,19 @@ int main(int argc, char **argv){
     //     printf("------------------\n");
     // }
     int inputLine;
-    printf("Input line to print :");
-    scanf("%d",&inputLine);
-    inputLine-=1;
-    for(int i=0; i<wordsAtLine[inputLine]; i++){
-        printf("%s\n",cstr[inputLine][i]);
-    }
+    // printf("Input line to print :");
+    // scanf("%d",&inputLine);
+    // inputLine-=1;
+    // for(int i=0; i<wordsAtLine[inputLine]; i++){
+    //     printf("%s\n",cstr[inputLine][i]);
+    // }
     javaToC();
     return 0;
 }
 void javaToC(void){
     int len, keyIdx;
     char nextWord[50], searchWord[50];
-    char filrWriterVar[50], fileVar[50], stackVar[50], scanVar[50];
+    char classVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scanVar[50];
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         for(int j=0; j<len; j++){
@@ -173,7 +174,7 @@ void javaToC(void){
             if(strcmp(nextWord, "import") == 0){   
                 // 같은 line에서 특정 헤더 검색
                 if(findWord(i, "Scanner") != -1){
-
+                    
                 }
                 else if (findWord(i, "File") != -1){
 
@@ -193,6 +194,8 @@ void javaToC(void){
                 if(findWord(i, "public") != -1){
                     // public class
                     // cstr[i][j+1] 이 public class 이름
+                    strcpy(classVar, cstr[i][j+1]);
+                    
                 }
                 else{
                     // other class ex) Stack
@@ -205,6 +208,7 @@ void javaToC(void){
             else if(strcmp(nextWord, "public") == 0){
                 if(findWord(i, "static") != -1 && findWord(i, "void") != -1 && findWord(i, "main") != -1){
                     // main method
+                    
                 }
                 else if(findWord(i, "(") != -1 && findWord(i, ")") != -1){
                     // public method
@@ -275,8 +279,8 @@ void javaToC(void){
                 // 인자 true, false 확인해야함.
                 // 변수이름.
             }
-            else if
         }
+        fputs("\n", cfp);
     }
 }
 int findWord(int line, char *word){
