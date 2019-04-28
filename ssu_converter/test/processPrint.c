@@ -64,10 +64,11 @@ int main(void){
             sleep(1);
             exit(0);
         }
-        else if(pid > 0){
+        if(pid > 0){
             for(int k=0; k<j; k++){
                 printf("%s", cfile[k]);
             }
+            printf("--------------------------------\n");
             ret_val = wait(&status);
         }
     }
