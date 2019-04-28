@@ -51,9 +51,10 @@ int main(int argc, char **argv){
                     word[idx] = 0;
                     idx = 0;
                     printf("C = %s\n",word);
+                    ungetc(ch, fp);
                     fwrite(word, sizeof(char), strlen(word), wfp);
                     if(isReserved(word) == 1){
-                        printf("Reserved\n");
+                        // printf("Reserved\n");
                     }
                     break;
                 }
@@ -78,11 +79,16 @@ int main(int argc, char **argv){
                 }
             }
         }
+        
         else if(charType(ch) == OTHERS){
             word[idx++] = ch;
             word[idx] = 0;
             idx = 0;
-            printf("O = %s\n",word);
+            if(ch == '\n'){
+                printf("--------------------\n");
+            }
+            else
+                printf("O = %s\n",word);
             fwrite(word, sizeof(char), strlen(word), wfp);
         }
         else{
@@ -141,7 +147,7 @@ int isReserved(char *c){
 
     for(int i=0; i<25; i++){
         if(strcmp(keywords[i], c) == 0){
-            printf("%s\n",c);
+            // printf("%s\n",c);
             return 1;
         }
     }
