@@ -1,27 +1,69 @@
-importjavautilScanner
+classStack{
 
-publicclassq1
-	publicstaticvoidmainString] args{
-		Scannerscn= newScannerSystemin;
+inttop;
+int[]stack;
 
-		Systemoutprintf"Enterthenumber: ");
+publicstaticfinalintSTACK_SIZE=10;
 
-		intnum
-		num= scnnextInt);
-		inteven0 odd0
+publicStack(){
+top=-1;
+stack=newint[STACK_SIZE];
+}
 
-		forinti1 i=num i+){ // Checking..
-			ifi% 2== 0{
-				even=i
-			}
-			else
-				odd=i
-			}
-		}
+publicintpeek(){
+returnstack[top];
+}
 
-		Systemoutprintf"SumofEvennumber: %dn, even;
-		Systemoutprintf"SumofOddnumber: %dn, odd;
+publicvoidpush(intvalue){
+stack[++top]=value;
+System.out.printf(stack[top]+"PUSH!\n");
+}
 
-		return;
-	}
+publicintpop(){
+System.out.printf(stack[top]+"POP!\n");
+returnstack[top--];
+}
+
+publicvoidprintStack(){
+System.out.printf("\n-----STACKLIST-----\n");
+
+for(inti=top;i>=0;i--){
+System.out.printf("%d\n",stack[i]);
+}
+
+System.out.printf("-----ENDOFLIST-----\n");
+}
+}
+
+publicclassq2{
+
+publicstaticvoidmain(Stringargs[]){
+
+Stackst=newStack();
+
+st.push(5);
+st.push(2);
+st.push(3);
+st.push(4);
+st.push(1);
+
+st.printStack();
+
+st.pop();
+st.pop();
+st.push(15);
+
+System.out.printf("TOPOFSTACK:%d\n",st.peek());
+
+st.printStack();
+
+st.pop();
+st.pop();
+st.pop();
+st.pop();
+
+st.push(30);
+
+st.printStack();
+}
 }

@@ -13,32 +13,32 @@ int main(void){
 
     gettimeofday(&begin_t, NULL);
     
-    if((pid = fork()) < 0){
+    if((pid = fork()) < 0){ // fork error
         fprintf(stderr, "fork error\n");
         exit(1);
     }
-    else if(pid == 0){
+    else if(pid == 0){  // 자식 프로세스
         exit(7);
     }
-    if(wait(&status) != pid){
+    if(wait(&status) != pid){   // wait 실행
         fprintf(stderr, "wait error\n");
         exit(1);
     }
 
-    ssu_echo_exit(status);
+    ssu_echo_exit(status);  // 현재 상태 출력
 
     if((pid = fork()) < 0){
         fprintf(stderr, "fork error\n");
         exit(1);
     }
-    else if(pid == 0){
-        status /= 0;
+    else if(pid == 0){  // 자식 프로세스
+        abort();
     }
     if(wait(&status) != pid){
         fprintf(stderr, "wait error\n");
         exit(1);
     }
-    ssu_echo_exit(status);
+    ssu_echo_exit(status);  // 현재 상태 출력
 
     gettimeofday(&end_t, NULL);
     ssu_runtime(&begin_t, &end_t);

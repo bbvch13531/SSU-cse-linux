@@ -1,0 +1,7 @@
+/tmp/cczQwaRK.o: In function `main':
+12.c:(.text+0x1c0): undefined reference to `pthread_create'
+12.c:(.text+0x1dd): undefined reference to `pthread_create'
+12.c:(.text+0x1ee): undefined reference to `pthread_join'
+12.c:(.text+0x1ff): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
