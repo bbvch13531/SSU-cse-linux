@@ -15,6 +15,7 @@ int charType(char);
 int isReserved(char *);
 void javaToC();
 int findWord(int line, char *word);
+// return index of word
 
 int wordsAtLine[100], lines=0;
 
@@ -160,61 +161,135 @@ int main(int argc, char **argv){
     return 0;
 }
 void javaToC(void){
-    int len;
+    int len, keyIdx;
     char nextWord[50], searchWord[50];
+    char filrWriterVar[50], fileVar[50], stackVar[50], scanVar[50];
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
 
-
-            
             // import 처리
-            if(strcmp(nextWord, "import") == 0){                
-                for(int k=0; k<len; k++){
-                    // 같은 line에서 특정 헤더 검색
-                    strcpy(searchWord, cstr[i][k]);     // 검색할 단어 searchWord
-                    if(strcmp(searchWord, "Scanner") == 0){
+            if(strcmp(nextWord, "import") == 0){   
+                // 같은 line에서 특정 헤더 검색
+                if(findWord(i, "Scanner") != -1){
 
-                    }
-                    else if(strcmp(searchWord, "File") == 0){
-                        
-                    }
-                    else if(strcmp(searchWord, "IOException") == 0){
-                        
-                    }
-                    else if(strcmp(searchWord, "FileWriter") == 0){
-                        
-                    }
                 }
+                else if (findWord(i, "File") != -1){
+
+                }
+                else if(findWord(i, "IOException") != -1){
+
+                }
+                else if(findWord(i, "FileWriter") != -1){
+
+                }
+                  
             }
 
             // class 처리
             else if(strcmp(nextWord, "class") == 0){
                 
-                if(findWord(i, "public")){
+                if(findWord(i, "public") != -1){
                     // public class
+                    // cstr[i][j+1] 이 public class 이름
                 }
                 else{
-                    // other class
+                    // other class ex) Stack
+                    // cstr[i][j+1] 이 class 이름
                 }
             }
             
+            
+            // public method 처리
             else if(strcmp(nextWord, "public") == 0){
-                if(findWord(i, "class")){
-
+                if(findWord(i, "static") != -1 && findWord(i, "void") != -1 && findWord(i, "main") != -1){
+                    // main method
                 }
-
-                if(findWord(i, "static") && findWord(i, "void") && findWord(i, "main")){
-
+                else if(findWord(i, "(") != -1 && findWord(i, ")") != -1){
+                    // public method
+                }
+                else if(findWord(i, "final") != -1 && findWord(i, "static") != -1){
+                    // public static final int STACK_SIZE = 10; 처리
                 }
             }
+            else if(strcmp(nextWord, "Scanner") == 0){
+                // 변수이름 cstr[i][j+1]
+                // j+2 =
+                // j+3 new
+                // j+4 Scanner
+                // j+5 (
+                // j+6 System
+                // j+7 .
+                // j+8 in
+                // j+9 )
+            }           
+            // Scanner.nextInt()
+            else if(strcmp(nextWord, "nextInt") == 0){
+            }
 
+            else if(strcmp(nextWord, "int") == 0){
+                // 변수이름 cstr[i][j+1]
+                
+                // if any
+                // j+2 =
+                // j+3 DIGIT
+
+                // if any
+                // j+4 ,
+                // j+5 변수이름
+                // j+6 DIGIT
+
+                // , 로 계속 이어질 수 있음.
+                // ; 읽을 때까지 반복.
+            }
+
+            // for
+            else if(strcmp(nextWord, "for") == 0){
+                // 
+            }
+
+            // if
+            else if(strcmp(nextWord, "if") == 0){
+                
+            }
+            // else
+            else if(strcmp(nextWord, "else") == 0){
+                
+            }
+
+            // printf
+            else if(strcmp(nextWord, "printf") == 0){
+                
+            }
+            // return
+            else if(strcmp(nextWord, "return") == 0){
+                
+            }
+            // File
+            else if(strcmp(nextWord, "File") == 0){
+                
+            }
+            // FileWriter
+            else if(strcmp(nextWord, "FileWriter") == 0){
+                // 인자 true, false 확인해야함.
+                // 변수이름.
+            }
+            else if
         }
     }
 }
 int findWord(int line, char *word){
-
+    // return index of word
+    char buf[50];
+    
+    for(int i=0; i<wordsAtLine[line]; i++){
+        strcpy(buf, cstr[line][i]);
+        if(strcmp(buf, word) == 0){
+            return i;
+        }
+    }
+    return -1;
 }
 int charType(char c){
     if(isalpha(c)){
