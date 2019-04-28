@@ -1,0 +1,239 @@
+ssu_func, loc_var = 80, loc_volatile = 81, loc_register = 82
+ssu_func, loc_var = 81, loc_volatile = 82, loc_register = 83
+ssu_func, loc_var = 82, loc_volatile = 83, loc_register = 84
+after longjmp, loc_var = 80, loc_volatile = 81, loc_register = 12
+ret_val : 1
+/tmp/cc3A3uux.o: In function `main':
+12.c:(.text+0x228): undefined reference to `pthread_create'
+12.c:(.text+0x245): undefined reference to `pthread_create'
+12.c:(.text+0x256): undefined reference to `pthread_join'
+12.c:(.text+0x267): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+../../STD_DIR/20190002/13.c: In function 'main':
+../../STD_DIR/20190002/13.c:12:18: error: storage size of 'sig_act' isn't known
+  struct sigacion sig_act;
+                  ^~~~~~~
+sh: 1: ./13.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
+../../STD_DIR/20190003/11.c: In function 'main':
+../../STD_DIR/20190003/11.c:15:18: error: 'ssu_signal' undeclared (first use in this function); did you mean 'ssignal'?
+  signal(SIGUSR1, ssu_signal);
+                  ^~~~~~~~~~
+                  ssignal
+../../STD_DIR/20190003/11.c:15:18: note: each undeclared identifier is reported only once for each function it appears in
+sh: 1: ./11.stdexe: not found
+/tmp/cc0XMXjW.o: In function `main':
+12.c:(.text+0x180): undefined reference to `pthread_create'
+12.c:(.text+0x19d): undefined reference to `pthread_create'
+12.c:(.text+0x1ae): undefined reference to `pthread_join'
+12.c:(.text+0x1bf): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+../../STD_DIR/20190004/12.c: In function 'main':
+../../STD_DIR/20190004/12.c:69:2: error: expected declaration or statement at end of input
+  exit(0);
+  ^~~~
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+../../STD_DIR/20190006/12.c: In function 'ssu_thread_producer':
+../../STD_DIR/20190006/12.c:18:25: error: 'cond2' undeclared (first use in this function); did you mean 'cond1'?
+    pthread_cond_signal(&cond2);
+                         ^~~~~
+                         cond1
+../../STD_DIR/20190006/12.c:18:25: note: each undeclared identifier is reported only once for each function it appears in
+../../STD_DIR/20190006/12.c: In function 'ssu_thread_consumer':
+../../STD_DIR/20190006/12.c:32:23: error: 'cond2' undeclared (first use in this function); did you mean 'cond1'?
+    pthread_cond_wait(&cond2,&mutex);
+                       ^~~~~
+                       cond1
+../../STD_DIR/20190006/12.c: In function 'main':
+../../STD_DIR/20190006/12.c:50:24: error: 'cond2' undeclared (first use in this function); did you mean 'cond1'?
+  pthread_cond_destroy(&cond2);
+                        ^~~~~
+                        cond1
+sh: 1: ./12.stdexe: not found
+/tmp/ccdIO5nZ.o: In function `main':
+12.c:(.text+0x178): undefined reference to `pthread_create'
+12.c:(.text+0x195): undefined reference to `pthread_create'
+12.c:(.text+0x1a6): undefined reference to `pthread_join'
+12.c:(.text+0x1b7): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/tmp/cct6KmU6.o: In function `main':
+12.c:(.text+0x172): undefined reference to `pthread_create'
+12.c:(.text+0x18f): undefined reference to `pthread_create'
+12.c:(.text+0x1a0): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+../../STD_DIR/20190008/13.c: In function 'ssu_signal_handler':
+../../STD_DIR/20190008/13.c:8:1: error: parameter 'count' is initialized
+ int count = 0;
+ ^~~
+../../STD_DIR/20190008/13.c:11:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+ {
+ ^
+../../STD_DIR/20190008/13.c:28:36: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+ void ssu_signal_handler(int signo) {
+                                    ^
+../../STD_DIR/20190008/13.c:6:6: error: old-style parameter declarations in prototyped function definition
+ void ssu_signal_handler(int signo)
+      ^~~~~~~~~~~~~~~~~~
+../../STD_DIR/20190008/13.c:32:1: error: expected '{' at end of input
+ }
+ ^
+sh: 1: ./13.stdexe: not found
+../../STD_DIR/20190009/11.c: In function 'ssu_signal':
+../../STD_DIR/20190009/11.c:7:1: error: expected ';' before '}' token
+ }
+ ^
+../../STD_DIR/20190009/11.c: In function 'main':
+../../STD_DIR/20190009/11.c:20:7: warning: implicit declaration of function 'getpid'; did you mean 'getenv'? [-Wimplicit-function-declaration]
+  kill(getpid(),SIGUSR1);
+       ^~~~~~
+       getenv
+../../STD_DIR/20190009/11.c:23:10: warning: implicit declaration of function 'fork' [-Wimplicit-function-declaration]
+  if((pid=fork()) < 0){
+          ^~~~
+sh: 1: ./11.stdexe: not found
+/tmp/ccnHihh9.o: In function `main':
+12.c:(.text+0xfa): undefined reference to `pthread_create'
+12.c:(.text+0x117): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
+../../STD_DIR/20190010/12.c: In function 'ssu_thread_consumer':
+../../STD_DIR/20190010/12.c:31:6: error: 'i' undeclared (first use in this function)
+  for(i = 1; i <= 300; i++) {
+      ^
+../../STD_DIR/20190010/12.c:31:6: note: each undeclared identifier is reported only once for each function it appears in
+../../STD_DIR/20190010/12.c:37:3: error: 'sum' undeclared (first use in this function)
+   sum += buf[--length];
+   ^~~
+sh: 1: ./12.stdexe: not found
+/tmp/cchn8Fsv.o: In function `main':
+12.c:(.text+0x166): undefined reference to `pthread_create'
+12.c:(.text+0x183): undefined reference to `pthread_create'
+12.c:(.text+0x194): undefined reference to `pthread_join'
+12.c:(.text+0x1a5): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/tmp/cc4z0B7K.o: In function `main':
+12.c:(.text+0x175): undefined reference to `pthread_create'
+12.c:(.text+0x192): undefined reference to `pthread_create'
+12.c:(.text+0x1a3): undefined reference to `pthread_join'
+12.c:(.text+0x1b4): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/tmp/ccsLH2VB.o: In function `main':
+12.c:(.text+0x17a): undefined reference to `pthread_create'
+12.c:(.text+0x197): undefined reference to `pthread_create'
+12.c:(.text+0x1a8): undefined reference to `pthread_join'
+12.c:(.text+0x1b9): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/tmp/ccRf94bi.o: In function `main':
+12.c:(.text+0x129): undefined reference to `pthread_create'
+12.c:(.text+0x146): undefined reference to `pthread_create'
+12.c:(.text+0x157): undefined reference to `pthread_join'
+12.c:(.text+0x168): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/tmp/ccE5x2Nq.o: In function `main':
+12.c:(.text+0x174): undefined reference to `pthread_create'
+12.c:(.text+0x191): undefined reference to `pthread_create'
+12.c:(.text+0x1a2): undefined reference to `pthread_join'
+12.c:(.text+0x1b3): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
+../../STD_DIR/20190016/12.c: In function 'main':
+../../STD_DIR/20190016/12.c:36:38: error: 'ssu_thread_consumer' undeclared (first use in this function); did you mean 'ssu_thread_producer'?
+  pthread_create(&consumer_tid, NULL, ssu_thread_consumer, NULL);
+                                      ^~~~~~~~~~~~~~~~~~~
+                                      ssu_thread_producer
+../../STD_DIR/20190016/12.c:36:38: note: each undeclared identifier is reported only once for each function it appears in
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
+/tmp/cc7S4yHW.o: In function `main':
+12.c:(.text+0x16c): undefined reference to `pthread_create'
+12.c:(.text+0x189): undefined reference to `pthread_create'
+12.c:(.text+0x19a): undefined reference to `pthread_join'
+12.c:(.text+0x1ab): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+../../STD_DIR/20190018/11.c: In function 'ssu_signal':
+../../STD_DIR/20190018/11.c:7:2: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+  printf("SIGUSR1 catched!!\n");
+  ^~~~~~
+../../STD_DIR/20190018/11.c:7:2: warning: incompatible implicit declaration of built-in function 'printf'
+../../STD_DIR/20190018/11.c:7:2: note: include '<stdio.h>' or provide a declaration of 'printf'
+../../STD_DIR/20190018/11.c: In function 'main':
+../../STD_DIR/20190018/11.c:25:3: warning: implicit declaration of function 'fprintf' [-Wimplicit-function-declaration]
+   fprintf(stderr, "fork error\n");
+   ^~~~~~~
+../../STD_DIR/20190018/11.c:25:3: warning: incompatible implicit declaration of built-in function 'fprintf'
+../../STD_DIR/20190018/11.c:25:3: note: include '<stdio.h>' or provide a declaration of 'fprintf'
+../../STD_DIR/20190018/11.c:25:11: error: 'stderr' undeclared (first use in this function); did you mean 'opterr'?
+   fprintf(stderr, "fork error\n");
+           ^~~~~~
+           opterr
+../../STD_DIR/20190018/11.c:25:11: note: each undeclared identifier is reported only once for each function it appears in
+../../STD_DIR/20190018/11.c:31:5: warning: incompatible implicit declaration of built-in function 'printf'
+     printf("child : SIGUSR1 pending\n");
+     ^~~~~~
+../../STD_DIR/20190018/11.c:31:5: note: include '<stdio.h>' or provide a declaration of 'printf'
+../../STD_DIR/20190018/11.c:40:5: warning: incompatible implicit declaration of built-in function 'printf'
+     printf("parent : SIGUSR1 pending\n");
+     ^~~~~~
+../../STD_DIR/20190018/11.c:40:5: note: include '<stdio.h>' or provide a declaration of 'printf'
+sh: 1: ./11.stdexe: not found
+/tmp/ccBvjr4J.o: In function `main':
+12.c:(.text+0x1c5): undefined reference to `pthread_create'
+12.c:(.text+0x1e2): undefined reference to `pthread_create'
+12.c:(.text+0x1f3): undefined reference to `pthread_join'
+12.c:(.text+0x204): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./11.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+Segmentation fault (core dumped)
+/tmp/cclpaBQp.o: In function `main':
+12.c:(.text+0x1a2): undefined reference to `pthread_create'
+12.c:(.text+0x1c9): undefined reference to `pthread_create'
+12.c:(.text+0x1da): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found
+/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/Scrt1.o: In function `_start':
+(.text+0x20): undefined reference to `main'
+collect2: error: ld returned 1 exit status
+sh: 1: ./14.stdexe: not found
