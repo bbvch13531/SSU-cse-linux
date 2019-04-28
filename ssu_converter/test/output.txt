@@ -1,27 +1,27 @@
-importjavautilScanner
+import java.util.Scanner;
 
-publicclassq1
-	publicstaticvoidmainString] args{
-		Scannerscn= newScannerSystemin;
+public class q1{
+	public static void main(String[] args){
+		Scanner scn = new Scanner(System.in);
 
-		Systemoutprintf"Enterthenumber: ");
+		System.out.printf("Enter the number : ");
 
-		intnum
-		num= scnnextInt);
-		inteven0 odd0
+		int num;
+		num = scn.nextInt();
+		int even=0 odd=0
 
-		forinti1 i=num i+){ // Checking..
-			ifi% 2== 0{
-				even=i
+		for(int i=1 i<=num; i++){ // Checking...
+			if(i % 2== 0{
+				even+=i;
 			}
-			else
-				odd=i
+			else{
+				odd+=i;
 			}
 		}
 
-		Systemoutprintf"SumofEvennumber: %dn, even;
-		Systemoutprintf"SumofOddnumber: %dn, odd;
+		System.out.printf("Sum of Even number : %d\n", even);
+		System.out.printf("Sum of Odd number : %d\n", odd);
 
-		return;
+		return ;
 	}
 }

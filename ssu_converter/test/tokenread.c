@@ -13,16 +13,19 @@
 
 int charType(char);
 int isReserved(char *);
+void javaToC();
+
+int words;
 char buf[2000], word[500];
+char cstr[1000][50];
 FILE *fp, *wfp;
 
 // 이전에 읽은 string을 비교해야함!!
 int main(int argc, char **argv){
     int n, len,buflen,idx=0;
     char ch;
-    char * str;
     char *fname = "output.txt";
-
+    char * token;
     fp = fopen("../javafile/q1.java", "r");
     wfp = fopen(fname, "w");
     // fread(buf,sizeof(char),2000,fp);
@@ -53,6 +56,11 @@ int main(int argc, char **argv){
                     printf("C = %s\n",word);
                     ungetc(ch, fp);
                     fwrite(word, sizeof(char), strlen(word), wfp);
+                    
+                    strcpy(cstr[words], word);
+                    words++;
+                    
+                    strcat(buf, word);
                     if(isReserved(word) == 1){
                         // printf("Reserved\n");
                     }
@@ -75,6 +83,11 @@ int main(int argc, char **argv){
                     idx = 0;
                     printf("D = %s\n",word);
                     fwrite(word, sizeof(char), strlen(word), wfp);
+
+                    strcpy(cstr[words], word);
+                    words++;
+                    
+                    strcat(buf, word);
                     break;
                 }
             }
@@ -90,6 +103,10 @@ int main(int argc, char **argv){
             else
                 printf("O = %s\n",word);
             fwrite(word, sizeof(char), strlen(word), wfp);
+            strcat(buf, word);
+
+            strcpy(cstr[words], word);
+            words++;
         }
         else{
             printf("EOF\n");
@@ -98,7 +115,38 @@ int main(int argc, char **argv){
         }
     }
 
+    // \n 으로 잘라서 cstr에 넣기.
+    
+    // token = strtok(buf, "\n");
+    // while(token != NULL){
+    //     strcpy(cstr[words], token);
+    //     printf("%d : %s\n",words, cstr[words]);
+    //     words++;
+    //     token = strtok(NULL, "\n");
+    // }
+    for(int i=0; i<words; i++){
+        printf("%s\n",cstr[i]);
+    }
+    javaToC();
     return 0;
+}
+void javaToC(void){
+    for(int i=0; i<words; i++){
+        if(strcmp(cstr[i], "import") == 0){
+            if(strcmp(cstr[i+1], "java.util.Scanner") == 0){
+
+            }
+            else if(strcmp(cstr[i+1], "java.io.File") == 0){
+
+            }
+            else if(strcmp(cstr[i+1], "java.io.IOException") == 0){
+
+            }
+            else if(strcmp(cstr[i+1], "java.io.FileWriter") == 0){
+
+            }
+        }
+    }
 }
 int charType(char c){
     if(isalpha(c)){
@@ -153,3 +201,39 @@ int isReserved(char *c){
     }
     return 0;
 }
+
+/*
+import로 시작한다.
+    java.util.Scanner
+        scanf사용
+    java.io.IOException;
+
+    java.io.FileWriter;
+        file IO
+
+class 로 시작한다.
+
+public 로 시작한다.
+    class
+        { 전까지 뒤에 오는 문자가 클래스 이름
+    static
+        void
+            main 
+                메인함수
+
+Scanner로 시작한다.
+    scn 변수 저장
+     = new Scanner(System.in); 이 있는지 확인
+
+int 로 시작
+Stack
+File
+FileWriter
+for
+if
+System.out.printf
+    문자열을 저장 후 printf()로 바꾼다. 
+return
+
+그 외의 경우는 변수로 시작.
+*/
