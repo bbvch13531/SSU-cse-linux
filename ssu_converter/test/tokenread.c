@@ -17,12 +17,20 @@ void javaToC();
 int findWord(int line, char *word);
 // return index of word
 
-int wordsAtLine[100], lines=0;
+int wordsAtLine[100], lines=0, cline=0;
 
 char buf[2000], word[500];
 char cstr[100][50][50];
 char wbuf[100][500];
-char filename[50];
+char filename[50], nextWord[50], searchWord[50];
+char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
+
+char intvar[5][10];
+int intvarinit[5];
+int intcnt=0;
+
+char headerkey[10][20];
+
 FILE *fp, *wfp, *cfp;
 
 // 이전에 읽은 string을 비교해야함!!
@@ -165,8 +173,6 @@ int main(int argc, char **argv){
 }
 void javaToC(void){
     int len, keyIdx;
-    char nextWord[50], searchWord[50];
-    char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         for(int j=0; j<len; j++){
@@ -176,10 +182,10 @@ void javaToC(void){
             if(strcmp(nextWord, "import") == 0){   
                 // 같은 line에서 특정 헤더 검색
                 if(findWord(i, "Scanner") != -1){
-                    
+                    strcpy(headerkey[0], "Scanner");
                 }
                 else if (findWord(i, "File") != -1){
-
+                    strcpy(headerkey[0], "");
                 }
                 else if(findWord(i, "IOException") != -1){
 
@@ -210,7 +216,8 @@ void javaToC(void){
             else if(strcmp(nextWord, "public") == 0){
                 if(findWord(i, "static") != -1 && findWord(i, "void") != -1 && findWord(i, "main") != -1){
                     // main method
-                    
+                    strcpy(wbuf[cline], "int main(void){");
+                    cline++;
                 }
                 else if(findWord(i, "(") != -1 && findWord(i, ")") != -1){
                     // public method
@@ -244,6 +251,26 @@ void javaToC(void){
             else if(strcmp(nextWord, "int") == 0){
                 // 변수이름 cstr[i][j+1]
                 
+                strcpy(intvar[intcnt], cstr[i][j+1]);
+                if(strcmp("=", cstr[i][j+2]) == 0){
+                    intvarinit[i] = atoi(cstr[i][j+3]);
+                }
+                
+                intcnt++;
+                
+                char ch[10];
+
+                while(strcmp(ch, ";") != 0){
+                    int k = 0;
+                    strcpy(ch, cstr[i][j+k+1]);
+                    if(strcmp(ch, "=") == 0){
+                        
+                    }
+                    k++;
+                    strcpy(ch, cstr[i][j+k+1]);
+                }
+
+
                 // if any
                 // j+2 =
                 // j+3 DIGIT
