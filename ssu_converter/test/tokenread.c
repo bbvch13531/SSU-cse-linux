@@ -21,6 +21,8 @@ int wordsAtLine[100], lines=0;
 
 char buf[2000], word[500];
 char cstr[100][50][50];
+char wbuf[100][500];
+char filename[50];
 FILE *fp, *wfp, *cfp;
 
 // 이전에 읽은 string을 비교해야함!!
@@ -164,7 +166,7 @@ int main(int argc, char **argv){
 void javaToC(void){
     int len, keyIdx;
     char nextWord[50], searchWord[50];
-    char classVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
+    char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         for(int j=0; j<len; j++){
@@ -194,15 +196,15 @@ void javaToC(void){
                 if(findWord(i, "public") != -1){
                     // public class
                     // cstr[i][j+1] 이 public class 이름
-                    strcpy(classVar, cstr[i][j+1]);
+                    strcpy(filename, cstr[i][j+1]);
                     
                 }
                 else{
                     // other class ex) Stack
                     // cstr[i][j+1] 이 class 이름
+                    strcpy(stackclassVar, cstr[i][j+1]);
                 }
             }
-            
             
             // public method 처리
             else if(strcmp(nextWord, "public") == 0){
@@ -212,6 +214,10 @@ void javaToC(void){
                 }
                 else if(findWord(i, "(") != -1 && findWord(i, ")") != -1){
                     // public method
+                    if(strcmp(stackclassVar, cstr[i][j+1]) == 0){
+                    // 생성자인지 확인
+
+                    }
                 }
                 else if(findWord(i, "final") != -1 && findWord(i, "static") != -1){
                     // public static final int STACK_SIZE = 10; 처리
