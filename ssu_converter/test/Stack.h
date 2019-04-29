@@ -1,33 +1,29 @@
 #include <stdio.h>
-
+#define STACK_SIZE 10
 typedef struct Stack{
-    int top = -1;
-    static const int STACK_SIZE = 10;
+    int top;
     int stack[STACK_SIZE];
 
 }Stack;
 
 int peek(Stack *stk){
     int top = stk->top;
-    return stk->stack[top];
+    return stk->stack[stk->top];
 }
 
 void push(Stack *stk, int value){
-    int top = stk->top;
-    stk->stack[++top] = value;
-    printf("%d PUSH !\n", stk->stack[top]);
+    stk->stack[++stk->top] = value;
+    printf("%d PUSH !\n", stk->stack[stk->top]);
 }
 
 int pop(Stack *stk){
-    int top = stk->top;
-    printf("%d POP !\n", stk->stack[top]);
-    return stk->stack[top--];
+    printf("%d POP !\n", stk->stack[stk->top]);
+    return stk->stack[stk->top--];
 }
 void printStack(Stack *stk){
-    int top = stk->top;
     printf("\n-----STACK LIST-----\n");
 
-    for(int i=top; i>=0; i--){
+    for(int i=stk->top; i>=0; i--){
         printf("%d\n",stk->stack[i]);
     }
     printf("\n-----END OF LIST-----\n");

@@ -3,6 +3,7 @@
 
 int main(void){
     Stack st;
+    st.top = -1;
     push(&st, 5);
     push(&st, 2);
     push(&st, 3);
