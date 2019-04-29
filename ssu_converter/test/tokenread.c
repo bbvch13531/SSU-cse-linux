@@ -164,7 +164,7 @@ int main(int argc, char **argv){
 void javaToC(void){
     int len, keyIdx;
     char nextWord[50], searchWord[50];
-    char classVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scanVar[50];
+    char classVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         for(int j=0; j<len; j++){
@@ -219,17 +219,20 @@ void javaToC(void){
             }
             else if(strcmp(nextWord, "Scanner") == 0){
                 // 변수이름 cstr[i][j+1]
-                // j+2 =
-                // j+3 new
-                // j+4 Scanner
-                // j+5 (
-                // j+6 System
-                // j+7 .
-                // j+8 in
-                // j+9 )
+                strcpy(scannerVar, cstr[i][j+1]);
+
             }           
             // Scanner.nextInt()
             else if(strcmp(nextWord, "nextInt") == 0){
+                
+                // 스캐너 변수가 일치하는지 확인
+                if(strcmp(cstr[i][j-2], scannerVar) == 0){
+                    // scanf("")
+                    strcpy(inputVar, cstr[i][j-4]);
+                    printf("input var is %s %s\n", inputVar, cstr[i][j-4]);
+
+                    // scanf("%d", &inputVar);
+                }
             }
 
             else if(strcmp(nextWord, "int") == 0){
@@ -248,28 +251,11 @@ void javaToC(void){
                 // ; 읽을 때까지 반복.
             }
 
-            // for
-            else if(strcmp(nextWord, "for") == 0){
-                // 
-            }
-
-            // if
-            else if(strcmp(nextWord, "if") == 0){
-                
-            }
-            // else
-            else if(strcmp(nextWord, "else") == 0){
-                
-            }
-
             // printf
             else if(strcmp(nextWord, "printf") == 0){
                 
             }
-            // return
-            else if(strcmp(nextWord, "return") == 0){
-                
-            }
+            
             // File
             else if(strcmp(nextWord, "File") == 0){
                 
