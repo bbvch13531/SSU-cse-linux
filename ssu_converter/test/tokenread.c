@@ -20,8 +20,8 @@ int findWord(int line, char *word);
 int wordsAtLine[100], lines=0, cline=0;
 
 char buf[2000], word[500];
-char cstr[100][50][50];
-char wbuf[100][500];
+char cstr[100][50][50]; // 읽어온 string cstr[line개수][word개수][word의 크기]
+char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크기]
 char filename[50], nextWord[50], searchWord[50];
 char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
 
@@ -173,8 +173,10 @@ int main(int argc, char **argv){
 }
 void javaToC(void){
     int len, keyIdx;
+    int otherflag;
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
+        otherflag = 1;
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
 
@@ -193,7 +195,7 @@ void javaToC(void){
                 else if(findWord(i, "FileWriter") != -1){
 
                 }
-                  
+                otherflag = 0;
             }
 
             // class 처리
@@ -210,6 +212,7 @@ void javaToC(void){
                     // cstr[i][j+1] 이 class 이름
                     strcpy(stackclassVar, cstr[i][j+1]);
                 }
+                otherflag = 0;
             }
             
             // public method 처리
@@ -217,7 +220,8 @@ void javaToC(void){
                 if(findWord(i, "static") != -1 && findWord(i, "void") != -1 && findWord(i, "main") != -1){
                     // main method
                     strcpy(wbuf[cline], "int main(void){");
-                    cline++;
+                    cline++;                    
+                    break;
                 }
                 else if(findWord(i, "(") != -1 && findWord(i, ")") != -1){
                     // public method
@@ -245,48 +249,71 @@ void javaToC(void){
                     printf("input var is %s %s\n", inputVar, cstr[i][j-4]);
 
                     // scanf("%d", &inputVar);
+                    otherflag = 0;
                 }
             }
 
+            // for(int i=1; i<=num; i++){ 를 처리해야함.
+            // int가 첫번째 단어일 때만 처리. 그 외엔 continue;
             else if(strcmp(nextWord, "int") == 0){
+                if(j!=0)    // for구문 내에서 int 변수 선언한 경우.
+                    continue;                
                 // 변수이름 cstr[i][j+1]
                 
-                strcpy(intvar[intcnt], cstr[i][j+1]);
-                if(strcmp("=", cstr[i][j+2]) == 0){
-                    intvarinit[i] = atoi(cstr[i][j+3]);
-                }
-                
-                intcnt++;
-                
                 char ch[10];
+                int k = 0; 
+                while(strcmp(ch, ";") != 0){                    
+                    strcpy(ch, cstr[i][j+k+1]); // 다음 단어를 복사                    
+                    if(strcmp(ch, ";") == 0)
+                        break;
+                    if(strcmp(ch, ",") == 0){   // ch 가 , 인 경우 
+                        if(strcmp(cstr[i][j+k-1], "=")){  // 앞에 있는 단어가 [변수이름] = [값] 형태인 경우
+                            
+                            strcpy(intvar[intcnt], cstr[i][j+k-2]);
+                            // 변수 이름 저장
 
-                while(strcmp(ch, ";") != 0){
-                    int k = 0;
-                    strcpy(ch, cstr[i][j+k+1]);
-                    if(strcmp(ch, "=") == 0){
-                        
+                            intvarinit[intcnt] = atoi(cstr[i][j+k]);
+                            // 변수 값 저장
+                            intcnt++;
+                        }
+                        else{   // 앞에 있는 단어가 [변수이름] 형태인 경우
+                            strcpy(intvar[intcnt], cstr[i][j+k]);
+                            // 변수 이름 저장
+                            intcnt++;
+                        }
                     }
                     k++;
-                    strcpy(ch, cstr[i][j+k+1]);
                 }
-
-
-                // if any
-                // j+2 =
-                // j+3 DIGIT
-
-                // if any
-                // j+4 ,
-                // j+5 변수이름
-                // j+6 DIGIT
-
+                otherflag = 0;
                 // , 로 계속 이어질 수 있음.
+                // [변수이름] = [값] 형태 또는 [변수이름] 형태
                 // ; 읽을 때까지 반복.
             }
 
             // printf
             else if(strcmp(nextWord, "printf") == 0){
-                
+                if(strcmp(cstr[i][j+2], "\"") == 0){
+                    // + 가 없다면
+                    // " "사이를 읽어온다.
+                    int k=1;
+                    char ch[50];
+                    while(1){
+                        if(strcmp(cstr[i][j+k+2], "\"") == 0)
+                            break;
+                        strcat(wbuf[cline], cstr[i][j+k+2]);                        
+                    }                    
+                }
+                else{
+                    // + 가 있다면
+                    // stack[top]
+                    // if(strcmp(cstr[i][j+2], "stack"))
+                    // stack[i]
+                    // 변수 이름 바뀌면 처리 못한다.
+                    // int top 은 무조건 변수이름 top,
+                    // int[] stack은 무조건 변수이름 stack으로 고정
+                }
+                cline++;
+                break;
             }
             
             // File
@@ -298,6 +325,14 @@ void javaToC(void){
                 // 인자 true, false 확인해야함.
                 // 변수이름.
             }
+            else{
+                
+            }
+        }
+        if(otherflag == 1){
+            for(int k=0; k<wordsAtLine; k++)
+                strcat(wbuf[cline], cstr[i][k]);
+            cline++;
         }
         fputs("\n", cfp);
     }

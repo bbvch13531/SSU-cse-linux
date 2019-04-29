@@ -5,8 +5,9 @@ typedef struct Stack{
     int stack[STACK_SIZE];
 
 }Stack;
-
+extern Stack stack;
 int peek(Stack *stk){
+
     int top = stk->top;
     return stk->stack[stk->top];
 }
