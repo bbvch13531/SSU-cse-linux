@@ -42,7 +42,7 @@ int main(int argc, char **argv){
     char ch;
     char *fname = "output.txt";
     char * token;
-    fp = fopen("../javafile/q1.java", "r");
+    fp = fopen("../javafile/q3.java", "r");
     wfp = fopen(fname, "w");
     cfp = fopen("test.c", "w");
     // fread(buf,sizeof(char),2000,fp);
@@ -254,7 +254,10 @@ void javaToC(void){
             }
             // cmp1 == System
             else if(strcmp(cmp2, "\t") == 0){
-                if(strcmp(cmp3, "System") == 0){
+                if(strcmp(cmp3, "Scanner") == 0){
+                    continue;
+                }
+                else if(strcmp(cmp3, "System") == 0){
                     // cmp3 == out
                     printf("asdasd\n");
                     if(strcmp(cmp5, "out") == 0){
@@ -285,6 +288,28 @@ void javaToC(void){
                     strcat(wbuf[wline], "\t\tscanf(\"%d\", &");
                     strcat(wbuf[wline], cmp3);
                     strcat(wbuf[wline], ");");
+                    wline++;
+                }
+            
+                else if(strcmp(cmp3, "File") == 0){
+                    strcat(wbuf[wline], "\t\tchar filename = ");
+                    for(int j=13; j<len-2; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
+                    strcat(wbuf[wline], ";");
+                    wline++;
+                }
+                else if(strcmp(cmp3, "FileWriter") == 0){
+                
+                }
+                else if(strcmp(cmp3, "return") == 0){
+                    strcat(wbuf[wline], "\t\treturn 0;");
+                    wline++;
+                }
+                else {
+                    for(int j=0; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
                     wline++;
                 }
             }
@@ -486,6 +511,7 @@ void javaToC(void){
         printf("\n");
     }
     printf("----------------\n");
+    printf("filename : %s\n", filename);
     for(int i=0; i<wline; i++){
         printf("%s\n",wbuf[i]);
     }
