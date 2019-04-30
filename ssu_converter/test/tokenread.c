@@ -303,7 +303,7 @@ void javaToC(void){
                 }
                 // File
                 else if(strcmp(cmp3, "File") == 0){
-                    strcat(wbuf[wline], "\t\tchar filename = ");
+                    strcat(wbuf[wline], "\t\tchar filename = \"");
                     for(int j=13; j<len-2; j++){
                         strcat(wbuf[wline], cstr[i][j]);
                     }
@@ -350,7 +350,8 @@ void javaToC(void){
                 }
                 //writer.flush
                 else if(strcmp(cmp5, "flush") == 0){
-
+                    strcat(wbuf[wline], "\t\tfflush(fp);");
+                    wline++;
                 }
                 else if(strcmp(cmp5, "writer") == 0){
                     for(int j=0; j<len; j++){

@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include "Stack.h"
 
 int main(void){
-    Stack st;
-    st.top = -1;
+
     push(5);
     push(2);
     push(3);
