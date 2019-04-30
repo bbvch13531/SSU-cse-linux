@@ -42,7 +42,7 @@ int main(int argc, char **argv){
     char ch;
     char *fname = "output.txt";
     char * token;
-    fp = fopen("../javafile/q3.java", "r");
+    fp = fopen("../javafile/q1.java", "r");
     wfp = fopen(fname, "w");
     cfp = fopen("test.c", "w");
     // fread(buf,sizeof(char),2000,fp);
@@ -290,7 +290,11 @@ void javaToC(void){
                     strcat(wbuf[wline], ");");
                     wline++;
                 }
-            
+                // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
+                else if(strcmp(cmp3, "Stack") == 0){
+
+                }
+                // File
                 else if(strcmp(cmp3, "File") == 0){
                     strcat(wbuf[wline], "\t\tchar filename = ");
                     for(int j=13; j<len-2; j++){
@@ -299,12 +303,29 @@ void javaToC(void){
                     strcat(wbuf[wline], ";");
                     wline++;
                 }
+                // FileWriter
                 else if(strcmp(cmp3, "FileWriter") == 0){
-                
+                    // 두번째 인자가 false
+                    strcat(wbuf[wline], "\t\tif((fp = open(filename, O_RDWR, ");
+                    if(strcmp(cstr[i][len-3], "false") == 0){
+                        strcat(wbuf[wline], "O_CREAT");
+                    }
+                    // 두번째 인자가 true
+                    else if(strcmp(cstr[i][len-2], "true") == 0){
+                        strcat(wbuf[wline], "O_APPEND");
+                    }
+                    strcat(wbuf[wline], ")) == -1){");
+                    wline++;
+                    strcat(wbuf[wline], "\t\t\tfprintf(stderr, \"open error for %s\\n\",filename);");
+                    wline++;
+                    strcat(wbuf[wline], "\t\t\texit(1);");
+                    wline++;
+                    strcat(wbuf[wline], "\t\t}");
+                    wline++;
+                    
                 }
                 else if(strcmp(cmp3, "return") == 0){
-                    strcat(wbuf[wline], "\t\treturn 0;");
-                    wline++;
+                    continue;
                 }
                 else {
                     for(int j=0; j<len; j++){
@@ -313,20 +334,9 @@ void javaToC(void){
                     wline++;
                 }
             }
-                
-            // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
-            else if(strcmp(cmp1, "Stack") == 0){
-                
-            }
-            // cmp1 == File
-            else if(strcmp(cmp1, "File") == 0){
-
-            }
-            // cmp1 == FileWriter
-            else if(strcmp(cmp1, "FileWriter") == 0){
-                
-            }
             else{
+                strcat(wbuf[wline], "\t\treturn 0;");
+                wline++;
                 for(int j=0; j<len; j++){
                     strcat(wbuf[wline], cstr[i][j]);
                 }
@@ -335,14 +345,7 @@ void javaToC(void){
             }
         }
 
-        // last '}'
-        else {
-            for(int j=0; j<len; j++){
-                    strcat(wbuf[wline], cstr[i][j]);
-                }
-                // printf("wbuf = %s\n",wbuf[wline]);
-                wline++;
-        }
+        
         /* comment out
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
