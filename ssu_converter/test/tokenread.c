@@ -100,8 +100,7 @@ int main(int argc, char **argv){
                     lines++;
                     continue;
                 }
-                if(ch == '\t') // get nonspace char
-                    continue;
+                
                 if(charType(ch) == DIGIT){
                     word[idx++] = ch;
                     word[idx] = 0;
@@ -129,8 +128,7 @@ int main(int argc, char **argv){
                 lines++;
                 continue;
             }
-            if(ch == '\t')
-                continue;
+            
             word[idx++] = ch;
             word[idx] = 0;
             idx = 0;
@@ -186,14 +184,21 @@ int main(int argc, char **argv){
 void javaToC(void){
     int len, keyIdx;
     int otherflag;
-    char cmp1[50], cmp2[50], cmp3[50], cmp4[50], cmp5[50];
+    char cmp1[50], cmp2[50], cmp3[50], cmp4[50], cmp5[50], cmp6[50], cmp7[50], cmp8[50], cmp9[50];
 
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         otherflag = 1;
 
         strcpy(cmp1, cstr[i][0]);
-
+        if(len>=8)
+            strncpy(cmp9, cstr[i][8], 50);
+        if(len>=7)
+            strncpy(cmp8, cstr[i][7], 50);
+        if(len>=6)
+            strncpy(cmp7, cstr[i][6], 50);
+        if(len>=5)
+            strncpy(cmp6, cstr[i][5], 50);
         if(len>=4)
             strncpy(cmp5, cstr[i][4], 50);
         if(len>=3)
@@ -206,83 +211,94 @@ void javaToC(void){
         // 원하는 단어를 찾기 위해서 parsing이 이후에 필요하다.
         // 지금 구현방법과 크게 달라지지 않을듯.
 
-        // cmp1 == import
-        printf("%d %d \n1:%s \n2:%s \n3:%s \n4:%s \n5:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5);
+        printf("%d %d \n1:%s \n2:%s \n3:%s \n4:%s \n5:%s \n6:%s \n7:%s \n8:%s \n9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
         // printf("%d %d\n", i, len);
+        
+        // cmp1 == import
         if(strcmp(cmp1, "import") == 0){
 
         }
         // cmp1 == public
         else if(strcmp(cmp1, "public") == 0){
             // cmp2 == class
-            if(strcmp(cmp2, "class") == 0){
+            if(strcmp(cmp3, "class") == 0){
                 // filename is q1, q2, q3 
-                strcpy(filename, cmp3);
+                strcpy(filename, cmp5);
             }
             // cmp2 == static
-            else if(strcmp(cmp2, "static") == 0){
-                // cmp3 == void
-                if(strcmp(cmp3, "void") == 0){
-                    // cmp4 == main
-                    if(strcmp(cmp4, "main") == 0){
-                        // copy int main(void){
-                        strcpy(wbuf[wline], "int main(void){");
-                        printf("%d %d %d\n", i, len, wline);
-                        wline++;
-                    }
-                }
-            }
-            // cmp2 == int || cmp2 == void. public functions
-            else if(strcmp(cmp2, "int") == 0 || strcmp(cmp2, "void") == 0){
-
-            }
-            // cmp2 == 'Stack' initializer
-            else if(strcmp(cmp2, stackclassVar) == 0){
-
-            }
-        }        
-        // cmp1 == System
-        else if(strcmp(cmp1, "System") == 0){
-            // cmp3 == out
-            if(strcmp(cmp3, "out") == 0){
-                // cmp5 == printf
-                if(strcmp(cmp5, "printf") == 0){
-                    // printf("%s\n", cstr[i][6]);
-                    
-                    // printf("") 인 경우
-                    if(strcmp(cstr[i][6], "\"") == 0){
-                        for(int j=4; j<len; j++){
-                            strcat(wbuf[wline], cstr[i][j]);
+            
+        }    
+        else if(strcmp(cmp1, "\t") == 0){
+            if(strcmp(cmp2, "public") == 0){
+                if(strcmp(cmp4, "static") == 0){
+                        // cmp3 == void
+                        if(strcmp(cmp6, "void") == 0){
+                            // cmp4 == main
+                            if(strcmp(cmp8, "main") == 0){
+                                // copy int main(void){
+                                strcpy(wbuf[wline], "\tint main(void){");
+                                printf("%d %d %d\n", i, len, wline);
+                                wline++;
+                            }
                         }
-                        // printf("프린트\n%s\n",wbuf[wline]);                        
-                        wline++;
                     }
-                    // printf(stack[top] + "") 인 경우
-                    else {
+                    // cmp2 == int || cmp2 == void. public functions
+                    else if(strcmp(cmp4, "int") == 0 || strcmp(cmp4, "void") == 0){
 
+                    }
+                    // cmp2 == 'Stack' initializer
+                    else if(strcmp(cmp4, stackclassVar) == 0){
+
+                    }  
+            }
+            // cmp1 == System
+            else if(strcmp(cmp3, "System") == 0){
+                // cmp3 == out
+                printf("asdasd\n");
+                if(strcmp(cmp5, "out") == 0){
+                    // cmp5 == printf
+                    if(strcmp(cmp7, "printf") == 0){
+                        // printf("%s\n", cstr[i][6]);
+                        
+                        // printf("") 인 경우
+                        if(strcmp(cstr[i][8], "\"") == 0){
+                            strcat(wbuf[wline], "\t\t");
+                            for(int j=6; j<len; j++){
+                                strcat(wbuf[wline], cstr[i][j]);
+                            }
+                            // printf("프린트\n%s\n",wbuf[wline]);  
+                            printf("wbuf = %s\n",wbuf[wline]);                      
+                            wline++;
+                        }
+                        // printf(stack[top] + "") 인 경우
+                        else {
+
+                        }
                     }
                 }
             }
-        }
-            
-        // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
-        else if(strcmp(cmp1, "Stack") == 0){
-            
-        }
-        // cmp1 == File
-        else if(strcmp(cmp1, "File") == 0){
-
-        }
-        // cmp1 == FileWriter
-        else if(strcmp(cmp1, "FileWriter") == 0){
-            
-        }
-        else{
-            for(int j=0; j<len; j++){
-                strcat(wbuf[wline], cstr[i][j]);
+                
+            // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
+            else if(strcmp(cmp1, "Stack") == 0){
+                
             }
-            wline++;
-        }
+            // cmp1 == File
+            else if(strcmp(cmp1, "File") == 0){
+
+            }
+            // cmp1 == FileWriter
+            else if(strcmp(cmp1, "FileWriter") == 0){
+                
+            }
+            else{
+                for(int j=0; j<len; j++){
+                    strcat(wbuf[wline], cstr[i][j]);
+                }
+                printf("wbuf = %s\n",wbuf[wline]);
+                wline++;
+            }
+        } 
+        
         /* comment out
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
