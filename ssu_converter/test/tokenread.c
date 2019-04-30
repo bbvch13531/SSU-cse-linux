@@ -21,9 +21,7 @@ int wordsAtLine[100], lines=0, wline=0;
 
 char buf[2000], word[500];
 
-char bufEachLine[100][500];
-
-char cstr[100][50][50]; // 읽어온 string cstr[line개수][word개수][word의 크기]
+char cstr[100][100][50]; // 읽어온 string cstr[line개수][word개수][word의 크기]
 char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크기]
 char filename[50], nextWord[50], searchWord[50];
 char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
@@ -42,7 +40,7 @@ int main(int argc, char **argv){
     char ch;
     char *fname = "output.txt";
     char * token;
-    fp = fopen("../javafile/q1.java", "r");
+    fp = fopen("../javafile/q3.java", "r");
     wfp = fopen(fname, "w");
     cfp = fopen("test.c", "w");
     // fread(buf,sizeof(char),2000,fp);
@@ -190,6 +188,16 @@ void javaToC(void){
         len = wordsAtLine[i];
         otherflag = 1;
 
+        memset(cmp1, 0, 50);
+        memset(cmp2, 0, 50);
+        memset(cmp3, 0, 50);
+        memset(cmp4, 0, 50);
+        memset(cmp5, 0, 50);
+        memset(cmp6, 0, 50);
+        memset(cmp7, 0, 50);
+        memset(cmp9, 0, 50);
+
+        memset(cmp7, 0, 50);
         strcpy(cmp1, cstr[i][0]);
         if(len>=8)
             strncpy(cmp9, cstr[i][8], 50);
@@ -259,7 +267,6 @@ void javaToC(void){
                 }
                 else if(strcmp(cmp3, "System") == 0){
                     // cmp3 == out
-                    printf("asdasd\n");
                     if(strcmp(cmp5, "out") == 0){
                         // cmp5 == printf
                         if(strcmp(cmp7, "printf") == 0){
@@ -306,13 +313,13 @@ void javaToC(void){
                 // FileWriter
                 else if(strcmp(cmp3, "FileWriter") == 0){
                     // 두번째 인자가 false
-                    strcat(wbuf[wline], "\t\tif((fp = open(filename, O_RDWR, ");
+                    strcat(wbuf[wline], "\t\tif((fp = fopen(filename, \"");
                     if(strcmp(cstr[i][len-3], "false") == 0){
-                        strcat(wbuf[wline], "O_CREAT");
+                        strcat(wbuf[wline], "w\"");
                     }
                     // 두번째 인자가 true
                     else if(strcmp(cstr[i][len-2], "true") == 0){
-                        strcat(wbuf[wline], "O_APPEND");
+                        strcat(wbuf[wline], "a\"");
                     }
                     strcat(wbuf[wline], ")) == -1){");
                     wline++;
@@ -323,6 +330,43 @@ void javaToC(void){
                     strcat(wbuf[wline], "\t\t}");
                     wline++;
                     
+                }
+                // writer.write
+                else if(strcmp(cmp5, "write") == 0){
+                    int size=0;
+                    char strsize[10];
+                    strcat(wbuf[wline], "\t\tfwrite(\"");
+                    for(int j=7; j<len - 3; j++){
+                        size += strlen(cstr[i][j]);
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
+                    printf("size = %d\n",size);
+                    sprintf(strsize, "%d",size);
+                    strcat(wbuf[wline], "\", 1, ");
+                    strcat(wbuf[wline], strsize);
+                    strcat(wbuf[wline], ", fp);");
+                    wline++;
+
+                }
+                //writer.flush
+                else if(strcmp(cmp5, "flush") == 0){
+
+                }
+                else if(strcmp(cmp5, "writer") == 0){
+                    for(int j=0; j<len; j++){
+                        if(j == 4){
+                            strcat(wbuf[wline], "fp");
+                        }
+                        else{
+                            strcat(wbuf[wline], cstr[i][j]);
+                        }
+                    }
+                    wline++;
+                }
+                else if(strcmp(cmp6, "close") == 0){
+                    printf("closeclose\n");
+                    strcat(wbuf[wline], "\t\t\tfclose(fp);");
+                    wline++;
                 }
                 else if(strcmp(cmp3, "return") == 0){
                     continue;
