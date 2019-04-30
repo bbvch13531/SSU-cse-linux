@@ -174,14 +174,36 @@ int main(int argc, char **argv){
 void javaToC(void){
     int len, keyIdx;
     int otherflag;
+    char cmp1[50], cmp2[50], cmp3[50], cmp4[50], cmp5[50];
+
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
         otherflag = 1;
+
+        strcpy(cmp1, cstr[i][0]);
+
+        // cmp1 == import
+        // cmp1 == public
+            // cmp2 == class
+            // cmp2 == static
+                // cmp3 == void
+                    // cmp4 == main
+        // cmp1 == Scanner
+        // cmp1 == int
+        // cmp1 == System
+            // cmp3 == out
+                // cmp5 == printf
+
+        /* comment out
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
-
+            
+            
+            
+            
+            
             // import 처리
-            if(strcmp(nextWord, "import") == 0){   
+            if(strcmp(nextWord, "import") == 0){
                 // 같은 line에서 특정 헤더 검색
                 if(findWord(i, "Scanner") != -1){
                     strcpy(headerkey[0], "Scanner");
@@ -334,6 +356,8 @@ void javaToC(void){
                 strcat(wbuf[cline], cstr[i][k]);
             cline++;
         }
+        comment out */
+
         fputs("\n", cfp);
     }
 }
