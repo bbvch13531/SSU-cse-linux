@@ -4,26 +4,26 @@
 int main(void){
     Stack st;
     st.top = -1;
-    push(&st, 5);
-    push(&st, 2);
-    push(&st, 3);
-    push(&st, 4);
-    push(&st, 1);
+    push(5);
+    push(2);
+    push(3);
+    push(4);
+    push(1);
 
-    printStack(&st);
+    printStack();
 
-    pop(&st);
-    pop(&st);
-    push(&st, 15);
-    printStack(&st);
-    printf("TOP OF STACK : %d\n", peek(&st));
-    pop(&st);
-    pop(&st);
-    pop(&st);
-    pop(&st);
+    pop();
+    pop();
+    push(15);
+    printStack();
+    printf("TOP OF STACK : %d\n", peek());
+    pop();
+    pop();
+    pop();
+    pop();
 
-    push(&st, 30);
+    push(30);
 
-    printStack(&st);
+    printStack();
     return 0;
 }
