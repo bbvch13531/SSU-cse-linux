@@ -222,13 +222,14 @@ void javaToC(void){
         else if(strcmp(cmp1, "public") == 0){
             // cmp2 == class
             if(strcmp(cmp3, "class") == 0){
-                // filename is q1, q2, q3 
+                // filename is q1, q2, q3 or Stack
                 strcpy(filename, cmp5);
             }
             // cmp2 == static
             
         }    
         else if(strcmp(cmp1, "\t") == 0){
+
             if(strcmp(cmp2, "public") == 0){
                 if(strcmp(cmp4, "static") == 0){
                         // cmp3 == void
@@ -252,29 +253,39 @@ void javaToC(void){
                     }  
             }
             // cmp1 == System
-            else if(strcmp(cmp3, "System") == 0){
-                // cmp3 == out
-                printf("asdasd\n");
-                if(strcmp(cmp5, "out") == 0){
-                    // cmp5 == printf
-                    if(strcmp(cmp7, "printf") == 0){
-                        // printf("%s\n", cstr[i][6]);
-                        
-                        // printf("") 인 경우
-                        if(strcmp(cstr[i][8], "\"") == 0){
-                            strcat(wbuf[wline], "\t\t");
-                            for(int j=6; j<len; j++){
-                                strcat(wbuf[wline], cstr[i][j]);
+            else if(strcmp(cmp2, "\t") == 0){
+                if(strcmp(cmp3, "System") == 0){
+                    // cmp3 == out
+                    printf("asdasd\n");
+                    if(strcmp(cmp5, "out") == 0){
+                        // cmp5 == printf
+                        if(strcmp(cmp7, "printf") == 0){
+                            // printf("%s\n", cstr[i][6]);
+                            printf("프린트\n");
+                            
+                            // printf("") 인 경우
+                            if(strcmp(cstr[i][8], "\"") == 0){
+                                strcat(wbuf[wline], "\t\t");
+                                for(int j=6; j<len; j++){
+                                    strcat(wbuf[wline], cstr[i][j]);
+                                }
+                                // printf("프린트\n%s\n",wbuf[wline]);  
+                                printf("wbuf = %s\n",wbuf[wline]);                      
+                                wline++;
                             }
-                            // printf("프린트\n%s\n",wbuf[wline]);  
-                            printf("wbuf = %s\n",wbuf[wline]);                      
-                            wline++;
-                        }
-                        // printf(stack[top] + "") 인 경우
-                        else {
+                            // printf(stack[top] + "") 인 경우
+                            else {
 
+                            }
                         }
                     }
+                }
+                else if(strcmp(cmp9, "nextInt") == 0){
+                    printf("스캔에프\n");
+                    strcat(wbuf[wline], "\t\tscanf(\"%d\", &");
+                    strcat(wbuf[wline], cmp3);
+                    strcat(wbuf[wline], ");");
+                    wline++;
                 }
             }
                 
@@ -297,8 +308,16 @@ void javaToC(void){
                 printf("wbuf = %s\n",wbuf[wline]);
                 wline++;
             }
-        } 
-        
+        }
+
+        // last '}'
+        else {
+            for(int j=0; j<len; j++){
+                    strcat(wbuf[wline], cstr[i][j]);
+                }
+                // printf("wbuf = %s\n",wbuf[wline]);
+                wline++;
+        }
         /* comment out
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
