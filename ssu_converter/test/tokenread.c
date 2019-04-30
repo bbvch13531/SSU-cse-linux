@@ -20,6 +20,9 @@ int findWord(int line, char *word);
 int wordsAtLine[100], lines=0, wline=0;
 
 char buf[2000], word[500];
+
+char bufEachLine[100][500];
+
 char cstr[100][50][50]; // 읽어온 string cstr[line개수][word개수][word의 크기]
 char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크기]
 char filename[50], nextWord[50], searchWord[50];
@@ -97,7 +100,7 @@ int main(int argc, char **argv){
                     lines++;
                     continue;
                 }
-                if(ch == ' ' || ch == '\t') // get nonspace char
+                if(ch == '\t') // get nonspace char
                     continue;
                 if(charType(ch) == DIGIT){
                     word[idx++] = ch;
@@ -126,7 +129,7 @@ int main(int argc, char **argv){
                 lines++;
                 continue;
             }
-            if(ch == ' ' || ch == '\t')
+            if(ch == '\t')
                 continue;
             word[idx++] = ch;
             word[idx] = 0;
@@ -207,12 +210,14 @@ void javaToC(void){
         printf("%d %d \n1:%s \n2:%s \n3:%s \n4:%s \n5:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5);
         // printf("%d %d\n", i, len);
         if(strcmp(cmp1, "import") == 0){
+
         }
         // cmp1 == public
         else if(strcmp(cmp1, "public") == 0){
             // cmp2 == class
             if(strcmp(cmp2, "class") == 0){
-                printf("%s\n", cmp3);
+                // filename is q1, q2, q3 
+                strcpy(filename, cmp3);
             }
             // cmp2 == static
             else if(strcmp(cmp2, "static") == 0){
@@ -220,7 +225,10 @@ void javaToC(void){
                 if(strcmp(cmp3, "void") == 0){
                     // cmp4 == main
                     if(strcmp(cmp4, "main") == 0){
-                        
+                        // copy int main(void){
+                        strcpy(wbuf[wline], "int main(void){");
+                        printf("%d %d %d\n", i, len, wline);
+                        wline++;
                     }
                 }
             }
@@ -232,24 +240,27 @@ void javaToC(void){
             else if(strcmp(cmp2, stackclassVar) == 0){
 
             }
-        }
-
-        // cmp1 == Scanner
-        else if(strcmp(cmp1, "Scanner") == 0){
-
-        }
-
-        // cmp1 == int
-        else if(strcmp(cmp1, "int") == 0){
-
-        }
+        }        
         // cmp1 == System
         else if(strcmp(cmp1, "System") == 0){
             // cmp3 == out
             if(strcmp(cmp3, "out") == 0){
                 // cmp5 == printf
                 if(strcmp(cmp5, "printf") == 0){
+                    // printf("%s\n", cstr[i][6]);
+                    
+                    // printf("") 인 경우
+                    if(strcmp(cstr[i][6], "\"") == 0){
+                        for(int j=4; j<len; j++){
+                            strcat(wbuf[wline], cstr[i][j]);
+                        }
+                        // printf("프린트\n%s\n",wbuf[wline]);                        
+                        wline++;
+                    }
+                    // printf(stack[top] + "") 인 경우
+                    else {
 
+                    }
                 }
             }
         }
@@ -266,7 +277,12 @@ void javaToC(void){
         else if(strcmp(cmp1, "FileWriter") == 0){
             
         }
-
+        else{
+            for(int j=0; j<len; j++){
+                strcat(wbuf[wline], cstr[i][j]);
+            }
+            wline++;
+        }
         /* comment out
         for(int j=0; j<len; j++){
             strcpy(nextWord, cstr[i][j]);   // 처리할 단어 nextWord
@@ -433,6 +449,10 @@ void javaToC(void){
 
         fputs("\n", cfp);
         printf("\n");
+    }
+    printf("----------------\n");
+    for(int i=0; i<wline; i++){
+        printf("%s\n",wbuf[i]);
     }
 }
 int findWord(int line, char *word){
