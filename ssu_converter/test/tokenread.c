@@ -14,6 +14,7 @@
 int charType(char);
 int isReserved(char *);
 void javaToC();
+void writeC();
 void readHeaderTable();
 int findWord(int line, char *word);
 // return index of word
@@ -86,7 +87,6 @@ int main(int argc, char **argv){
                     idx = 0;
                     // printf("C = %s\n",word);
                     ungetc(ch, fp);
-                    fwrite(word, sizeof(char), strlen(word), wfp);
                     
                     strcpy(cstr[lines][wordsAtLine[lines]], word);
                     
@@ -120,7 +120,6 @@ int main(int argc, char **argv){
                     idx = 0;
                     // printf("D = %s\n",word);
                     ungetc(ch, fp);
-                    fwrite(word, sizeof(char), strlen(word), wfp);
 
                     strcpy(cstr[lines][wordsAtLine[lines]], word);
                     
@@ -150,7 +149,6 @@ int main(int argc, char **argv){
                 printf("O = %s\n",word);
             }
             */
-            fwrite(word, sizeof(char), strlen(word), wfp);
             strcat(buf, word);
 
             strcpy(cstr[lines][wordsAtLine[lines]], word);
@@ -190,6 +188,7 @@ int main(int argc, char **argv){
     // }
     readHeaderTable();
     javaToC();
+    writeC();
     return 0;
 }
 void javaToC(void){
@@ -643,6 +642,13 @@ void readHeaderTable(void){
     // exit
     // printf
 }
+
+void writeC(){
+    for(int i=0; i<wline; i++){
+        
+    }
+}
+
 int findWord(int line, char *word){
     // return index of word
     char buf[50];
