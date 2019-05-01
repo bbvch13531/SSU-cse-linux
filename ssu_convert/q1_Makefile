@@ -1,28 +1,2 @@
 q1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
-	gcc -o q1.out q1.cq1: q1.c
 	gcc -o q1.out q1.c

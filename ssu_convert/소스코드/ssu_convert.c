@@ -56,7 +56,6 @@ int main(int argc, char **argv){
     int javasize, csize, stacksize;
     pid_t pid;
     int ret_val, status;
-
     // Handling options
     /*
         j

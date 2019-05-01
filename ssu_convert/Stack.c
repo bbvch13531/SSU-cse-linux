@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #define STACK_SIZE 10
 	int top;
 	int stack[STACK_SIZE];
