@@ -31,18 +31,27 @@ int intvarinit[5];
 int intcnt=0;
 
 char headerkey[10][20];
+/*
+// [0] FileWriter : fopen   open #include <fcntl.h>
+// [1] always. exit #include <stdlib.h>
+// [2] always. printf #include <stdio.h>
+*/
 
 FILE *fp, *wfp, *cfp;
+FILE *htp;  // header table file pointer
 
 // 이전에 읽은 string을 비교해야함!!
 int main(int argc, char **argv){
     int n, len,buflen,idx=0;
     char ch;
     char *fname = "output.txt";
+    char headertable[50] ="headerTable.txt";     
     char * token;
+
     fp = fopen("../javafile/q3.java", "r");
     wfp = fopen(fname, "w");
     cfp = fopen("test.c", "w");
+    htp = fopen(headertable, "r");
     // fread(buf,sizeof(char),2000,fp);
     // len = strlen(buf);
 
@@ -176,13 +185,24 @@ int main(int argc, char **argv){
     // for(int i=0; i<wordsAtLine[inputLine]; i++){
     //     printf("%s\n",cstr[inputLine][i]);
     // }
+    readHeaderTable();
     javaToC();
+
+    if(strcmp(headerkey[0], "open") == 0){
+
+    }
+    exit
+    printf
     return 0;
 }
 void javaToC(void){
     int len, keyIdx;
     int otherflag;
     char cmp1[50], cmp2[50], cmp3[50], cmp4[50], cmp5[50], cmp6[50], cmp7[50], cmp8[50], cmp9[50];
+
+
+    strcpy(headerkey[1], "exit");
+    strcpy(headerkey[2], "printf");
 
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
@@ -224,7 +244,12 @@ void javaToC(void){
         
         // cmp1 == import
         if(strcmp(cmp1, "import") == 0){
-
+            if(Strcmp(cmp7, "Scanner") == 0){
+                strcpy(headerkey[2], "printf");
+            }
+            else if(Strcmp(cmp7, "FileWriter") == 0){
+                strcpy(headerkey[0], "open");
+            }
         }
         // cmp1 == public
         else if(strcmp(cmp1, "public") == 0){
