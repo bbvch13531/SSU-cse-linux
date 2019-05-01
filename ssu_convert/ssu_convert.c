@@ -31,6 +31,7 @@ char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar
 char definebuf[100]; // define buffer
 char stackfunctionbuf[10][100];
 
+
 int flag = 0; // opt flag
 char targetfilename[50];    // q1.java, q2.java, q3.java in argc[1]
 
@@ -131,9 +132,22 @@ int main(int argc, char **argv){
     if(flag & 16){
 
     }
-    // -k
+    // -f
     if(flag & 32){
-
+        if(strcmp(targetfilename, "q1") == 0){
+            printf("1 System.out.printf() -> printf()\n");
+            printf("2 scn.nextInt() -> scanf()\n");
+        }
+        else if(strcmp(targetfilename, "q2") == 0){
+            printf("1 System.out.printf() -> printf()\n");
+        }
+        else if(strcmp(targetfilename, "q3") == 0){
+            printf("1 System.out.printf() -> printf()\n");
+            printf("2 new FileWriter() -> fopen()\n");
+            printf("3 writer.write() -> fwrite()\n");
+            printf("4 writer.flush() -> fflush()\n");
+            printf("5 writer.close() -> fclose()\n");
+        }
     }
     // -l
     if(flag & 64){
@@ -481,7 +495,7 @@ void javaToC(void){
         printf("%s\n",wbuf[i]);
     }
 
-    
+
 }
 
 void parsefile(void){

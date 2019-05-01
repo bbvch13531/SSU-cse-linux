@@ -14,7 +14,7 @@
 			fprintf(stderr, "open error for %s\n",filename);
 			exit(1);
 		}
-		fwrite("2019 OSLAB\n", 1, 11, fp);
+		fwrite("2019 OSLAB123123123\n", 1, 20, fp);
 		fwrite("Linux System Programming\n", 1, 25, fp);
 		fflush(fp);
 		printf("DONE\n");
