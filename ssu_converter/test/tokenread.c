@@ -14,6 +14,7 @@
 int charType(char);
 int isReserved(char *);
 void javaToC();
+void readHeaderTable();
 int findWord(int line, char *word);
 // return index of word
 
@@ -31,6 +32,8 @@ int intvarinit[5];
 int intcnt=0;
 
 char headerkey[10][20];
+char headervalue[10][50];
+
 /*
 // [0] FileWriter : fopen   open #include <fcntl.h>
 // [1] always. exit #include <stdlib.h>
@@ -187,12 +190,6 @@ int main(int argc, char **argv){
     // }
     readHeaderTable();
     javaToC();
-
-    if(strcmp(headerkey[0], "open") == 0){
-
-    }
-    exit
-    printf
     return 0;
 }
 void javaToC(void){
@@ -244,10 +241,10 @@ void javaToC(void){
         
         // cmp1 == import
         if(strcmp(cmp1, "import") == 0){
-            if(Strcmp(cmp7, "Scanner") == 0){
+            if(strcmp(cmp7, "Scanner") == 0){
                 strcpy(headerkey[2], "printf");
             }
-            else if(Strcmp(cmp7, "FileWriter") == 0){
+            else if(strcmp(cmp7, "FileWriter") == 0){
                 strcpy(headerkey[0], "open");
             }
         }
@@ -589,6 +586,63 @@ void javaToC(void){
         printf("%s\n",wbuf[i]);
     }
 }
+
+void readHeaderTable(void){
+    char ch;
+    char word[10];
+    char headerread[100];
+    int len=0;
+    int firstword = 1;
+
+    while((ch = fgetc(htp)) != EOF){
+        if(firstword == 1){
+            // 공백 전까지 글자 입력받아서 word에 저장
+            while(ch != ' '){
+                word[len] = ch;
+                len++;
+                ch = fgetc(htp);
+            }
+            word[len] = 0;
+            firstword = 0;
+            len = 0;
+            printf("\n");
+        }
+        else{
+            // 개행 전까지 글자 입력받아서 headerread에 저장
+            while(ch != '\n'){
+                headerread[len] = ch;
+                len++;
+                ch = fgetc(htp);
+                if(ch == -1)
+                    break;
+            }
+            headerread[len] = 0;
+            firstword = 1;
+            len = 0;
+            printf("\n");
+            // 개행이면 firstword = 1
+        }
+
+        printf("%s %s\n",word,headerread);
+        if(strcmp(word, "open") == 0){
+            strcpy(headervalue[0], headerread);
+        }
+        else if(strcmp(word, "exit") == 0){
+            strcpy(headervalue[1], headerread);
+        }
+        if(strcmp(word, "printf") == 0){
+            strcpy(headervalue[2], headerread);
+        }
+        
+        
+    }
+    // 공백 이전까지 글자 읽는다.
+    
+    // 읽은 단어가
+    // open
+    // exit
+    // printf
+}
 int findWord(int line, char *word){
     // return index of word
     char buf[50];
@@ -654,39 +708,3 @@ int isReserved(char *c){
     }
     return 0;
 }
-
-/*
-import로 시작한다.
-    java.util.Scanner
-        scanf사용
-    java.io.IOException;
-
-    java.io.FileWriter;
-        file IO
-
-class 로 시작한다.
-
-public 로 시작한다.
-    class
-        { 전까지 뒤에 오는 문자가 클래스 이름
-    static
-        void
-            main 
-                메인함수
-
-Scanner로 시작한다.
-    scn 변수 저장
-     = new Scanner(System.in); 이 있는지 확인
-
-int 로 시작
-Stack
-File
-FileWriter
-for
-if
-System.out.printf
-    문자열을 저장 후 printf()로 바꾼다. 
-return
-
-그 외의 경우는 변수로 시작.
-*/
