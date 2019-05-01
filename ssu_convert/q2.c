@@ -4,17 +4,21 @@
 #define STACK_SIZE 10
 	int top;
 	int stack[STACK_SIZE];
+	void Stack(){
 		top = -1;
-		return 0;
+
 	}
 	int peek(){
-		return 0;
+		return stack[top];
+
 	}
 	void push(int value){
-		return 0;
+		stack[++top] = value;
+
 	}
 	int pop(){
-		return 0;
+		return stack[top--];
+
 	}
 	void printStack(){
 		printf("\n-----STACK LIST-----\n");
@@ -22,7 +26,7 @@
 			System.out.printf("%d\n",stack[i]);
 		}
 		printf("-----END OF LIST-----\n");
-		return 0;
+
 	}
 	int main(void){
 		
@@ -43,5 +47,5 @@
 		st.pop();
 		st.push(30);
 		st.printStack();
-		return 0;
+
 	}

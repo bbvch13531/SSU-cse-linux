@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 	int main(void){
 		printf("Enter the number : ");
 		int num;
@@ -16,5 +17,6 @@
 		}
 		printf("Sum of Even number : %d\n", even);
 		printf("Sum of Odd number : %d\n", odd);
-		return 0;
+		exit(0);
+
 	}

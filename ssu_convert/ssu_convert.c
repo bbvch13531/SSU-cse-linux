@@ -209,6 +209,12 @@ void javaToC(void){
                 // cmp2 == 'Stack' initializer
                 else if(strcmp(cmp4, stackclassVar) == 0){
                     printf("생성자\n");
+                    strcat(wbuf[wline], "\tvoid ");
+                    
+                    for(int j=3; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
+                    wline++;
                 }  
             }
             // cmp1 == System
@@ -250,7 +256,7 @@ void javaToC(void){
                     wline++;
                 }
                 // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
-                else if(strcmp(cmp3, "Stack") == 0){
+                else if(strcmp(cmp3, stackclassVar) == 0){
 
                 }
                 // File
@@ -324,16 +330,26 @@ void javaToC(void){
                     wline++;
                 }
                 else if(strcmp(cmp6, "close") == 0){
-                    printf("closeclose\n");
                     strcat(wbuf[wline], "\t\t\tfclose(fp);");
                     wline++;
                 }
                 // q2에서 이 부분 수정해야함.
                 else if(strcmp(cmp3, "return") == 0){
+                    if(strcmp(cmp5, ";") == 0){
+                        sprintf(wbuf[wline], "\t\texit(0);");
+                        wline++;
+                    }
+                    else{
+                        for(int j=0; j<len; j++){
+                            strcat(wbuf[wline], cstr[i][j]);
+                        }
+                        wline++;
+                    }
                     continue;
                 }
 
-                else if(strcmp(cmp3, "stack") == 0){
+                else if(strcmp(cmp7, "new") == 0){
+                    printf("필요없어\n");
                     continue;
                 }
 
@@ -346,6 +362,7 @@ void javaToC(void){
             }
             else if(strcmp(cmp2, "int") == 0){
                 if(strcmp(cmp3, "[") == 0 && strcmp(cmp4, "]") == 0){
+                    // 변수이름은 stack으로 고정
                     strcat(wbuf[wline], "\tint stack[STACK_SIZE];");
                     wline++;
                 }
@@ -357,7 +374,7 @@ void javaToC(void){
                 }
             }
             else{
-                strcat(wbuf[wline], "\t\treturn 0;");
+                // strcat(wbuf[wline], "\t\treturn 0;");
                 wline++;
                 for(int j=0; j<len; j++){
                     strcat(wbuf[wline], cstr[i][j]);

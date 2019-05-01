@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+void Stack();
 int peek();
 void push(int);
 void pop();

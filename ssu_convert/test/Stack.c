@@ -4,8 +4,9 @@
 int top;
 int stack[STACK_SIZE];
 
-top = -1;
-
+void Stack(){
+    top = -1;
+}
 int peek(){
     return stack[top];
 }
