@@ -24,5 +24,6 @@ void printStack();
 		pop();
 		push(30);
 		printStack();
+		exit(0);
 
 	}

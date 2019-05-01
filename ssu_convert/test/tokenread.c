@@ -498,7 +498,6 @@ void writeC(){
     }
     fwrite("\n", 1, 1, wfp);
 
-    // main 전까지 따로 쓴다.
     for(int i=0; i<wline; i++){
         fwrite(wbuf[i], 1, strlen(wbuf[i]), wfp);
         fwrite("\n", 1, 1, wfp);

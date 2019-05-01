@@ -69,16 +69,22 @@ int main(int argc, char **argv){
     while((opt = getopt(argc, argv, "jcpflr")) != -1){
         switch(opt){
             case 'r':
+                flag |= 2; 
                 break;
             case 'j':
+                flag |= 4;
                 break;
             case 'c':
+                flag |= 8;
                 break;
             case 'p':
+                flag |= 16;
                 break;
             case 'f':
+                flag |= 32;
                 break;
             case 'l':
+                flag |= 64;
                 break;
         }
     }
@@ -97,10 +103,40 @@ int main(int argc, char **argv){
 
 
     // 옵션 없는 경우
-    if(flag == 0){
+    printf("%x\n",flag);
+    if(flag & 0){
         printf("%s.c convert Success!\n", targetfilename);
     }
-    if(flag == 1){
+    // -r
+    if(flag & 2){
+
+    }
+    // -j
+    if(flag & 4){
+        for(int i=0; i<lines; i++){
+            printf("%d ",i+1);
+            for(int j=0; j<wordsAtLine[i]; j++){
+                printf("%s",cstr[i][j]);
+            }
+            printf("\n");
+        }
+    }
+    // -c
+    if(flag & 8){
+        for(int i=0; i<wline; i++){
+            printf("%d %s\n",i+1, wbuf[i]);
+        }
+    }
+    // -p
+    if(flag & 16){
+
+    }
+    // -k
+    if(flag & 32){
+
+    }
+    // -l
+    if(flag & 64){
 
     }
     exit(0);
@@ -148,7 +184,7 @@ void javaToC(void){
         // 원하는 단어를 찾기 위해서 parsing이 이후에 필요하다.
         // 지금 구현방법과 크게 달라지지 않을듯.
 
-        printf("%d %d \n1:%s  2:%s  3:%s  4:%s  5:%s  6:%s  7:%s  8:%s  9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
+        // printf("%d %d \n1:%s  2:%s  3:%s  4:%s  5:%s  6:%s  7:%s  8:%s  9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
         // printf("%d %d\n", i, len);
         
         // cmp1 == import
@@ -190,7 +226,7 @@ void javaToC(void){
                         if(strcmp(cmp8, "main") == 0){
                             // copy int main(void){
                             strcpy(wbuf[wline], "\tint main(void){");
-                            printf("%d %d %d\n", i, len, wline);
+                            // printf("%d %d %d\n", i, len, wline);
                             mainline = wline;
                             wline++;
                         }
@@ -215,7 +251,7 @@ void javaToC(void){
                 // cmp2 == 'Stack' initializer
 
                 else if(strcmp(cmp4, stackclassVar) == 0){
-                    printf("생성자\n");
+                    // printf("생성자\n");
                     strcat(wbuf[wline], "\tvoid ");
                     
                     for(int j=3; j<len; j++){
@@ -223,7 +259,7 @@ void javaToC(void){
                     }
                     wline++;
                 }  
-                printf("스택클래스변수%s\n", stackclassVar);
+                // printf("스택클래스변수%s\n", stackclassVar);
             }
             // cmp1 == System
             else if(strcmp(cmp2, "\t") == 0){
@@ -232,10 +268,18 @@ void javaToC(void){
                 }
                 else if(strcmp(cmp3, "\t") == 0){
                     strcat(wbuf[wline], "\t\t\t");
-                    for(int j=7; j<len; j++){
-                        strcat(wbuf[wline], cstr[i][j]);
+                    if(strcmp(cmp6, "close") == 0){
+                        printf("클로즈\n");
+                        strcat(wbuf[wline], "fclose(fp);");
+
+                        wline++;
                     }
-                    wline++;
+                    else{
+                        for(int j=7; j<len; j++){
+                            strcat(wbuf[wline], cstr[i][j]);
+                        }
+                        wline++;
+                    }
                 }
                 else if(strcmp(cmp3, "System") == 0){
                     // cmp3 == out
@@ -256,7 +300,7 @@ void javaToC(void){
                                     strcat(wbuf[wline], cstr[i][j]);
                                 }
                                 // printf("프린트\n%s\n",wbuf[wline]);  
-                                printf("wbuf = %s\n",wbuf[wline]);
+                                // printf("wbuf = %s\n",wbuf[wline]);
                                                       
                                 wline++;
                             }
@@ -267,7 +311,7 @@ void javaToC(void){
                                 for(int j=8; j<12; j++){
                                     strcat(printbuf, cstr[i][j]);
                                 }
-                                printf("프린트에프 %s\n", printbuf);
+                                // printf("프린트에프 %s\n", printbuf);
                                 
                                 sprintf(wbuf[wline], "\t\t%s%s\"%%d", cstr[i][6], cstr[i][7]);
                                 
@@ -334,7 +378,7 @@ void javaToC(void){
                         size += strlen(cstr[i][j]);
                         strcat(wbuf[wline], cstr[i][j]);
                     }
-                    printf("size = %d\n",size);
+                    // printf("size = %d\n",size);
                     sprintf(strsize, "%d",size-1);
                     strcat(wbuf[wline], "\", 1, ");
                     strcat(wbuf[wline], strsize);
@@ -361,10 +405,7 @@ void javaToC(void){
                     }
                     wline++;
                 }
-                else if(strcmp(cmp6, "close") == 0){
-                    strcat(wbuf[wline], "\t\t\tfclose(fp);");
-                    wline++;
-                }
+                
                 // q2에서 이 부분 수정해야함.
                 else if(strcmp(cmp3, "return") == 0){
                     if(strcmp(cmp5, ";") == 0){
@@ -388,7 +429,6 @@ void javaToC(void){
                     wline++;
                 }
                 else if(strcmp(cmp7, "new") == 0){
-                    printf("필요없어\n");
                     continue;
                 }
 
@@ -418,21 +458,30 @@ void javaToC(void){
                 for(int j=0; j<len; j++){
                     strcat(wbuf[wline], cstr[i][j]);
                 }
-                printf("wbuf = %s\n",wbuf[wline]);
+                // printf("wbuf = %s\n",wbuf[wline]);
                 wline++;
             }
         }
-        printf("\n");
+        // printf("\n");
+        if(i == lines-3){
+            strcat(wbuf[wline], "\t\texit(0);");
+            wline++;
+        }
     }
-    printf("----------------\n");
-    printf("filename : %s\n", filename);
+    // printf("----------------\n");
+    // printf("filename : %s\n", filename);
 
     char cfilename[50];
     sprintf(cfilename, "%s.c",filename);
     wfp = fopen(cfilename, "w");
+
+
+
     for(int i=0; i<wline; i++){
         printf("%s\n",wbuf[i]);
     }
+
+    
 }
 
 void parsefile(void){
@@ -515,7 +564,7 @@ void parsefile(void){
             wordsAtLine[lines]++;
         }
         else{
-            printf("EOF\n");
+            // printf("EOF\n");
             break;
             //EOF
         }
@@ -542,7 +591,7 @@ void readHeaderTable(void){
             word[len] = 0;
             firstword = 0;
             len = 0;
-            printf("\n");
+            // printf("\n");
         }
         else{
             // 개행 전까지 글자 입력받아서 headerread에 저장
@@ -560,11 +609,11 @@ void readHeaderTable(void){
             headerread[len] = 0;
             firstword = 1;
             len = 0;
-            printf("\n");
+            // printf("\n");
             // 개행이면 firstword = 1
         }
 
-        printf("%s %s\n",word,headerread);
+        // printf("%s %s\n",word,headerread);
         if(strcmp(word, "open") == 0){
             strcpy(headervalue[0], headerread);
         }

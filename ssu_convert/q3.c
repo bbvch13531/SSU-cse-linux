@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 	int main(void){
-		
 		FILE *fp;
 		char filename[100] = "q3java.txt";
 		/****** 두번째 매개변수 ******/
@@ -21,6 +20,6 @@
 		printf("DONE\n");
 		if(fp != NULL)
 			fclose(fp);
-		
-		return 0;
+		exit(0);
+
 	}
