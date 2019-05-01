@@ -1,5 +1,10 @@
 #include <stdio.h>
 
+int peek();
+void push(int);
+void pop();
+void printStack();
+
 int main(void){
 
     push(5);

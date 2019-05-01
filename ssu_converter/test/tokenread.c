@@ -33,7 +33,7 @@ int intvarinit[5];
 int intcnt=0;
 
 char headerkey[10][20];
-char headervalue[10][50];
+char headervalue[10][100];
 
 /*
 // [0] FileWriter : fopen   open #include <fcntl.h>
@@ -193,7 +193,7 @@ int main(int argc, char **argv){
 }
 void javaToC(void){
     int len, keyIdx;
-    int otherflag;
+    int wlen;
     char cmp1[50], cmp2[50], cmp3[50], cmp4[50], cmp5[50], cmp6[50], cmp7[50], cmp8[50], cmp9[50];
 
 
@@ -202,7 +202,6 @@ void javaToC(void){
 
     for(int i=0; i<lines; i++){
         len = wordsAtLine[i];
-        otherflag = 1;
 
         memset(cmp1, 0, 50);
         memset(cmp2, 0, 50);
@@ -268,6 +267,8 @@ void javaToC(void){
                                 // copy int main(void){
                                 strcpy(wbuf[wline], "\tint main(void){");
                                 printf("%d %d %d\n", i, len, wline);
+                                wlen = strlen(wbuf[wline]);
+                                wbuf[wline][wlen] = 0;
                                 wline++;
                             }
                         }
@@ -301,7 +302,9 @@ void javaToC(void){
                                     strcat(wbuf[wline], cstr[i][j]);
                                 }
                                 // printf("프린트\n%s\n",wbuf[wline]);  
-                                printf("wbuf = %s\n",wbuf[wline]);                      
+                                printf("wbuf = %s\n",wbuf[wline]);
+                                wlen = strlen(wbuf[wline]);
+                                wbuf[wline][wlen] = 0;                      
                                 wline++;
                             }
                             // printf(stack[top] + "") 인 경우
@@ -316,6 +319,9 @@ void javaToC(void){
                     strcat(wbuf[wline], "\t\tscanf(\"%d\", &");
                     strcat(wbuf[wline], cmp3);
                     strcat(wbuf[wline], ");");
+
+                    wlen = strlen(wbuf[wline]);
+                    wbuf[wline][wlen] = 0;
                     wline++;
                 }
                 // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
@@ -324,11 +330,16 @@ void javaToC(void){
                 }
                 // File
                 else if(strcmp(cmp3, "File") == 0){
-                    strcat(wbuf[wline], "\t\tchar filename = \"");
+                    strcat(wbuf[wline], "\t\tFILE *fp;");
+                    wline++;
+
+                    strcat(wbuf[wline], "\t\tchar filename[100] = \"");
                     for(int j=13; j<len-2; j++){
                         strcat(wbuf[wline], cstr[i][j]);
                     }
                     strcat(wbuf[wline], ";");
+                    wlen = strlen(wbuf[wline]);
+                    wbuf[wline][wlen] = 0;
                     wline++;
                 }
                 // FileWriter
@@ -362,7 +373,7 @@ void javaToC(void){
                         strcat(wbuf[wline], cstr[i][j]);
                     }
                     printf("size = %d\n",size);
-                    sprintf(strsize, "%d",size);
+                    sprintf(strsize, "%d",size-1);
                     strcat(wbuf[wline], "\", 1, ");
                     strcat(wbuf[wline], strsize);
                     strcat(wbuf[wline], ", fp);");
@@ -378,6 +389,9 @@ void javaToC(void){
                     for(int j=0; j<len; j++){
                         if(j == 4){
                             strcat(wbuf[wline], "fp");
+                        }
+                        else if(j == 9){
+                            strcat(wbuf[wline], "NULL");
                         }
                         else{
                             strcat(wbuf[wline], cstr[i][j]);
@@ -609,6 +623,10 @@ void readHeaderTable(void){
         else{
             // 개행 전까지 글자 입력받아서 headerread에 저장
             while(ch != '\n'){
+                if(ch == '#'){
+                    headerread[len] = '\n';
+                    len++;  
+                }
                 headerread[len] = ch;
                 len++;
                 ch = fgetc(htp);
@@ -644,8 +662,23 @@ void readHeaderTable(void){
 }
 
 void writeC(){
+    // 헤더 검사해서 #include 추가.
+    if(strcmp(headerkey[0], "open") == 0){
+        //write headerread[0]
+        fwrite(headervalue[0], 1, strlen(headervalue[0]), wfp);
+    }
+    if(strcmp(headerkey[1], "exit") == 0){
+        //write headervalue[1]
+        fwrite(headervalue[1], 1, strlen(headervalue[1]), wfp);
+    }
+    if(strcmp(headerkey[2], "printf") == 0){
+        //write headervalue[2]
+        fwrite(headervalue[2], 1, strlen(headervalue[2]), wfp);
+    }
+    fwrite("\n", 1, 1, wfp);
     for(int i=0; i<wline; i++){
-        
+        fwrite(wbuf[i], 1, strlen(wbuf[i]), wfp);
+        fwrite("\n", 1, 1, wfp);
     }
 }
 
