@@ -29,6 +29,7 @@ char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크
 char filename[50], nextWord[50], searchWord[50];
 char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
 char definebuf[100]; // define buffer
+char stackfunctionbuf[10][100];
 
 int flag = 0; // opt flag
 char targetfilename[50];    // q1.java, q2.java, q3.java in argc[1]
@@ -174,8 +175,9 @@ void javaToC(void){
             // stkfp와 wfp 를 분리해서 wbuf에서 써야함. line 카운트 별도로!
 
             strcpy(stackclassVar, cmp3);
-            strcat(stackclassVar, ".c");
-            stkfp = fopen(stackclassVar, "w");
+            char stackfilename[50];
+            sprintf(stackfilename, "%s.c",stackclassVar);
+            stkfp = fopen(stackfilename, "w");
             
         }
         else if(strcmp(cmp1, "\t") == 0){
@@ -204,11 +206,14 @@ void javaToC(void){
                     strcat(wbuf[wline], "\t");
                     for(int j=3; j<len; j++){
                         strcat(wbuf[wline], cstr[i][j]);
-
+                        if(j != len-1)
+                           strcat(stackfunctionbuf, cstr[i][j]);
                     }
+                    strcat(stackfunctionbuf, ";\n");
                     wline++;
                 }
                 // cmp2 == 'Stack' initializer
+
                 else if(strcmp(cmp4, stackclassVar) == 0){
                     printf("생성자\n");
                     strcat(wbuf[wline], "\tvoid ");
@@ -218,6 +223,7 @@ void javaToC(void){
                     }
                     wline++;
                 }  
+                printf("스택클래스변수%s\n", stackclassVar);
             }
             // cmp1 == System
             else if(strcmp(cmp2, "\t") == 0){
@@ -241,8 +247,12 @@ void javaToC(void){
                             
                             // printf("") 인 경우
                             if(strcmp(cstr[i][8], "\"") == 0){
+
                                 strcat(wbuf[wline], "\t\t");
                                 for(int j=6; j<len; j++){
+                                    // st.peek()포함하는 경우
+                                    if(strcmp(cstr[i][j+1], "peek") == 0 ||strcmp(cstr[i][j+2], "peek") == 0 )
+                                        continue;
                                     strcat(wbuf[wline], cstr[i][j]);
                                 }
                                 // printf("프린트\n%s\n",wbuf[wline]);  
@@ -369,7 +379,14 @@ void javaToC(void){
                     }
                     continue;
                 }
-
+                else if(strcmp(cmp5, "push") == 0 || strcmp(cmp5, "pop") == 0 || strcmp(cmp5, "printStack") == 0){
+                    strcat(wbuf[wline], "\t\t");
+                    for(int j=4; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                       
+                    }
+                    wline++;
+                }
                 else if(strcmp(cmp7, "new") == 0){
                     printf("필요없어\n");
                     continue;
@@ -570,6 +587,8 @@ void readHeaderTable(void){
 
 void writeC(){
     if(stkfp != 0){
+        fwrite(headervalue[2], 1, strlen(headervalue[2]), stkfp);
+        fwrite("\n", 1, 1, stkfp);
         if(strlen(definebuf) != 0){
             fwrite(definebuf, 1, strlen(definebuf), stkfp);
         }
@@ -578,6 +597,7 @@ void writeC(){
             fwrite(wbuf[i], 1, strlen(wbuf[i]), stkfp);
             fwrite("\n", 1, 1, stkfp);
         }
+        
     }
     // 헤더 검사해서 #include 추가.
     if(strcmp(headerkey[0], "open") == 0){
@@ -595,9 +615,9 @@ void writeC(){
     fwrite("\n", 1, 1, wfp);
     // #define 추가
 
-
-    
-
+    if(stkfp != 0){
+        fwrite(stackfunctionbuf, 1, strlen(stackfunctionbuf), wfp);
+    }
     // main전까지 읽는다.
     // 헤더는 메인에만 추가.
     for(int i=mainline; i<wline; i++){
@@ -612,8 +632,13 @@ void createMakefile(){
     char writebuf[2000];
     sprintf(makefilename, "%s_Makefile", filename);
     mfp = fopen(makefilename, "w+");
-    
-    sprintf(writebuf, "%s: %s.c\n\tgcc -o %s.out %s.c", filename, filename, filename, filename);
+    if(stkfp != 0){
+        sprintf(writebuf, "%s: %s.c %s.c\n\tgcc -o %s.out %s.c %s.c", filename, filename, stackclassVar, filename, filename, stackclassVar);
+    }
+    else{
+        sprintf(writebuf, "%s: %s.c\n\tgcc -o %s.out %s.c", filename, filename, filename, filename);
+
+    }
 
     fwrite(writebuf, 1, strlen(writebuf), mfp);
 }
