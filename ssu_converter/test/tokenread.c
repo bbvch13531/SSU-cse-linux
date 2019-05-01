@@ -212,7 +212,7 @@ void javaToC(void){
         memset(cmp7, 0, 50);
         memset(cmp8, 0, 50);
         memset(cmp9, 0, 50);
-        
+
         strcpy(cmp1, cstr[i][0]);
         if(len>=8)
             strncpy(cmp9, cstr[i][8], 50);
@@ -274,8 +274,7 @@ void javaToC(void){
                                 // copy int main(void){
                                 strcpy(wbuf[wline], "\tint main(void){");
                                 printf("%d %d %d\n", i, len, wline);
-                                wlen = strlen(wbuf[wline]);
-                                wbuf[wline][wlen] = 0;
+                                
                                 wline++;
                             }
                         }
@@ -310,8 +309,7 @@ void javaToC(void){
                                 }
                                 // printf("프린트\n%s\n",wbuf[wline]);  
                                 printf("wbuf = %s\n",wbuf[wline]);
-                                wlen = strlen(wbuf[wline]);
-                                wbuf[wline][wlen] = 0;                      
+                                                      
                                 wline++;
                             }
                             // printf(stack[top] + "") 인 경우
@@ -327,8 +325,7 @@ void javaToC(void){
                     strcat(wbuf[wline], cmp3);
                     strcat(wbuf[wline], ");");
 
-                    wlen = strlen(wbuf[wline]);
-                    wbuf[wline][wlen] = 0;
+                    
                     wline++;
                 }
                 // cmp1 == Stack q2 main에서 Stack st = new Stack()하는 부분.
@@ -345,8 +342,7 @@ void javaToC(void){
                         strcat(wbuf[wline], cstr[i][j]);
                     }
                     strcat(wbuf[wline], ";");
-                    wlen = strlen(wbuf[wline]);
-                    wbuf[wline][wlen] = 0;
+                    
                     wline++;
                 }
                 // FileWriter
