@@ -1,5 +1,6 @@
 #include <stdio.h>
 #define STACK_SIZE 10
+
 int top = -1;
 int stack[STACK_SIZE];
 

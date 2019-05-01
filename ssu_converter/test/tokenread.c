@@ -52,7 +52,7 @@ int main(int argc, char **argv){
     char headertable[50] ="headerTable.txt";     
     char * token;
 
-    fp = fopen("../javafile/q3.java", "r");
+    fp = fopen("../javafile/q2.java", "r");
     wfp = fopen(fname, "w");
     cfp = fopen("test.c", "w");
     htp = fopen(headertable, "r");
@@ -210,9 +210,9 @@ void javaToC(void){
         memset(cmp5, 0, 50);
         memset(cmp6, 0, 50);
         memset(cmp7, 0, 50);
+        memset(cmp8, 0, 50);
         memset(cmp9, 0, 50);
-
-        memset(cmp7, 0, 50);
+        
         strcpy(cmp1, cstr[i][0]);
         if(len>=8)
             strncpy(cmp9, cstr[i][8], 50);
@@ -250,12 +250,19 @@ void javaToC(void){
         else if(strcmp(cmp1, "public") == 0){
             // cmp2 == class
             if(strcmp(cmp3, "class") == 0){
-                // filename is q1, q2, q3 or Stack
+                // filename is q1, q2, q3
                 strcpy(filename, cmp5);
             }
             // cmp2 == static
             
         }    
+        // cmp1 == class
+        else if(strcmp(cmp1, "class") == 0){
+            // cmp3 == Stack
+            if(strcmp(cmp3, "Stack") == 0){
+                printf("스택\n");
+            }
+        }
         else if(strcmp(cmp1, "\t") == 0){
 
             if(strcmp(cmp2, "public") == 0){
