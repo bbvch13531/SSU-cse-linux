@@ -21,7 +21,7 @@ void readHeaderTable(void);
 void createMakefile(void);
 
 int wordsAtLine[100], lines=0, wline=0;
-
+int mainline;
 char buf[2000], word[500];
 
 char cstr[100][100][50]; // 읽어온 string cstr[line개수][word개수][word의 크기]
@@ -45,6 +45,7 @@ char headervalue[10][100];
 FILE *fp, *wfp, *cfp;
 FILE *hfp;  // header table file pointer
 FILE *mfp;  // makefile file pointer
+
 FILE *stkfp;    // stack.c file pointer
 
 int main(int argc, char **argv){
@@ -172,8 +173,9 @@ void javaToC(void){
             // Stack.c 파일 포인터 열고 새 파일 만들어야함.
             // stkfp와 wfp 를 분리해서 wbuf에서 써야함. line 카운트 별도로!
 
-            printf("스택\n");
             strcpy(stackclassVar, cmp3);
+            strcat(stackclassVar, ".c");
+            stkfp = fopen(stackclassVar, "w");
             
         }
         else if(strcmp(cmp1, "\t") == 0){
@@ -187,7 +189,7 @@ void javaToC(void){
                             // copy int main(void){
                             strcpy(wbuf[wline], "\tint main(void){");
                             printf("%d %d %d\n", i, len, wline);
-                            
+                            mainline = wline;
                             wline++;
                         }
                     }
@@ -222,13 +224,20 @@ void javaToC(void){
                 if(strcmp(cmp3, "Scanner") == 0){
                     continue;
                 }
+                else if(strcmp(cmp3, "\t") == 0){
+                    strcat(wbuf[wline], "\t\t\t");
+                    for(int j=7; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
+                    wline++;
+                }
                 else if(strcmp(cmp3, "System") == 0){
                     // cmp3 == out
                     if(strcmp(cmp5, "out") == 0){
                         // cmp5 == printf
                         if(strcmp(cmp7, "printf") == 0){
                             // printf("%s\n", cstr[i][6]);
-                            printf("프린트\n");
+                            // printf("프린트\n");
                             
                             // printf("") 인 경우
                             if(strcmp(cstr[i][8], "\"") == 0){
@@ -243,7 +252,20 @@ void javaToC(void){
                             }
                             // printf(stack[top] + "") 인 경우
                             else {
-
+                                char printbuf[50];
+                                memset(printbuf, 0, 50);
+                                for(int j=8; j<12; j++){
+                                    strcat(printbuf, cstr[i][j]);
+                                }
+                                printf("프린트에프 %s\n", printbuf);
+                                
+                                sprintf(wbuf[wline], "\t\t%s%s\"%%d", cstr[i][6], cstr[i][7]);
+                                
+                                for(int j=16; j<22; j++){
+                                    strcat(wbuf[wline], cstr[i][j]);
+                                }
+                                sprintf(wbuf[wline], "%s\", %s);", wbuf[wline],printbuf);
+                                wline++;
                             }
                         }
                     }
@@ -547,6 +569,16 @@ void readHeaderTable(void){
 }
 
 void writeC(){
+    if(stkfp != 0){
+        if(strlen(definebuf) != 0){
+            fwrite(definebuf, 1, strlen(definebuf), stkfp);
+        }
+        fwrite("\n", 1, 1, stkfp);
+        for(int i=0; i<mainline; i++){
+            fwrite(wbuf[i], 1, strlen(wbuf[i]), stkfp);
+            fwrite("\n", 1, 1, stkfp);
+        }
+    }
     // 헤더 검사해서 #include 추가.
     if(strcmp(headerkey[0], "open") == 0){
         //write headerread[0]
@@ -561,11 +593,14 @@ void writeC(){
         fwrite(headervalue[2], 1, strlen(headervalue[2]), wfp);
     }
     fwrite("\n", 1, 1, wfp);
-    if(strlen(definebuf) != 0){
-        fwrite(definebuf, 1, strlen(definebuf), wfp);
-    }
-    fwrite("\n", 1, 1, wfp);
-    for(int i=0; i<wline; i++){
+    // #define 추가
+
+
+    
+
+    // main전까지 읽는다.
+    // 헤더는 메인에만 추가.
+    for(int i=mainline; i<wline; i++){
         fwrite(wbuf[i], 1, strlen(wbuf[i]), wfp);
         fwrite("\n", 1, 1, wfp);
     }

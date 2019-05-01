@@ -1,35 +1,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#define STACK_SIZE 10
-	int top;
-	int stack[STACK_SIZE];
-	void Stack(){
-		top = -1;
-
-	}
-	int peek(){
-		return stack[top];
-
-	}
-	void push(int value){
-		stack[++top] = value;
-
-	}
-	int pop(){
-		return stack[top--];
-
-	}
-	void printStack(){
-		printf("\n-----STACK LIST-----\n");
-		for(int i=top; i>=0; i--){
-			System.out.printf("%d\n",stack[i]);
-		}
-		printf("-----END OF LIST-----\n");
-
-	}
 	int main(void){
 		
+		Stack st = new Stack();
 		st.push(5);
 		st.push(2);
 		st.push(3);

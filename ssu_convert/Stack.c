@@ -1,0 +1,28 @@
+#define STACK_SIZE 10
+	int top;
+	int stack[STACK_SIZE];
+		top = -1;
+
+	}
+	int peek(){
+		return stack[top];
+
+	}
+	void push(int value){
+		stack[++top] = value;
+		printf("%d PUSH !\n", stack[top]);
+
+	}
+	int pop(){
+		printf("%d POP !\n", stack[top]);
+		return stack[top--];
+
+	}
+	void printStack(){
+		printf("\n-----STACK LIST-----\n");
+		for(int i=top; i>=0; i--){
+			printf("%d\n",stack[i]);
+		}
+		printf("-----END OF LIST-----\n");
+
+	}
