@@ -12,7 +12,6 @@
 #define OTHERS 2
 
 int charType(char);
-int isReserved(char *);
 void javaToC();
 void writeC();
 void readHeaderTable();
@@ -96,9 +95,7 @@ int main(int argc, char **argv){
                     wordsAtLine[lines]++;
 
                     strcat(buf, word);
-                    if(isReserved(word) == 1){
-                        // printf("Reserved\n");
-                    }
+
                     break;
                 }
             }
@@ -726,42 +723,4 @@ int charType(char c){
     else{
         return OTHERS;
     }
-}
-int isReserved(char *c){
-    
-    char keywords[][20]={
-        "import",
-        "public",
-        "static",
-        "void",
-        "main",
-        "class",
-        "String",
-        "Scanner",
-        "System",
-        "out",
-        "in",
-        "printf",
-        "int",
-        "for",
-        "if",
-        "else",
-        "return",
-        "final",
-        "void",
-        "Stack",
-        "throws",
-        "IOException",
-        "File",
-        "FileWriter",
-        "null"
-    };   //25
-
-    for(int i=0; i<25; i++){
-        if(strcmp(keywords[i], c) == 0){
-            // printf("%s\n",c);
-            return 1;
-        }
-    }
-    return 0;
 }
