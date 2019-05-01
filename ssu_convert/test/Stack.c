@@ -1,8 +1,10 @@
 #include <stdio.h>
 #define STACK_SIZE 10
 
-int top = -1;
+int top;
 int stack[STACK_SIZE];
+
+top = -1;
 
 int peek(){
     return stack[top];

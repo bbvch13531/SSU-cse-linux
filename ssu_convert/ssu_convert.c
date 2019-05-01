@@ -28,6 +28,7 @@ char cstr[100][100][50]; // 읽어온 string cstr[line개수][word개수][word�
 char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크기]
 char filename[50], nextWord[50], searchWord[50];
 char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
+char definebuf[100]; // define buffer
 
 int flag = 0; // opt flag
 char targetfilename[50];    // q1.java, q2.java, q3.java in argc[1]
@@ -44,7 +45,7 @@ char headervalue[10][100];
 FILE *fp, *wfp, *cfp;
 FILE *hfp;  // header table file pointer
 FILE *mfp;  // makefile file pointer
-
+FILE *stkfp;    // stack.c file pointer
 
 int main(int argc, char **argv){
     int opt;
@@ -145,7 +146,7 @@ void javaToC(void){
         // 원하는 단어를 찾기 위해서 parsing이 이후에 필요하다.
         // 지금 구현방법과 크게 달라지지 않을듯.
 
-        printf("%d %d \n1:%s \n2:%s \n3:%s \n4:%s \n5:%s \n6:%s \n7:%s \n8:%s \n9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
+        printf("%d %d \n1:%s  2:%s  3:%s  4:%s  5:%s  6:%s  7:%s  8:%s  9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
         // printf("%d %d\n", i, len);
         
         // cmp1 == import
@@ -164,40 +165,51 @@ void javaToC(void){
                 // filename is q1, q2, q3
                 strcpy(filename, cmp5);
             }
-            // cmp2 == static
-            
         }    
         // cmp1 == class
         else if(strcmp(cmp1, "class") == 0){
             // cmp3 == Stack
-            if(strcmp(cmp3, "Stack") == 0){
-                printf("스택\n");
-            }
+            // Stack.c 파일 포인터 열고 새 파일 만들어야함.
+            // stkfp와 wfp 를 분리해서 wbuf에서 써야함. line 카운트 별도로!
+
+            printf("스택\n");
+            strcpy(stackclassVar, cmp3);
+            
         }
         else if(strcmp(cmp1, "\t") == 0){
 
             if(strcmp(cmp2, "public") == 0){
                 if(strcmp(cmp4, "static") == 0){
-                        // cmp3 == void
-                        if(strcmp(cmp6, "void") == 0){
-                            // cmp4 == main
-                            if(strcmp(cmp8, "main") == 0){
-                                // copy int main(void){
-                                strcpy(wbuf[wline], "\tint main(void){");
-                                printf("%d %d %d\n", i, len, wline);
-                                
-                                wline++;
-                            }
+                    // cmp3 == void
+                    if(strcmp(cmp6, "void") == 0){
+                        // cmp4 == main
+                        if(strcmp(cmp8, "main") == 0){
+                            // copy int main(void){
+                            strcpy(wbuf[wline], "\tint main(void){");
+                            printf("%d %d %d\n", i, len, wline);
+                            
+                            wline++;
                         }
                     }
-                    // cmp2 == int || cmp2 == void. public functions
-                    else if(strcmp(cmp4, "int") == 0 || strcmp(cmp4, "void") == 0){
+                    else if(strcmp(cmp6, "final") == 0){
+                        sprintf(definebuf, "#define %s%s%s %s", cstr[i][9], cstr[i][10], cstr[i][11], cstr[i][15]);
+                        // printf("%s 9:%s 10:%s 11:%s 15:%s\n",definebuf, cstr[i][9], cstr[i][10], cstr[i][11], cstr[i][15]);
+                    }
+                }
+                
+                // cmp2 == int || cmp2 == void. public functions
+                else if(strcmp(cmp4, "int") == 0 || strcmp(cmp4, "void") == 0){
+                    strcat(wbuf[wline], "\t");
+                    for(int j=3; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
 
                     }
-                    // cmp2 == 'Stack' initializer
-                    else if(strcmp(cmp4, stackclassVar) == 0){
-
-                    }  
+                    wline++;
+                }
+                // cmp2 == 'Stack' initializer
+                else if(strcmp(cmp4, stackclassVar) == 0){
+                    printf("생성자\n");
+                }  
             }
             // cmp1 == System
             else if(strcmp(cmp2, "\t") == 0){
@@ -231,11 +243,9 @@ void javaToC(void){
                     }
                 }
                 else if(strcmp(cmp9, "nextInt") == 0){
-                    printf("스캔에프\n");
                     strcat(wbuf[wline], "\t\tscanf(\"%d\", &");
                     strcat(wbuf[wline], cmp3);
                     strcat(wbuf[wline], ");");
-
                     
                     wline++;
                 }
@@ -318,10 +328,28 @@ void javaToC(void){
                     strcat(wbuf[wline], "\t\t\tfclose(fp);");
                     wline++;
                 }
+                // q2에서 이 부분 수정해야함.
                 else if(strcmp(cmp3, "return") == 0){
                     continue;
                 }
+
+                else if(strcmp(cmp3, "stack") == 0){
+                    continue;
+                }
+
                 else {
+                    for(int j=0; j<len; j++){
+                        strcat(wbuf[wline], cstr[i][j]);
+                    }
+                    wline++;
+                }
+            }
+            else if(strcmp(cmp2, "int") == 0){
+                if(strcmp(cmp3, "[") == 0 && strcmp(cmp4, "]") == 0){
+                    strcat(wbuf[wline], "\tint stack[STACK_SIZE];");
+                    wline++;
+                }
+                else{
                     for(int j=0; j<len; j++){
                         strcat(wbuf[wline], cstr[i][j]);
                     }
@@ -514,6 +542,10 @@ void writeC(){
     if(strcmp(headerkey[2], "printf") == 0){
         //write headervalue[2]
         fwrite(headervalue[2], 1, strlen(headervalue[2]), wfp);
+    }
+    fwrite("\n", 1, 1, wfp);
+    if(strlen(definebuf) != 0){
+        fwrite(definebuf, 1, strlen(definebuf), wfp);
     }
     fwrite("\n", 1, 1, wfp);
     for(int i=0; i<wline; i++){

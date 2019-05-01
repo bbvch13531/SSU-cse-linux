@@ -1,0 +1,2 @@
+q2: q2.c
+	gcc -o q2.out q2.c
