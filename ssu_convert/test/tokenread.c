@@ -28,10 +28,6 @@ char wbuf[100][500];    // .c파일에 쓸 write buf[line의 개수][line의 크
 char filename[50], nextWord[50], searchWord[50];
 char stackclassVar[50], filrWriterVar[50], fileVar[50], stackVar[50], scannerVar[50], inputVar[50];
 
-char intvar[5][10];
-int intvarinit[5];
-int intcnt=0;
-
 char headerkey[10][20];
 char headervalue[10][100];
 
@@ -87,13 +83,11 @@ int main(int argc, char **argv){
                 else{
                     word[idx] = 0;
                     idx = 0;
-                    // printf("C = %s\n",word);
                     ungetc(ch, fp);
-                    
+
                     strcpy(cstr[lines][wordsAtLine[lines]], word);
                     
                     wordsAtLine[lines]++;
-
                     strcat(buf, word);
 
                     break;
@@ -118,13 +112,11 @@ int main(int argc, char **argv){
                 else{
                     word[idx] = 0;
                     idx = 0;
-                    // printf("D = %s\n",word);
                     ungetc(ch, fp);
 
                     strcpy(cstr[lines][wordsAtLine[lines]], word);
                     
                     wordsAtLine[lines]++;
-                    
                     strcat(buf, word);
                     break;
                 }
@@ -141,24 +133,16 @@ int main(int argc, char **argv){
             word[idx++] = ch;
             word[idx] = 0;
             idx = 0;
-            /*
-            if(ch == '\n'){
-                printf("--------------------\n");
-            }
-            else{
-                printf("O = %s\n",word);
-            }
-            */
+
             strcat(buf, word);
 
             strcpy(cstr[lines][wordsAtLine[lines]], word);
-                    
             wordsAtLine[lines]++;
         }
         else{
             printf("EOF\n");
             break;
-            //EOFs
+            //EOF
         }
     }
 
