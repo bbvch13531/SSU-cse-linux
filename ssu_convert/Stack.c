@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #define STACK_SIZE 10
 	int top;
@@ -8,7 +7,6 @@
 
 	}
 	int peek(){
-		return stack[top];
 
 	}
 	void push(int value){
@@ -18,7 +16,6 @@
 	}
 	int pop(){
 		printf("%d POP !\n", stack[top]);
-		return stack[top--];
 
 	}
 	void printStack(){

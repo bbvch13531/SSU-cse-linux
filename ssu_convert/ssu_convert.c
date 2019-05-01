@@ -3,10 +3,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-#include <pthread.h>
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/types.h>
 
 #define EOF -1
 #define CHAR 0
@@ -52,6 +52,9 @@ FILE *stkfp;    // stack.c file pointer
 
 int main(int argc, char **argv){
     int opt;
+    int javasize, csize, stacksize;
+    pid_t pid;
+    int ret_val, status;
     // Handling options
     /*
         j
@@ -102,15 +105,39 @@ int main(int argc, char **argv){
     // C파일 만든다
     // 
 
-
     // 옵션 없는 경우
-    printf("%x\n",flag);
-    if(flag & 0){
-        printf("%s.c convert Success!\n", targetfilename);
+    printf("%d\n",flag);
+    if(flag & 1){
+        printf("%s.c convert Success!\n", filename);
     }
     // -r
     if(flag & 2){
+        int max;
+        max = lines > wline ? lines : wline;
+        printf("%d\n",max);
+        for(int i=0; i<max; i++){
+            system("clear");
 
+            if((pid = fork()) == 0){    // 자식프로세스
+                for(int j=0; j<i; j++){
+                    printf("%d  ", j+1);
+                    for(int k=0; k<wordsAtLine[j]; k++){
+                        printf("%s",cstr[j][k]);
+                    }
+                    printf("\n");
+                }
+                sleep(1);
+                exit(0);
+            }
+
+            if(pid > 0){
+                for(int j=0; j<i; j++){
+                    printf("%d  %s\n", j+1, wbuf[j]);
+                }
+                printf("---------------------------------\n");
+                ret_val = wait(&status);
+            }
+        }
     }
     // -j
     if(flag & 4){
@@ -130,18 +157,14 @@ int main(int argc, char **argv){
     }
     // -p
     if(flag & 16){
-
-    }
-    // -f
-    if(flag & 32){
-        if(strcmp(targetfilename, "q1") == 0){
+         if(strcmp(filename, "q1") == 0){
             printf("1 System.out.printf() -> printf()\n");
             printf("2 scn.nextInt() -> scanf()\n");
         }
-        else if(strcmp(targetfilename, "q2") == 0){
+        else if(strcmp(filename, "q2") == 0){
             printf("1 System.out.printf() -> printf()\n");
         }
-        else if(strcmp(targetfilename, "q3") == 0){
+        else if(strcmp(filename, "q3") == 0){
             printf("1 System.out.printf() -> printf()\n");
             printf("2 new FileWriter() -> fopen()\n");
             printf("3 writer.write() -> fwrite()\n");
@@ -149,9 +172,68 @@ int main(int argc, char **argv){
             printf("5 writer.close() -> fclose()\n");
         }
     }
+    // -f
+    if(flag & 32){
+        fseek(wfp, 0, SEEK_SET);
+        fseek(wfp, 0, SEEK_END);
+        csize = ftell(wfp);
+
+        fseek(fp, 0, SEEK_SET);
+        fseek(fp, 0, SEEK_END);
+        javasize = ftell(fp);
+        printf("%s.java file size is %d bytes\n", filename, javasize);
+        printf("%s.c file size is %d bytes\n", filename, csize);
+
+        if(stkfp != 0){
+                fseek(stkfp, 0, SEEK_SET);
+                fseek(stkfp, 0, SEEK_END);
+                stacksize = ftell(stkfp);
+                printf("%s.c file size is %d bytes\n", stackclassVar, stacksize);
+        }
+    }
     // -l
     if(flag & 64){
+        rewind(fp);
 
+        int cline=0, javaline = 0, stackline = 0;
+        char ch;
+
+        fseek(wfp, 0, SEEK_SET);
+        rewind(wfp);
+        printf("feof : %d\n",feof(wfp));
+
+        while(1){
+            ch = fgetc(wfp);
+            printf("1 %d\n", ch);
+            if(ch == '\n'){
+                cline++;
+            }
+            if(ch == EOF) break;
+        }
+
+        while(1){
+            ch = fgetc(fp);
+            if(ch == EOF) break;
+            if(ch == '\n'){
+                javaline++;
+            }
+        }
+
+        printf("%s.java line number is %d lines\n", filename, javaline);
+        printf("%s.c line number is %d lines\n", filename, cline);
+
+        if(stkfp != 0){
+            while(1){
+                ch = fgetc(stkfp);
+                if(ch == EOF) break;
+                if(ch == '\n'){
+                    stackline++;
+                }
+            }
+
+            rewind(stkfp);
+            printf("%s.c line number is %d lines\n", stackclassVar, stackline);
+        }
     }
     exit(0);
 }
@@ -198,8 +280,8 @@ void javaToC(void){
         // 원하는 단어를 찾기 위해서 parsing이 이후에 필요하다.
         // 지금 구현방법과 크게 달라지지 않을듯.
 
-        // printf("%d %d \n1:%s  2:%s  3:%s  4:%s  5:%s  6:%s  7:%s  8:%s  9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
-        // printf("%d %d\n", i, len);
+        printf("%d %d \n1:%s  2:%s  3:%s  4:%s  5:%s  6:%s  7:%s  8:%s  9:%s\n", i, len, cmp1, cmp2, cmp3, cmp4, cmp5, cmp6, cmp7, cmp8, cmp9);
+        printf("%d %d\n", i, len);
         
         // cmp1 == import
         if(strcmp(cmp1, "import") == 0){
@@ -281,15 +363,22 @@ void javaToC(void){
                     continue;
                 }
                 else if(strcmp(cmp3, "\t") == 0){
-                    strcat(wbuf[wline], "\t\t\t");
                     if(strcmp(cmp6, "close") == 0){
                         printf("클로즈\n");
+                        strcat(wbuf[wline], "\t\t\t");
                         strcat(wbuf[wline], "fclose(fp);");
 
                         wline++;
                     }
-                    else{
+                    else if(strcmp(cmp4, "System") == 0){
+                        strcat(wbuf[wline], "\t\t\t");
                         for(int j=7; j<len; j++){
+                            strcat(wbuf[wline], cstr[i][j]);
+                        }
+                        wline++;
+                    }
+                    else{
+                        for(int j=0; j<len; j++){
                             strcat(wbuf[wline], cstr[i][j]);
                         }
                         wline++;
@@ -422,16 +511,6 @@ void javaToC(void){
                 
                 // q2에서 이 부분 수정해야함.
                 else if(strcmp(cmp3, "return") == 0){
-                    if(strcmp(cmp5, ";") == 0){
-                        sprintf(wbuf[wline], "\t\texit(0);");
-                        wline++;
-                    }
-                    else{
-                        for(int j=0; j<len; j++){
-                            strcat(wbuf[wline], cstr[i][j]);
-                        }
-                        wline++;
-                    }
                     continue;
                 }
                 else if(strcmp(cmp5, "push") == 0 || strcmp(cmp5, "pop") == 0 || strcmp(cmp5, "printStack") == 0){
@@ -477,18 +556,13 @@ void javaToC(void){
             }
         }
         // printf("\n");
-        if(i == lines-3){
+        if(i == lines-3 ){
             strcat(wbuf[wline], "\t\texit(0);");
             wline++;
         }
     }
     // printf("----------------\n");
     // printf("filename : %s\n", filename);
-
-    char cfilename[50];
-    sprintf(cfilename, "%s.c",filename);
-    wfp = fopen(cfilename, "w");
-
 
 
     for(int i=0; i<wline; i++){
@@ -591,7 +665,7 @@ void readHeaderTable(void){
     char word[10];
     char headerread[100];
     int len=0;
-    int firstword = 1;
+    int firstword = 1, firstheader = 1;
 
     hfp = fopen("headerTable.txt", "r");
     while((ch = fgetc(hfp)) != EOF){
@@ -605,14 +679,24 @@ void readHeaderTable(void){
             word[len] = 0;
             firstword = 0;
             len = 0;
+
+            firstheader = 1;
             // printf("\n");
         }
         else{
             // 개행 전까지 글자 입력받아서 headerread에 저장
             while(ch != '\n'){
                 if(ch == '#'){
-                    headerread[len] = '\n';
-                    len++;  
+                    if(firstheader == 1){
+                        firstheader = 0;
+                    }
+                    else{
+                        printf("두번쨰헤더\n");
+                        headerread[len] = '\n';
+                    len++;
+                    }
+                    
+                     
                 }
                 headerread[len] = ch;
                 len++;
@@ -620,6 +704,8 @@ void readHeaderTable(void){
                 if(ch == -1)
                     break;
             }
+            headerread[len] = '\n';
+                    len++;
             headerread[len] = 0;
             firstword = 1;
             len = 0;
@@ -649,6 +735,12 @@ void readHeaderTable(void){
 }
 
 void writeC(){
+
+    char cfilename[50];
+    sprintf(cfilename, "%s.c",filename);
+    wfp = fopen(cfilename, "w");
+
+
     if(stkfp != 0){
         fwrite(headervalue[2], 1, strlen(headervalue[2]), stkfp);
         fwrite("\n", 1, 1, stkfp);
