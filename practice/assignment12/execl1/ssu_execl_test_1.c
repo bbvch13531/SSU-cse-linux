@@ -3,7 +3,7 @@
 
 int main(int argc, char ** argv){
 	extern char **environ;
-	cjar ** str;
+	char ** str;
 	int i;
 
 	for(i = 0; i < argc; i++)
