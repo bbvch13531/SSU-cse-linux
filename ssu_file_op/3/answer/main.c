@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
 
 	ftl_open();    // ftl_read(), ftl_write() 호출하기 전에 이 함수를 반드시 호출해야 함
 
-	printf("asdasd\n");
 	ftl_write(0,"A0");
 	ftl_write(1,"A1");
 	ftl_write(2,"A2");

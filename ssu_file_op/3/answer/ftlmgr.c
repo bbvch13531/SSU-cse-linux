@@ -45,7 +45,7 @@ void ftl_open(){
 //
 void ftl_read(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
-
+	
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	pbn = addressMappingTable[lbn];
@@ -66,6 +66,9 @@ void ftl_read(int lsn, char *sectorbuf){
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn, freeparity, newpbn;
 	char chkbuf[PAGE_SIZE];
+	char data[PAGE_SIZE];
+
+	strcpy(data, sectorbuf);
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	pbn = addressMappingTable[lbn];
@@ -80,8 +83,8 @@ void ftl_write(int lsn, char *sectorbuf){
 			}
 		}
 		ppn = pbn * PAGES_PER_BLOCK + offset;
-		sectorbuf[SECTOR_SIZE] = 1;
-		dd_write(ppn, sectorbuf);
+		data[SECTOR_SIZE] = 1;
+		dd_write(ppn, data);
 		// printf("write page first time lsn = %d, ppn = %d\n", lsn, ppn);
 	}
 	// address mapping table is initialized
@@ -91,8 +94,8 @@ void ftl_write(int lsn, char *sectorbuf){
 		if(freeparity == -1){	// free page
 			// assign to page
 			ppn = pbn * PAGES_PER_BLOCK + offset;
-			sectorbuf[SECTOR_SIZE] = 1;
-			dd_write(ppn, sectorbuf);
+			data[SECTOR_SIZE] = 1;
+			dd_write(ppn, data);
 			// printf("write in free page lsn = %d, ppn = %d\n", lsn, ppn);
 		}
 		else{	// in-place update
@@ -112,7 +115,7 @@ void ftl_write(int lsn, char *sectorbuf){
 			// dd_read, dd_write하는 방향으로 구현함.
 			// 새로운 page는 다시 dd_Write. 흠... 이건 좀 아닌 것 같다. 질문하고 확인해볼 것.
 
-			dd_write(newpbn + offset, sectorbuf);
+			dd_write(newpbn + offset, data);
 
 			dd_erase(pbn);
 			// printf("write in-place update lsn = %d, freeblock = %d, erase pbn = %d newpbn = %d\n",lsn, freeblock, pbn, newpbn);
