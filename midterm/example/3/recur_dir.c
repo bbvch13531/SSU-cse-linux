@@ -25,21 +25,16 @@ void search_directory(char *dir){
 	char pathname[1024];
 	DIR *dirp;
 
-	chdir(dir);
 	getcwd(cwd, 1024);
-	printf("cwd = %s\n",cwd);
+	printf("cwd = %s dir = %s\n\n",cwd, dir);
 	system("pwd");
-	if(lstat(cwd, &statbuf) < 0){
+	if(lstat(dir, &statbuf) < 0){
 		fprintf(stderr, "lstat error\n");
 		exit(1);
 	}
-
 	if(!S_ISDIR(statbuf.st_mode)){
 		printf("file : %s/%s\n", cwd, dentry->d_name);
 		return;
-	}
-	if(S_ISREG(statbuf.st_mode)){
-		return ;
 	}
 	printf("name : %s\n", cwd);
 	if((dirp = opendir(dir)) == NULL){
@@ -47,15 +42,16 @@ void search_directory(char *dir){
 		system("pwd");
 		exit(1);
 	}
-	
+	chdir(dir);	
 	while((dentry = readdir(dirp)) != NULL){
+		if(dentry->d_ino == 0)
+			continue;
 		if(strcmp(dentry->d_name, ".") && strcmp(dentry->d_name, "..")){
-			printf("hello\n");
-			strcpy(pathname, dir);
-			strcat(pathname, "/");
-			strcat(pathname, dentry->d_name);
-			search_directory(pathname);			
+			printf("hello %s\n", dentry->d_name);
+//			strcpy(pathname, dir);
+//			strcat(pathname, "/");
+			search_directory(dentry->d_name);			
 		}
 	}
-	chdir("..");
+	chdir(cwd);
 }
