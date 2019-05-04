@@ -12,7 +12,8 @@ void ssu_print_child_info(int stat, struct rusage *rusage);
 int main(void){
     pid_t pid;
     int status;
-
+	struct rusage rusage;
+	
     if((pid = fork()) == 0){
         char *args[] = {"find", "/", "-maxdepth", "4", "-name", "stdio.h", NULL};
 
@@ -32,7 +33,7 @@ int main(void){
 }
 
 double ssu_maketime(struct timeval *time){
-	return ((double)time -> tx_sec + (double)time -> tv_usec/1000000.0);
+	return ((double)time -> tv_sec + (double)time -> tv_usec/1000000.0);
 }
 
 void term_stat(int stat){
@@ -40,7 +41,7 @@ void term_stat(int stat){
 		printf("normally terminated. exit status = %d\n", WEXITSTATUS(stat));
 	else if(WIFSIGNALED(stat))
 		printf("abnormal termination by signal %d. %s\n", WTERMSIG(stat),
-#idfef WCOREDUMP
+#ifdef WCOREDUMP
 			WCOREDUMP(stat) ? "core dumped" : "no core"
 #else
 			NULL
