@@ -98,6 +98,7 @@ void ftl_read(int lsn, char *sectorbuf){
 //
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
+	int newpbn;
 	char chkbuf[PAGE_SIZE];
 	char data[PAGE_SIZE];
 
@@ -111,7 +112,7 @@ void ftl_write(int lsn, char *sectorbuf){
 
 	// VERY IMPORTANT CODE
 	memcpy(data, sectorbuf, PAGE_SIZE);
-
+	data[SECTOR_SIZE] = lbn;
 	// write initial data
 	if(pbn == -1){
 		// assign first empty block
@@ -126,7 +127,7 @@ void ftl_write(int lsn, char *sectorbuf){
 		// ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset; 가 아닌 이유는 buffer page 저장해야 하기 때문!
 		
 		// ppn = pbn * PAGES_PER_BLOCK + offset;
-		data[SECTOR_SIZE] = lbn;
+		// data[SECTOR_SIZE] = lbn;
 		dd_write(ppn, data);
 	}
 	// update data
@@ -134,11 +135,37 @@ void ftl_write(int lsn, char *sectorbuf){
 		// write buf
 		for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
 			// check if enable to write in buf
-			dd_read()
+			ppn = pbn * PAGES_PER_BLOCK + i;
+			dd_read(ppn, chkbuf);
+
+			// empty buf page.
+			if(chkbuf[SECTOR_SIZE] == -1){
+				// write into buf
+				dd_write(ppn, sectorbuf);
+				return ;	// 이렇게 끝내도 되겠지?
+			}
 		}
 
 		// in-place-update
+		// freeblock
+		newpbn = freeblock * PAGES_PER_BLOCK;
+		
+		for(int i=0; i<PAGES_PER_BLOCK; i++){
+			if(i == offset) continue;
+
+			dd_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
+
+			dd_write(newpbn + i, chkbuf);
+		}
+
+		dd_write(newpbn + offset, data);
+
+		addressMappingTable[lbn] = freeblock;
+
+		dd_erase(pbn);
+		freeblock = pbn;
 	}
+
 
 	return;
 }
