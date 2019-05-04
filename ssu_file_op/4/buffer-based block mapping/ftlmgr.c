@@ -11,14 +11,14 @@
 // 필요한 경우 헤더 파일을 추가
 
 extern FILE *devicefp;
-
+int addressMappingTable[DATABLKS_PER_DEVICE];
+int freeblock = BLOCKS_PER_DEVICE - 1;
 //
 // flash memory를 처음 사용할 때 필요한 초기화 작업, 예를 들면 address mapping table에 대한
 // 초기화 등의 작업을 수행한다. 따라서, 첫 번째 ftl_write() 또는 ftl_read()가 호출되기 전에
 // main()함수에서 반드시 먼저 호출이 되어야 한다.
 //
-void ftl_open()
-{
+void ftl_open(){
 	//
 	// address mapping table 생성 및 초기화 등을 진행
     // mapping table에서 lbn과 pbn의 수는 blkmap.h에 정의되어 있는 DATABLKS_PER_DEVICE
@@ -27,6 +27,9 @@ void ftl_open()
     // 하고, 그 이후 필요할 때마다 block을 하나씩 할당을 해 주면 됩니다. 어떤 순서대로 할당하는지는
     // 각자 알아서 판단하면 되는데, free block들을 어떻게 유지 관리할 지는 스스로 생각해 보기
     // 바랍니다.
+	for(int i=0; i<DATABLKS_PER_DEVICE; i++){
+		addressMappingTable[i] = -1;
+	}
 
 	return;
 }
@@ -37,9 +40,39 @@ void ftl_open()
 // 이 함수를 호출하기 전에 이미 sectorbuf가 가리키는 곳에 512B의 메모리가 할당되어 있어야 한다.
 // 즉, 이 함수에서 메모리를 할당받으면 안된다.
 //
-void ftl_read(int lsn, char *sectorbuf);
-{
+// Read the lastest data from block.
+// backward scanning from block.
 
+void ftl_read(int lsn, char *sectorbuf){
+	int lbn, offset, pbn, ppn;
+	int spare_lsn;
+	char chkbuf[PAGE_SIZE];
+
+	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
+	offset = lsn / NONBUF_PAGES_PER_BLOCK;
+	
+	pbn = addressMappingTable[lbn];
+
+	spare_lsn = sectorbuf[SECTOR_SIZE];
+
+	// Search pbn in page's spare area
+	// Backward scanning
+	for(int i = NONBUF_PAGES_PER_BLOCK - 1; i >= 0; i--){
+		// calculate physical page number from pbn and offset
+		ppn = pbn * NONBUF_PAGES_PER_BLOCK + i;
+		// 이미 저장된 page를 읽을 땐 버퍼페이지 읽을 필요 없음.
+		// Write할 때 up-to-date data만 write하기 때문.
+
+		// read page
+		dd_read(ppn, chkbuf);
+		
+		// compare spare area
+		// if identical
+		// break; 
+		if(chkbuf[SECTOR_SIZE] == spare_lsn){
+			break;
+		}
+	}
 	return;
 }
 
@@ -48,8 +81,14 @@ void ftl_read(int lsn, char *sectorbuf);
 // 데이터를 저장한다. 당연히 flash memory의 어떤 주소에 저장할 것인지는 
 // buffer-based block mapping 기법을 따라야한다.
 //
-void ftl_write(int lsn, char *sectorbuf);
-{
+void ftl_write(int lsn, char *sectorbuf){
+	int lbn, offset, pbn, ppn;
+
+	char data[PAGE_SIZE];
+
+	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
+	offset = l
+	// 
 
 	return;
 }
