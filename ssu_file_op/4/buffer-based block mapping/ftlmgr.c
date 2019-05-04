@@ -87,8 +87,33 @@ void ftl_write(int lsn, char *sectorbuf){
 	char data[PAGE_SIZE];
 
 	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
-	offset = l
-	// 
+	offset = lsn % NONBUF_PAGES_PER_BLOCK;
+
+	pbn = addressMappingTable[lbn];
+
+	// VERY IMPORTANT CODE
+	strcpy(data, sectorbuf);
+	
+	// write initial data
+	if(pbn == -1){
+		// assign first empty block
+		for(int i=0; i<DATABLKS_PER_DEVICE; i++){
+			if(addressMappingTable[i] == -1){
+				pbn = i;
+				addressMappingTable[i] = i;
+				break;
+			}
+		}
+
+		ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset;
+	}
+	// update data
+	else{
+		// write buf
+
+		// write 
+	}
 
 	return;
 }
+
