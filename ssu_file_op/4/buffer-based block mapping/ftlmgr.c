@@ -46,6 +46,7 @@ void ftl_open(){
 void ftl_read(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
 	int spare_lsn;
+	int is_find_in_buf = 0;
 	char chkbuf[PAGE_SIZE];
 
 	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
@@ -65,25 +66,28 @@ void ftl_read(int lsn, char *sectorbuf){
 		// 0*6, 0*6 + 1, 1*6 + 2, ... 
 		// AWESOME CODE
 		ppn = pbn * PAGES_PER_BLOCK + i;
+
+		dd_read(ppn, chkbuf);
+		if(chkbuf[SECTOR_SIZE] == spare_lsn){
+			memcpy(sectorbuf, chkbuf, PAGE_SIZE);
+			is_find_in_buf = 1;
+			
+			return;	// 수정해야 하는 경우도 있을까?
+		}
 	}
 
 	// read non-buffer page
-	for(int i = NONBUF_PAGES_PER_BLOCK - 1; i >= 0; i--){
-		// calculate physical page number from pbn and offset
-		ppn = pbn * NONBUF_PAGES_PER_BLOCK + i;
-		// 이미 저장된 page를 읽을 땐 버퍼페이지 읽을 필요 없음.
-		// Write할 때 up-to-date data만 write하기 때문.
-
+	// calculate physical page number from pbn and offset
+	// ppn = pbn * PAGES_PER_BLOCK + offset;
+	if(is_find_in_buf == 0){
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		dd_read(ppn, sectorbuf);
 		// read page
-		dd_read(ppn, chkbuf);
-		
-		// compare spare area
-		// if identical
-		// break; 
-		if(chkbuf[SECTOR_SIZE] == spare_lsn){
-			break;
-		}
 	}
+	// compare spare area
+	// if identical
+	// break; 
+	
 	return;
 }
 
@@ -94,16 +98,19 @@ void ftl_read(int lsn, char *sectorbuf){
 //
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
-
+	char chkbuf[PAGE_SIZE];
 	char data[PAGE_SIZE];
 
 	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
 	offset = lsn % NONBUF_PAGES_PER_BLOCK;
 
 	pbn = addressMappingTable[lbn];
+	
+	// AWESOME CODE
+	ppn = pbn * PAGES_PER_BLOCK + offset;
 
 	// VERY IMPORTANT CODE
-	strcpy(data, sectorbuf);
+	memcpy(data, sectorbuf, PAGE_SIZE);
 
 	// write initial data
 	if(pbn == -1){
@@ -117,15 +124,18 @@ void ftl_write(int lsn, char *sectorbuf){
 		}
 
 		// ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset; 가 아닌 이유는 buffer page 저장해야 하기 때문!
-		// AWESOME CODE
-		ppn = pbn * PAGES_PER_BLOCK + offset;
-		data[SECTOR_SIZE] = pbn;
+		
+		// ppn = pbn * PAGES_PER_BLOCK + offset;
+		data[SECTOR_SIZE] = lbn;
 		dd_write(ppn, data);
 	}
 	// update data
 	else{
 		// write buf
-
+		for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
+			// check if enable to write in buf
+			dd_read()
+		}
 
 		// in-place-update
 	}
@@ -133,13 +143,13 @@ void ftl_write(int lsn, char *sectorbuf){
 	return;
 }
 
+/*
 안녕하세요. 과제 4를 하던 중 buf page를 읽어야 하는 경우에 ppn을 계산해야하는 과정에서 궁금한 점이 있어 질문드립니다.
 
 가장 최근 데이터를 찾기 위해 buf page를 탐색하려고 합니다.
 
 File System에서 lsn이 non-buffer page에 매핑된다고 수업시간에 설명하시면서 lsn의 사이즈와 
 
-buffer page는 ppn이 없
 wjdtkdw정상적으로 저장할 수 있는 주소?
 buffer page는 정상적인 페이지가 아니어서 ppn이 없다?
 
@@ -147,6 +157,5 @@ file system이 갖고있는 가상메모리가 있다.
 lsn이 0,1,2,3...
 freeblock은 빠지고 flash memory에서 buffer page를 제외한 non-buffet page
 
-ㄹㄴfs 가상메모리 공간의 크기는 각각 블록에서 non-buffer page 사이즈를 더한 것과 같다.
-전체 페이지
-주소는 
+가상메모리 공간의 크기는 각각 블록에서 non-buffer page 사이즈를 더한 것과 같다.
+*/
