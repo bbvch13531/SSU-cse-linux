@@ -84,7 +84,7 @@ void ftl_write(int lsn, char *sectorbuf){
 		}
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		sectorbuf[SECTOR_SIZE] = 1;
-		dd_write(ppn, sectorbuf);
+		dd_write(ppn, data);
 		// printf("write page first time lsn = %d, ppn = %d\n", lsn, ppn);
 	}
 	// address mapping table is initialized
@@ -95,7 +95,7 @@ void ftl_write(int lsn, char *sectorbuf){
 			// assign to page
 			ppn = pbn * PAGES_PER_BLOCK + offset;
 			sectorbuf[SECTOR_SIZE] = 1;
-			dd_write(ppn, sectorbuf);
+			dd_write(ppn, data);
 			// printf("write in free page lsn = %d, ppn = %d\n", lsn, ppn);
 		}
 		else{	// in-place update
@@ -115,7 +115,7 @@ void ftl_write(int lsn, char *sectorbuf){
 			// dd_read, dd_write하는 방향으로 구현함.
 			// 새로운 page는 다시 dd_Write. 흠... 이건 좀 아닌 것 같다. 질문하고 확인해볼 것.
 
-			dd_write(newpbn + offset, sectorbuf);
+			dd_write(newpbn + offset, data);
 
 			dd_erase(pbn);
 			// printf("write in-place update lsn = %d, freeblock = %d, erase pbn = %d newpbn = %d\n",lsn, freeblock, pbn, newpbn);
