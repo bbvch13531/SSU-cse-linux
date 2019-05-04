@@ -66,6 +66,9 @@ void ftl_read(int lsn, char *sectorbuf){
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn, freeparity, newpbn;
 	char chkbuf[PAGE_SIZE];
+	char data[PAGE_SIZE];
+
+	strcpy(data, sectorbuf);
 	lbn = lsn / PAGES_PER_BLOCK;
 	offset = lsn % PAGES_PER_BLOCK;
 	pbn = addressMappingTable[lbn];
