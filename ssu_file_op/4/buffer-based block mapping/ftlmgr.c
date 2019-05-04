@@ -93,7 +93,7 @@ void ftl_write(int lsn, char *sectorbuf){
 
 	// VERY IMPORTANT CODE
 	strcpy(data, sectorbuf);
-	
+
 	// write initial data
 	if(pbn == -1){
 		// assign first empty block
@@ -106,6 +106,8 @@ void ftl_write(int lsn, char *sectorbuf){
 		}
 
 		ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset;
+		data[SECTOR_SIZE] = pbn;
+		dd_write(ppn, data);
 	}
 	// update data
 	else{
