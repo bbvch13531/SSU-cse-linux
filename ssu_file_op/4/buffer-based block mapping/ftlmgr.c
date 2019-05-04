@@ -56,7 +56,18 @@ void ftl_read(int lsn, char *sectorbuf){
 	spare_lsn = sectorbuf[SECTOR_SIZE];
 
 	// Search pbn in page's spare area
+
 	// Backward scanning
+	// read buffer page
+	for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
+		// block number
+		// 6번 블록의 버퍼 페이지들을 모두 접근
+		// 0*6, 0*6 + 1, 1*6 + 2, ... 
+		// AWESOME CODE
+		ppn = pbn * PAGES_PER_BLOCK + i;
+	}
+
+	// read non-buffer page
 	for(int i = NONBUF_PAGES_PER_BLOCK - 1; i >= 0; i--){
 		// calculate physical page number from pbn and offset
 		ppn = pbn * NONBUF_PAGES_PER_BLOCK + i;
@@ -105,7 +116,9 @@ void ftl_write(int lsn, char *sectorbuf){
 			}
 		}
 
-		ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset;
+		// ppn = pbn * NONBUF_PAGES_PER_BLOCK + offset; 가 아닌 이유는 buffer page 저장해야 하기 때문!
+		// AWESOME CODE
+		ppn = pbn * PAGES_PER_BLOCK + offset;
 		data[SECTOR_SIZE] = pbn;
 		dd_write(ppn, data);
 	}
@@ -113,9 +126,27 @@ void ftl_write(int lsn, char *sectorbuf){
 	else{
 		// write buf
 
-		// write 
+
+		// in-place-update
 	}
 
 	return;
 }
 
+안녕하세요. 과제 4를 하던 중 buf page를 읽어야 하는 경우에 ppn을 계산해야하는 과정에서 궁금한 점이 있어 질문드립니다.
+
+가장 최근 데이터를 찾기 위해 buf page를 탐색하려고 합니다.
+
+File System에서 lsn이 non-buffer page에 매핑된다고 수업시간에 설명하시면서 lsn의 사이즈와 
+
+buffer page는 ppn이 없
+wjdtkdw정상적으로 저장할 수 있는 주소?
+buffer page는 정상적인 페이지가 아니어서 ppn이 없다?
+
+file system이 갖고있는 가상메모리가 있다.
+lsn이 0,1,2,3...
+freeblock은 빠지고 flash memory에서 buffer page를 제외한 non-buffet page
+
+ㄹㄴfs 가상메모리 공간의 크기는 각각 블록에서 non-buffer page 사이즈를 더한 것과 같다.
+전체 페이지
+주소는 
