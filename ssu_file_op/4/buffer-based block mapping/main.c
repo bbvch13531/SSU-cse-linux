@@ -77,15 +77,22 @@ int main(int argc, char *argv[])
 
 	printTable();
 
-	// ftl_write(3,"3XX");
-	// ftl_write(4,"4XX");
-	// ftl_write(5,"5XX");
+	ftl_write(3,"3XX");
+	ftl_write(4,"4XX");
 
-	// printTable();
+	// ftl_read(3, sectorbuf);
+	// printf("READ 3, %s\n",sectorbuf);
+	
+	// ftl_read(4, sectorbuf);
+	// printf("READ 4, %s\n",sectorbuf);
+	
+	ftl_write(5,"5XX");
+
+	printTable();
 
 	// ftl_write(6,"6XX");
 	// ftl_write(7,"7XX");
-	// ftl_write(8,"8XX");
+	// // ftl_write(8,"8XX");
 
 	// printTable();
 
@@ -113,10 +120,9 @@ int main(int argc, char *argv[])
 	// ftl_write(13, "YYY");
 	// printTable();
 	printf("-------------\n");
-	char pagebuf[PAGE_SIZE];
 	for(int i=0; i<=8; i++){
-		ftl_read(i, pagebuf);
-		printf("i = %d, %s\n",i, pagebuf);
+		ftl_read(i, sectorbuf);
+		printf("i = %d, %s\n",i, sectorbuf);
 	}
 
 

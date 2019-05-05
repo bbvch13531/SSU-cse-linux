@@ -69,7 +69,7 @@ void ftl_read(int lsn, char *sectorbuf){
 		// printf("chkbuf ppn=%d, spare lsn=%d %s\n", ppn, chkbuf[SECTOR_SIZE], chkbuf);
 
 		if(chkbuf[SECTOR_SIZE] == lsn){
-			memcpy(sectorbuf, chkbuf, PAGE_SIZE);
+			memcpy(sectorbuf, chkbuf, SECTOR_SIZE);
 			is_find_in_buf = 1;
 			
 			// printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf[SECTOR_SIZE]);
@@ -83,7 +83,9 @@ void ftl_read(int lsn, char *sectorbuf){
 	if(is_find_in_buf == 0){
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		// printf("read lsn=%d, ppn=%d\n",lsn, ppn);
-		dd_read(ppn, sectorbuf);
+		dd_read(ppn, chkbuf);
+		memcpy(sectorbuf, chkbuf, SECTOR_SIZE);
+
 		// read page
 	}
 	// compare spare area
@@ -145,7 +147,7 @@ void ftl_write(int lsn, char *sectorbuf){
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		dd_read(ppn, chkbuf);
 		if(chkbuf[SECTOR_SIZE] == -1){
-			printf("read chkbuf, ppn = %d, %s\t\t before write spare=%d\n",ppn, data, data[SECTOR_SIZE]);
+			// printf("read chkbuf, ppn = %d, %s\t\t before write spare=%d\n",ppn, data, data[SECTOR_SIZE]);
 			dd_write(ppn, data);
 		}
 		else{
@@ -158,29 +160,40 @@ void ftl_write(int lsn, char *sectorbuf){
 				// empty buf page.
 				if(chkbuf[SECTOR_SIZE] == -1){
 					// write into buf
-					printf("update in buf. ppn = %d %s\n",ppn, data);
+					printf("write into buf. ppn = %d %s\n",ppn, data);
 					dd_write(ppn, data);
 					return ;	// 이렇게 끝내도 되겠지?
 				}
 			}
 
-			// printf("in-place-update\n");
 			// in-place-update
 			// freeblock
 			newpbn = freeblock * PAGES_PER_BLOCK;
+			printf("in-place-update oldpbn=%d, newpbn=%d, lbn=%d, lsn=%d, offset=%d\n", pbn, newpbn, lbn, lsn, offset);
 			
 			for(int i=0; i<NONBUF_PAGES_PER_BLOCK; i++){
 				if(i == offset) continue;
 
-				ftl_read(newpbn * PAGES_PER_BLOCK + i, chkbuf);
-
-				dd_write(newpbn + i, chkbuf);
+				// dd_read로 읽을 때 버퍼의 데이터를 확인해서 최신 데이터만 dd_write해줘야함.
+				for(int j = PAGES_PER_BLOCK - 1; j >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; j--){
+					ppn = pbn * PAGES_PER_BLOCK + i;
+					dd_read(ppn, chkbuf);
+					printf("tmp read %d %s\n", pbn * PAGES_PER_BLOCK + i, chkbuf);
+					if(chkbuf[SECTOR_SIZE] == lsn){
+						// memcpy(sectorbuf, chkbuf, SECTOR_SIZE);
+						
+						dd_write(ppn, chkbuf);
+						return ;	// 이렇게 끝내도 되겠지?
+					}
+				}
+				// if(chkbuf[SECTOR_SIZE] != -1)
+				// 	dd_write(newpbn + i, chkbuf);
 			}
 
 			addressMappingTable[lbn] = freeblock;
 
 			dd_write(newpbn + offset, data);
-			printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
+			// printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
 
 			dd_erase(pbn);
 			freeblock = pbn;
