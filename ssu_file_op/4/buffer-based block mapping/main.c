@@ -67,24 +67,24 @@ int main(int argc, char *argv[])
 	ftl_write(14,"C4");
 
 	ftl_write(0,"0XX");
-	ftl_write(1,"1XX");
-	ftl_write(2,"2XX");
+	// ftl_write(1,"1XX");
+	// ftl_write(2,"2XX");
 
 	ftl_write(3,"3XX");
-	ftl_write(4,"4XX");
-	ftl_write(5,"5XX");
+	// ftl_write(4,"4XX");
+	// ftl_write(5,"5XX");
 
 	ftl_write(6,"6XX");
-	ftl_write(7,"7XX");
-	ftl_write(8,"8XX");
+	// ftl_write(7,"7XX");
+	// ftl_write(8,"8XX");
 
 	ftl_write(9,"9XX");
-	ftl_write(10,"10XX");
-	ftl_write(11,"11XX");
+	// ftl_write(10,"10XX");
+	// ftl_write(11,"11XX");
 
 	ftl_write(12,"12XX");
-	ftl_write(13,"13XX");
-	ftl_write(14,"14XX");
+	// ftl_write(13,"13XX");
+	// ftl_write(14,"14XX");
 
 	char pagebuf[PAGE_SIZE];
 	for(int i=0; i<=14; i++){

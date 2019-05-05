@@ -66,11 +66,13 @@ void ftl_read(int lsn, char *sectorbuf){
 		ppn = pbn * PAGES_PER_BLOCK + i;
 
 		dd_read(ppn, chkbuf);
+		printf("chkbuf ppn=%d, spare lsn=%d %s\n", ppn, chkbuf[SECTOR_SIZE], chkbuf);
+
 		if(chkbuf[SECTOR_SIZE] == lsn){
 			memcpy(sectorbuf, chkbuf, PAGE_SIZE);
 			is_find_in_buf = 1;
 			
-			printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf);
+			printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf[SECTOR_SIZE]);
 			return;	// 수정해야 하는 경우도 있을까?
 		}
 	}
@@ -111,8 +113,9 @@ void ftl_write(int lsn, char *sectorbuf){
 	// ppn = pbn * PAGES_PER_BLOCK + offset;
 
 	// VERY IMPORTANT CODE
+	memset(data, 0, PAGE_SIZE);
 	memcpy(data, sectorbuf, PAGE_SIZE);
-	data[SECTOR_SIZE] = lbn;
+	data[SECTOR_SIZE] = lsn;
 	// write initial data
 	if(pbn == -1){
 		// assign first empty block
@@ -131,7 +134,9 @@ void ftl_write(int lsn, char *sectorbuf){
 
 		// AWESOME CODE
 		ppn = pbn * PAGES_PER_BLOCK + offset;
-		printf("\n\nfirst block write \nppn = %d, pbn = %d, data = %s\n",ppn, pbn, data);
+		printf("\n\nfirst block write \nppn = %d, pbn = %d, data = %s\t\t before write spare=%d\n",ppn, pbn, data, data[SECTOR_SIZE]);
+
+		
 		dd_write(ppn, data);
 	}
 	// write to block
@@ -140,8 +145,8 @@ void ftl_write(int lsn, char *sectorbuf){
 
 		ppn = pbn * PAGES_PER_BLOCK + offset;
 		dd_read(ppn, chkbuf);
-		if(chkbuf[SPARE_SIZE] == -1){
-			printf("read chkbuf, ppn = %d, %s\n",ppn, data);
+		if(chkbuf[SECTOR_SIZE] == -1){
+			printf("read chkbuf, ppn = %d, %s\t\t before write spare=%d\n",ppn, data, data[SECTOR_SIZE]);
 			dd_write(ppn, data);
 		}
 		else{
@@ -154,7 +159,8 @@ void ftl_write(int lsn, char *sectorbuf){
 				// empty buf page.
 				if(chkbuf[SECTOR_SIZE] == -1){
 					// write into buf
-					dd_write(ppn, sectorbuf);
+					printf("update in buf. ppn = %d %s\n",ppn, data);
+					dd_write(ppn, data);
 					return ;	// 이렇게 끝내도 되겠지?
 				}
 			}
