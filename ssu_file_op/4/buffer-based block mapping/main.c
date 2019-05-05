@@ -46,9 +46,51 @@ int main(int argc, char *argv[])
 
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
-	//
+	ftl_write(0,"A0");
+	ftl_write(1,"A1");
+	ftl_write(2,"A2");
 
+	ftl_write(3,"A3");
+	ftl_write(4,"A4");
+	ftl_write(5,"B0");
 
+	ftl_write(6,"B1");
+	ftl_write(7,"B2");
+	ftl_write(8,"B3");
+
+	ftl_write(9,"B4");
+	ftl_write(10,"C0");
+	ftl_write(11,"C1");
+
+	ftl_write(12,"C2");
+	ftl_write(13,"C3");
+	ftl_write(14,"C4");
+
+	ftl_write(0,"0XX");
+	ftl_write(1,"1XX");
+	ftl_write(2,"2XX");
+
+	ftl_write(3,"3XX");
+	ftl_write(4,"4XX");
+	ftl_write(5,"5XX");
+
+	ftl_write(6,"6XX");
+	ftl_write(7,"7XX");
+	ftl_write(8,"8XX");
+
+	ftl_write(9,"9XX");
+	ftl_write(10,"10XX");
+	ftl_write(11,"11XX");
+
+	ftl_write(12,"12XX");
+	ftl_write(13,"13XX");
+	ftl_write(14,"14XX");
+
+	char pagebuf[PAGE_SIZE];
+	for(int i=0; i<=14; i++){
+		ftl_read(i, pagebuf);
+		printf("i = %d, %s\n",i, pagebuf);
+	}
 	fclose(devicefp);
 
 	return 0;

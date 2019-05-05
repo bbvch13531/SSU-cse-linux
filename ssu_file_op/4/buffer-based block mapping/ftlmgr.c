@@ -45,17 +45,15 @@ void ftl_open(){
 
 void ftl_read(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
-	int spare_lsn;
 	int is_find_in_buf = 0;
 	char chkbuf[PAGE_SIZE];
 
 	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
-	offset = lsn / NONBUF_PAGES_PER_BLOCK;
+	offset = lsn % NONBUF_PAGES_PER_BLOCK;
 	
 	pbn = addressMappingTable[lbn];
 
-	spare_lsn = sectorbuf[SECTOR_SIZE];
-
+	printf("ftl_read: lsn=%d, lbn=%d, offset=%d, pbn=%d\t\t",lsn, lbn, offset, pbn);
 	// Search pbn in page's spare area
 
 	// Backward scanning
@@ -68,10 +66,11 @@ void ftl_read(int lsn, char *sectorbuf){
 		ppn = pbn * PAGES_PER_BLOCK + i;
 
 		dd_read(ppn, chkbuf);
-		if(chkbuf[SECTOR_SIZE] == spare_lsn){
+		if(chkbuf[SECTOR_SIZE] == lsn){
 			memcpy(sectorbuf, chkbuf, PAGE_SIZE);
 			is_find_in_buf = 1;
 			
+			printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf);
 			return;	// 수정해야 하는 경우도 있을까?
 		}
 	}
@@ -81,6 +80,7 @@ void ftl_read(int lsn, char *sectorbuf){
 	// ppn = pbn * PAGES_PER_BLOCK + offset;
 	if(is_find_in_buf == 0){
 		ppn = pbn * PAGES_PER_BLOCK + offset;
+		// printf("read %d\n", ppn);
 		dd_read(ppn, sectorbuf);
 		// read page
 	}
@@ -107,8 +107,8 @@ void ftl_write(int lsn, char *sectorbuf){
 
 	pbn = addressMappingTable[lbn];
 	
-	// AWESOME CODE
-	ppn = pbn * PAGES_PER_BLOCK + offset;
+	// // AWESOME CODE
+	// ppn = pbn * PAGES_PER_BLOCK + offset;
 
 	// VERY IMPORTANT CODE
 	memcpy(data, sectorbuf, PAGE_SIZE);
@@ -128,42 +128,56 @@ void ftl_write(int lsn, char *sectorbuf){
 		
 		// ppn = pbn * PAGES_PER_BLOCK + offset;
 		// data[SECTOR_SIZE] = lbn;
+
+		// AWESOME CODE
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		printf("\n\nfirst block write \nppn = %d, pbn = %d, data = %s\n",ppn, pbn, data);
 		dd_write(ppn, data);
 	}
-	// update data
+	// write to block
 	else{
-		// write buf
-		for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
-			// check if enable to write in buf
-			ppn = pbn * PAGES_PER_BLOCK + i;
-			dd_read(ppn, chkbuf);
+		// write into empty page 
 
-			// empty buf page.
-			if(chkbuf[SECTOR_SIZE] == -1){
-				// write into buf
-				dd_write(ppn, sectorbuf);
-				return ;	// 이렇게 끝내도 되겠지?
+		ppn = pbn * PAGES_PER_BLOCK + offset;
+		dd_read(ppn, chkbuf);
+		if(chkbuf[SPARE_SIZE] == -1){
+			printf("read chkbuf, ppn = %d, %s\n",ppn, data);
+			dd_write(ppn, data);
+		}
+		else{
+			// write buf
+			for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
+				// check if enable to write in buf
+				ppn = pbn * PAGES_PER_BLOCK + i;
+				dd_read(ppn, chkbuf);
+
+				// empty buf page.
+				if(chkbuf[SECTOR_SIZE] == -1){
+					// write into buf
+					dd_write(ppn, sectorbuf);
+					return ;	// 이렇게 끝내도 되겠지?
+				}
 			}
+
+			// in-place-update
+			// freeblock
+			newpbn = freeblock * PAGES_PER_BLOCK;
+			
+			for(int i=0; i<PAGES_PER_BLOCK; i++){
+				if(i == offset) continue;
+
+				dd_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
+
+				dd_write(newpbn + i, chkbuf);
+			}
+
+			dd_write(newpbn + offset, data);
+
+			addressMappingTable[lbn] = freeblock;
+
+			dd_erase(pbn);
+			freeblock = pbn;
 		}
-
-		// in-place-update
-		// freeblock
-		newpbn = freeblock * PAGES_PER_BLOCK;
-		
-		for(int i=0; i<PAGES_PER_BLOCK; i++){
-			if(i == offset) continue;
-
-			dd_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
-
-			dd_write(newpbn + i, chkbuf);
-		}
-
-		dd_write(newpbn + offset, data);
-
-		addressMappingTable[lbn] = freeblock;
-
-		dd_erase(pbn);
-		freeblock = pbn;
 	}
 
 
