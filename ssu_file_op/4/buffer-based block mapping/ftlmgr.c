@@ -53,7 +53,7 @@ void ftl_read(int lsn, char *sectorbuf){
 	
 	pbn = addressMappingTable[lbn];
 
-	printf("ftl_read: lsn=%d, lbn=%d, offset=%d, pbn=%d\t\t",lsn, lbn, offset, pbn);
+	// printf("ftl_read: lsn=%d, lbn=%d, offset=%d, pbn=%d\t\t",lsn, lbn, offset, pbn);
 	// Search pbn in page's spare area
 
 	// Backward scanning
@@ -66,13 +66,13 @@ void ftl_read(int lsn, char *sectorbuf){
 		ppn = pbn * PAGES_PER_BLOCK + i;
 
 		dd_read(ppn, chkbuf);
-		printf("chkbuf ppn=%d, spare lsn=%d %s\n", ppn, chkbuf[SECTOR_SIZE], chkbuf);
+		// printf("chkbuf ppn=%d, spare lsn=%d %s\n", ppn, chkbuf[SECTOR_SIZE], chkbuf);
 
 		if(chkbuf[SECTOR_SIZE] == lsn){
 			memcpy(sectorbuf, chkbuf, PAGE_SIZE);
 			is_find_in_buf = 1;
 			
-			printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf[SECTOR_SIZE]);
+			// printf("read lsn = %d, chkbuf lsn = %d find data in buffer page\n", lsn, chkbuf[SECTOR_SIZE]);
 			return;	// 수정해야 하는 경우도 있을까?
 		}
 	}
@@ -165,14 +165,15 @@ void ftl_write(int lsn, char *sectorbuf){
 				}
 			}
 
+			printf("in-place-update\n");
 			// in-place-update
 			// freeblock
 			newpbn = freeblock * PAGES_PER_BLOCK;
 			
-			for(int i=0; i<PAGES_PER_BLOCK; i++){
+			for(int i=0; i<NONBUF_PAGES_PER_BLOCK; i++){
 				if(i == offset) continue;
 
-				dd_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
+				ftl_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
 
 				dd_write(newpbn + i, chkbuf);
 			}
