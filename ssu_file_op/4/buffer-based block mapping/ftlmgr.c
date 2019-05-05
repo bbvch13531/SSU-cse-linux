@@ -82,7 +82,7 @@ void ftl_read(int lsn, char *sectorbuf){
 	// ppn = pbn * PAGES_PER_BLOCK + offset;
 	if(is_find_in_buf == 0){
 		ppn = pbn * PAGES_PER_BLOCK + offset;
-		// printf("read %d\n", ppn);
+		// printf("read lsn=%d, ppn=%d\n",lsn, ppn);
 		dd_read(ppn, sectorbuf);
 		// read page
 	}
@@ -134,8 +134,7 @@ void ftl_write(int lsn, char *sectorbuf){
 
 		// AWESOME CODE
 		ppn = pbn * PAGES_PER_BLOCK + offset;
-		printf("\n\nfirst block write \nppn = %d, pbn = %d, data = %s\t\t before write spare=%d\n",ppn, pbn, data, data[SECTOR_SIZE]);
-
+		// printf("\n\nfirst block write \nppn = %d, pbn = %d, data = %s\t\t before write spare=%d\n",ppn, pbn, data, data[SECTOR_SIZE]);
 		
 		dd_write(ppn, data);
 	}
@@ -165,7 +164,7 @@ void ftl_write(int lsn, char *sectorbuf){
 				}
 			}
 
-			printf("in-place-update\n");
+			// printf("in-place-update\n");
 			// in-place-update
 			// freeblock
 			newpbn = freeblock * PAGES_PER_BLOCK;
@@ -173,14 +172,15 @@ void ftl_write(int lsn, char *sectorbuf){
 			for(int i=0; i<NONBUF_PAGES_PER_BLOCK; i++){
 				if(i == offset) continue;
 
-				ftl_read(pbn * PAGES_PER_BLOCK + i, chkbuf);
+				ftl_read(newpbn * PAGES_PER_BLOCK + i, chkbuf);
 
 				dd_write(newpbn + i, chkbuf);
 			}
 
-			dd_write(newpbn + offset, data);
-
 			addressMappingTable[lbn] = freeblock;
+
+			dd_write(newpbn + offset, data);
+			printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
 
 			dd_erase(pbn);
 			freeblock = pbn;
@@ -190,7 +190,13 @@ void ftl_write(int lsn, char *sectorbuf){
 
 	return;
 }
-
+void printTable(){
+	printf("-----------TABLE----------\n");
+	for(int i=0; i<5; i++){
+		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
+	}
+	printf("freeblock =>%5d\n",freeblock);
+}
 /*
 안녕하세요. 과제 4를 하던 중 buf page를 읽어야 하는 경우에 ppn을 계산해야하는 과정에서 궁금한 점이 있어 질문드립니다.
 

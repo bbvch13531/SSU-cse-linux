@@ -58,53 +58,91 @@ int main(int argc, char *argv[])
 	ftl_write(7,"B2");
 	ftl_write(8,"B3");
 
-	ftl_write(9,"B4");
-	ftl_write(10,"C0");
-	ftl_write(11,"C1");
+	// ftl_write(9,"B4");
+	// ftl_write(10,"C0");
+	// ftl_write(11,"C1");
 
-	ftl_write(12,"C2");
-	ftl_write(13,"C3");
-	ftl_write(14,"C4");
+	// ftl_write(12,"C2");
+	// ftl_write(13,"C3");
+	// ftl_write(14,"C4");
+	
+	printTable();
 
 	ftl_write(0,"0XX");
 	ftl_write(1,"1XX");
 	ftl_write(2,"2XX");
-
-	ftl_write(3,"3XX");
-	ftl_write(4,"4XX");
-	ftl_write(5,"5XX");
-
-	ftl_write(6,"6XX");
-	ftl_write(7,"7XX");
-	ftl_write(8,"8XX");
-
-	ftl_write(9,"9XX");
-	ftl_write(10,"10XX");
-	ftl_write(11,"11XX");
-
-	ftl_write(12,"12XX");
-	ftl_write(13,"13XX");
-	ftl_write(14,"14XX");
-
-
-	printf("-------------1AOO\n");
-	ftl_write(1, "AOO");
 	
-	printf("-------------6BUU\n");
-	ftl_write(6, "BUU");
-	printf("-------------11CWW\n");
-	ftl_write(11, "CWW");
-	printf("-------------12DDD 13YYY\n");
-	ftl_write(12, "DDD");
-	ftl_write(13, "YYY");
-	printf("-------------\n");
+	printTable();
+	ftl_write(0,"NEW");
 
+	printTable();
+
+	// ftl_write(3,"3XX");
+	// ftl_write(4,"4XX");
+	// ftl_write(5,"5XX");
+
+	// printTable();
+
+	// ftl_write(6,"6XX");
+	// ftl_write(7,"7XX");
+	// ftl_write(8,"8XX");
+
+	// printTable();
+
+	// ftl_write(9,"9XX");
+	// ftl_write(10,"10XX");
+	// ftl_write(11,"11XX");
+
+	// printTable();
+
+	// ftl_write(12,"12XX");
+	// ftl_write(13,"13XX");
+	// ftl_write(14,"14XX");
+
+	// printTable();
+
+	// printf("-------------1AOO\n");
+	// ftl_write(1, "AOO");
+	
+	// printf("-------------6BUU\n");
+	// ftl_write(6, "BUU");
+	// printf("-------------11CWW\n");
+	// ftl_write(11, "CWW");
+	// printf("-------------12DDD 13YYY\n");
+	// ftl_write(12, "DDD");
+	// ftl_write(13, "YYY");
+	// printTable();
+	printf("-------------\n");
 	char pagebuf[PAGE_SIZE];
-	for(int i=0; i<=14; i++){
+	for(int i=0; i<=8; i++){
 		ftl_read(i, pagebuf);
 		printf("i = %d, %s\n",i, pagebuf);
 	}
+
+
 	fclose(devicefp);
 
 	return 0;
 }
+
+/*
+freeblock =>   31
+read lsn=0, ppn=8
+i = 0, 4XX
+read lsn=1, ppn=9
+i = 1, AOO
+read lsn=2, ppn=10
+i = 2, A4
+read lsn=3, ppn=0
+i = 3, A4
+read lsn=4, ppn=1
+i = 4, 4XX
+i = 5, 5XX
+i = 6, BUU
+read lsn=7, ppn=5
+i = 7, 7XX
+read lsn=8, ppn=6
+i = 8, 8XX
+
+
+*/
