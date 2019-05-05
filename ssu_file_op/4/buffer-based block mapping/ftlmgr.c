@@ -13,6 +13,7 @@
 extern FILE *devicefp;
 int addressMappingTable[DATABLKS_PER_DEVICE];
 int freeblock = BLOCKS_PER_DEVICE - 1;
+int count = 0;
 //
 // flash memory를 처음 사용할 때 필요한 초기화 작업, 예를 들면 address mapping table에 대한
 // 초기화 등의 작업을 수행한다. 따라서, 첫 번째 ftl_write() 또는 ftl_read()가 호출되기 전에
@@ -163,14 +164,14 @@ void ftl_write(int lsn, char *sectorbuf){
 					// write into buf
 					// printf("write into buf. ppn = %d %s\n",ppn, data);
 					dd_write(ppn, data);
-					return ;	// 이렇게 끝내도 되겠지?
+					return ;	
 				}
 			}
 
 			// in-place-update
 			// freeblock
 			newpbn = freeblock * PAGES_PER_BLOCK;
-			printf("in-place-update freeblock=%d, pbn=%d, newpbn=%d, lbn=%d, lsn=%d, offset=%d data=%s\n", freeblock, pbn, newpbn, lbn, lsn, offset, data);
+			// printf("in-place-update freeblock=%d, pbn=%d, newpbn=%d, lbn=%d, lsn=%d, offset=%d data=%s\n", freeblock, pbn, newpbn, lbn, lsn, offset, data);
 			
 			/*
 			for(int i=0; i<NONBUF_PAGES_PER_BLOCK; i++){
@@ -202,18 +203,19 @@ void ftl_write(int lsn, char *sectorbuf){
 				ppn = pbn * PAGES_PER_BLOCK + i;
 				dd_read(ppn, chkbuf);
 				key = chkbuf[SECTOR_SIZE];
-				printf("%d %s %d \n", i, chkbuf, key);
+				// printf("%d %s %d \n", i, chkbuf, key);
 				// if(chkbuf[SECTOR_SIZE] == lsn) continue;
-				printf("%dth tmp read %d %s %d\n",i, pbn * PAGES_PER_BLOCK + i, chkbuf, chkbuf[SECTOR_SIZE]);
+				// printf("%dth tmp read %d %s %d\n",i, pbn * PAGES_PER_BLOCK + i, chkbuf, chkbuf[SECTOR_SIZE]);
 				dd_write(newpbn + (key % NONBUF_PAGES_PER_BLOCK), chkbuf);
 				
 			}
 			addressMappingTable[lbn] = freeblock;
-			printf("write new block %d %s\n", newpbn + offset, data);
+			// printf("write new block %d %s\n", newpbn + offset, data);
 			dd_write(newpbn + offset, data);
 			// printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
 
 			dd_erase(pbn);
+			count++;
 			freeblock = pbn;
 		}
 	}
@@ -221,20 +223,17 @@ void ftl_write(int lsn, char *sectorbuf){
 
 	return;
 }
-void printTable(){
-	printf("-----------TABLE----------\n");
-	for(int i=0; i<5; i++){
-		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
-	}
-	printf("freeblock =>%5d\n",freeblock);
-}
+// void printcnt(){
+// 	printf("count = %d",count);
+// }
+// void printTable(){
+// 	printf("-----------TABLE----------\n");
+// 	for(int i=0; i<5; i++){
+// 		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
+// 	}
+// 	printf("freeblock =>%5d\n",freeblock);
+// }
 /*
-안녕하세요. 과제 4를 하던 중 buf page를 읽어야 하는 경우에 ppn을 계산해야하는 과정에서 궁금한 점이 있어 질문드립니다.
-
-가장 최근 데이터를 찾기 위해 buf page를 탐색하려고 합니다.
-
-File System에서 lsn이 non-buffer page에 매핑된다고 수업시간에 설명하시면서 lsn의 사이즈와 
-
 wjdtkdw정상적으로 저장할 수 있는 주소?
 buffer page는 정상적인 페이지가 아니어서 ppn이 없다?
 
