@@ -58,79 +58,125 @@ int main(int argc, char *argv[])
 	ftl_write(7,"B2");
 	ftl_write(8,"B3");
 
-	// ftl_write(9,"B4");
-	// ftl_write(10,"C0");
-	// ftl_write(11,"C1");
+	ftl_write(9,"B4");
+	ftl_write(10,"C0");
+	ftl_write(11,"C1");
 
-	// ftl_write(12,"C2");
-	// ftl_write(13,"C3");
-	// ftl_write(14,"C4");
+	ftl_write(12,"C2");
+	ftl_write(13,"C3");
+	ftl_write(14,"C4");
 	
 	printTable();
 
-	ftl_write(0,"0XX");
-	ftl_write(1,"1XX");
-	ftl_write(2,"2XX");
+	ftl_write(0,"000");
 	
+	printppn();
+	ftl_write(1,"111");
+	printppn();
+
+	printf("\t\t\twrite 2 2XX\n");
+	ftl_write(2,"222");
+	printppn();
+
 	printTable();
+	printf("\t\t\twrite 0 NEW\n");
 	ftl_write(0,"NEW");
+	printppn();
 
 	printTable();
 
-	ftl_write(3,"3XX");
-	ftl_write(4,"4XX");
+	ftl_write(3,"333");
+	printppn();
+	ftl_write(4,"444");
+	printppn();
 
-	// ftl_read(3, sectorbuf);
-	// printf("READ 3, %s\n",sectorbuf);
+	ftl_read(3, sectorbuf);
+	printf("READ 3, %s\n",sectorbuf);
 	
-	// ftl_read(4, sectorbuf);
-	// printf("READ 4, %s\n",sectorbuf);
+	ftl_read(4, sectorbuf);
+	printf("READ 4, %s\n",sectorbuf);
 	
-	ftl_write(5,"5XX");
+	ftl_write(5,"555");
+	printppn();
 
 	printTable();
 
-	// ftl_write(6,"6XX");
-	// ftl_write(7,"7XX");
-	// // ftl_write(8,"8XX");
-
-	// printTable();
-
-	// ftl_write(9,"9XX");
-	// ftl_write(10,"10XX");
-	// ftl_write(11,"11XX");
-
-	// printTable();
-
-	// ftl_write(12,"12XX");
-	// ftl_write(13,"13XX");
-	// ftl_write(14,"14XX");
-
-	// printTable();
-
-	// printf("-------------1AOO\n");
-	// ftl_write(1, "AOO");
+	ftl_write(6,"666");
+	printppn();
+	ftl_write(7,"777");
 	
-	// printf("-------------6BUU\n");
-	// ftl_write(6, "BUU");
-	// printf("-------------11CWW\n");
-	// ftl_write(11, "CWW");
-	// printf("-------------12DDD 13YYY\n");
-	// ftl_write(12, "DDD");
-	// ftl_write(13, "YYY");
-	// printTable();
+	printppn();
+	ftl_write(6, "NEWWW");
+	printppn();
+	ftl_write(7, "uuu");
+	printppn();
+	ftl_write(5, "ttt");
+	printppn();
+	ftl_write(8,"888");
+	printppn();
+
+	printTable();
+
+	ftl_write(9,"999");
+	printppn();
+	ftl_write(10,"zzz");
+	printppn();
+	ftl_write(8,"YEAHHHHHHHHHHH");
+	printppn();
+	ftl_write(11,"yyy");
+	printppn();
+
+	printTable();
+
+	ftl_write(12,"www");
+	printppn();
+	ftl_write(13,"vvv");
+	printppn();
+	ftl_write(14,"qqq");
+	printppn();
+
+	printTable();
+
+	printf("-------------1AAA\n");
+	ftl_write(1, "AAA");
+	
+	printf("-------------6BBB\n");
+	ftl_write(6, "BBB");
+	printf("-------------11CCC\n");
+	ftl_write(11, "CCC");
+	printf("-------------12DDD 13YYY\n");
+	ftl_write(12, "DDD");
+	ftl_write(13, "YYY");
+	printTable();
 	printf("-------------\n");
-	for(int i=0; i<=8; i++){
+	for(int i=0; i<=14; i++){
 		ftl_read(i, sectorbuf);
 		printf("i = %d, %s\n",i, sectorbuf);
 	}
-
 
 	fclose(devicefp);
 
 	return 0;
 }
-
+void printppn(){
+	char pagebuf[PAGE_SIZE]={0,};
+	printf("\n------------------------\n");
+	for(int i=0; i<=20; i++){
+		dd_read(i, pagebuf);
+		printf("i = %d, ",i);
+		for(int j=0; j<3; j++)
+			printf("%c",pagebuf[j]);
+		printf("\n");
+	}
+	for(int i=124; i<=127; i++){
+		dd_read(i, pagebuf);
+		printf("i = %d, ",i);
+		for(int j=0; j<3; j++)
+			printf("%c",pagebuf[j]);
+		printf("\n");
+	}
+	printf("\n------------------------\n");
+}
 /*
 freeblock =>   31
 read lsn=0, ppn=8

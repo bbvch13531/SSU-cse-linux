@@ -102,9 +102,10 @@ void ftl_read(int lsn, char *sectorbuf){
 //
 void ftl_write(int lsn, char *sectorbuf){
 	int lbn, offset, pbn, ppn;
-	int newpbn;
+	int newpbn, key;
 	char chkbuf[PAGE_SIZE];
 	char data[PAGE_SIZE];
+	int is_read[PAGES_PER_BLOCK]={0,};	// 버퍼에서 최신 데이터를 찾으면 1, 아니면 0
 
 	lbn = lsn / NONBUF_PAGES_PER_BLOCK;
 	offset = lsn % NONBUF_PAGES_PER_BLOCK;
@@ -160,7 +161,7 @@ void ftl_write(int lsn, char *sectorbuf){
 				// empty buf page.
 				if(chkbuf[SECTOR_SIZE] == -1){
 					// write into buf
-					printf("write into buf. ppn = %d %s\n",ppn, data);
+					// printf("write into buf. ppn = %d %s\n",ppn, data);
 					dd_write(ppn, data);
 					return ;	// 이렇게 끝내도 되겠지?
 				}
@@ -169,29 +170,46 @@ void ftl_write(int lsn, char *sectorbuf){
 			// in-place-update
 			// freeblock
 			newpbn = freeblock * PAGES_PER_BLOCK;
-			printf("in-place-update oldpbn=%d, newpbn=%d, lbn=%d, lsn=%d, offset=%d\n", pbn, newpbn, lbn, lsn, offset);
+			printf("in-place-update freeblock=%d, pbn=%d, newpbn=%d, lbn=%d, lsn=%d, offset=%d data=%s\n", freeblock, pbn, newpbn, lbn, lsn, offset, data);
 			
+			/*
 			for(int i=0; i<NONBUF_PAGES_PER_BLOCK; i++){
 				if(i == offset) continue;
 
+
+
 				// dd_read로 읽을 때 버퍼의 데이터를 확인해서 최신 데이터만 dd_write해줘야함.
 				for(int j = PAGES_PER_BLOCK - 1; j >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; j--){
-					ppn = pbn * PAGES_PER_BLOCK + i;
+
+					ppn = pbn * PAGES_PER_BLOCK + j;
 					dd_read(ppn, chkbuf);
-					printf("tmp read %d %s\n", pbn * PAGES_PER_BLOCK + i, chkbuf);
+					printf("tmp read %d %s %d\n", pbn * PAGES_PER_BLOCK + j, chkbuf, chkbuf[SECTOR_SIZE]);
 					if(chkbuf[SECTOR_SIZE] == lsn){
 						// memcpy(sectorbuf, chkbuf, SECTOR_SIZE);
 						
 						dd_write(ppn, chkbuf);
-						return ;	// 이렇게 끝내도 되겠지?
+						break;
+						// return ;	// 이렇게 끝내도 되겠지?
 					}
 				}
+
+
 				// if(chkbuf[SECTOR_SIZE] != -1)
 				// 	dd_write(newpbn + i, chkbuf);
 			}
-
+			*/
+			for(int i=0; i<PAGES_PER_BLOCK; i++){
+				ppn = pbn * PAGES_PER_BLOCK + i;
+				dd_read(ppn, chkbuf);
+				key = chkbuf[SECTOR_SIZE];
+				printf("%d %s %d \n", i, chkbuf, key);
+				// if(chkbuf[SECTOR_SIZE] == lsn) continue;
+				printf("%dth tmp read %d %s %d\n",i, pbn * PAGES_PER_BLOCK + i, chkbuf, chkbuf[SECTOR_SIZE]);
+				dd_write(newpbn + (key % NONBUF_PAGES_PER_BLOCK), chkbuf);
+				
+			}
 			addressMappingTable[lbn] = freeblock;
-
+			printf("write new block %d %s\n", newpbn + offset, data);
 			dd_write(newpbn + offset, data);
 			// printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
 
@@ -225,4 +243,9 @@ lsn이 0,1,2,3...
 freeblock은 빠지고 flash memory에서 buffer page를 제외한 non-buffet page
 
 가상메모리 공간의 크기는 각각 블록에서 non-buffer page 사이즈를 더한 것과 같다.
+
+block erase count 만 채점한다.
+write 수는 포함하지 않을거야!!! 이런 부분에서는ㄴ 다를 수 있기 떄문이징.
+erase 수는 항상 같을거야. 정상적으로 동작하면 erase 수는 같기 때문이얌.
+30:40
 */
