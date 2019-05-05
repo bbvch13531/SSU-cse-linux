@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char ** argv){
+int main(void){
 	char *argv[] = {"ssu_execl_test_1", "param1", "param2", (char *)0};
     char *env[] = {
         "NAME = value",
