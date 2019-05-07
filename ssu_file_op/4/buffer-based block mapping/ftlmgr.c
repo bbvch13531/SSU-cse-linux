@@ -219,13 +219,11 @@ void ftl_write(int lsn, char *sectorbuf){
 			freeblock = pbn;
 		}
 	}
-
-
 	return;
 }
-// void printcnt(){
-// 	printf("count = %d",count);
-// }
+void printcnt(){
+	printf("count = %d",count);
+}
 void printTable(){
 	printf("-----------TABLE----------\n");
 	for(int i=0; i<5; i++){

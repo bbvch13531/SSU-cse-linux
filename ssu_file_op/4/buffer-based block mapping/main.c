@@ -224,6 +224,7 @@ void test2(void){
 	ftl_write(3, "D3");
 	printTable();
 	printppn();
+	printcnt();
 }
 /*
 freeblock =>   31
