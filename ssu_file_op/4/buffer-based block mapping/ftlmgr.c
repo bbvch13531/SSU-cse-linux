@@ -154,7 +154,7 @@ void ftl_write(int lsn, char *sectorbuf){
 		}
 		else{
 			// write buf
-			for(int i = PAGES_PER_BLOCK - 1; i >= PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i--){
+			for(int i = PAGES_PER_BLOCK - BUF_PAGES_PER_BLOCK; i < PAGES_PER_BLOCK; i++){
 				// check if enable to write in buf
 				ppn = pbn * PAGES_PER_BLOCK + i;
 				dd_read(ppn, chkbuf);
@@ -226,13 +226,13 @@ void ftl_write(int lsn, char *sectorbuf){
 // void printcnt(){
 // 	printf("count = %d",count);
 // }
-// void printTable(){
-// 	printf("-----------TABLE----------\n");
-// 	for(int i=0; i<5; i++){
-// 		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
-// 	}
-// 	printf("freeblock =>%5d\n",freeblock);
-// }
+void printTable(){
+	printf("-----------TABLE----------\n");
+	for(int i=0; i<5; i++){
+		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
+	}
+	printf("freeblock =>%5d\n",freeblock);
+}
 /*
 wjdtkdw정상적으로 저장할 수 있는 주소?
 buffer page는 정상적인 페이지가 아니어서 ppn이 없다?
