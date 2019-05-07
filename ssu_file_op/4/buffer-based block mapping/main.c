@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 	}
 
 	fclose(devicefp);
-	printcnt();
+	//printcnt();
 	return 0;
 }
 void printppn(){
