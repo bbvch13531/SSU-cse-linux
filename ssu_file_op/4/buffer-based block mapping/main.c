@@ -16,6 +16,7 @@ void ftl_read(int lsn, char *sectorbuf);
 // file system이 flash memory로부터 512B씩 데이터를 저장하거나 데이터를 읽어 오기 위해서는
 // 본인이 구현한 FTL의 ftl_write()와 ftl_read()를 호출하면 됨
 //
+void printppn(void);
 int main(int argc, char *argv[])
 {
 	char *blockbuf;
@@ -151,11 +152,14 @@ void printppn(){
 	printf("\n------------------------\n");
 	for(int i=0; i<=20; i++){
 		dd_read(i, pagebuf);
+		if(i%PAGES_PER_BLOCK == 0)
+			printf("\n");
 		printf("i = %d, ",i);
 		for(int j=0; j<3; j++)
 			printf("%c",pagebuf[j]);
 		printf("\n");
 	}
+	printf("\n");
 	for(int i=124; i<=127; i++){
 		dd_read(i, pagebuf);
 		printf("i = %d, ",i);
