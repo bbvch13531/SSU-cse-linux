@@ -17,6 +17,8 @@ void ftl_read(int lsn, char *sectorbuf);
 // 본인이 구현한 FTL의 ftl_write()와 ftl_read()를 호출하면 됨
 //
 void printppn(void);
+void test1(void);
+void test2(void);
 int main(int argc, char *argv[])
 {
 	char *blockbuf;
@@ -47,6 +49,41 @@ int main(int argc, char *argv[])
 
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
+	
+	printf("-------------\n");
+	for(int i=0; i<=14; i++){
+		ftl_read(i, sectorbuf);
+		printf("i = %d, %s\n",i, sectorbuf);
+	}
+
+	fclose(devicefp);
+	printcnt();
+	return 0;
+}
+void printppn(){
+	char pagebuf[PAGE_SIZE]={0,};
+	printf("\n------------------------\n");
+	for(int i=0; i<=20; i++){
+		dd_read(i, pagebuf);
+		if(i%PAGES_PER_BLOCK == 0)
+			printf("\n");
+		printf("i = %d, ",i);
+		for(int j=0; j<3; j++)
+			printf("%c",pagebuf[j]);
+		printf("\n");
+	}
+	printf("\n");
+	for(int i=124; i<=127; i++){
+		dd_read(i, pagebuf);
+		printf("i = %d, ",i);
+		for(int j=0; j<3; j++)
+			printf("%c",pagebuf[j]);
+		printf("\n");
+	}
+	printf("\n------------------------\n");
+}
+
+void test1(void){
 	ftl_write(0,"A0");
 	ftl_write(1,"A1");
 	ftl_write(2,"A2");
@@ -136,37 +173,49 @@ int main(int argc, char *argv[])
 	ftl_write(12, "DDD");
 	ftl_write(13, "YYY");
 	// printTable();
-	printf("-------------\n");
-	for(int i=0; i<=14; i++){
-		ftl_read(i, sectorbuf);
-		printf("i = %d, %s\n",i, sectorbuf);
-	}
-
-	fclose(devicefp);
-	printcnt();
-	return 0;
 }
-void printppn(){
-	char pagebuf[PAGE_SIZE]={0,};
-	printf("\n------------------------\n");
-	for(int i=0; i<=20; i++){
-		dd_read(i, pagebuf);
-		if(i%PAGES_PER_BLOCK == 0)
-			printf("\n");
-		printf("i = %d, ",i);
-		for(int j=0; j<3; j++)
-			printf("%c",pagebuf[j]);
-		printf("\n");
-	}
-	printf("\n");
-	for(int i=124; i<=127; i++){
-		dd_read(i, pagebuf);
-		printf("i = %d, ",i);
-		for(int j=0; j<3; j++)
-			printf("%c",pagebuf[j]);
-		printf("\n");
-	}
-	printf("\n------------------------\n");
+
+void test2(void){
+	ftl_write(0, "A0");
+	ftl_write(1, "A1");
+	ftl_write(2, "A2");
+	ftl_write(3, "A3");
+	printTable();
+	printppn();
+	
+	ftl_write(3, "B3");
+	ftl_write(2, "B2");
+	ftl_write(3, "C3");
+	printTable();
+	printppn();
+
+	ftl_write(4, "A4");
+	ftl_write(5, "A5");
+	ftl_write(6, "A6");
+	ftl_write(7, "A7");
+	printTable();
+	printppn();
+
+	ftl_write(7, "B7");
+	ftl_write(7, "C7");
+	ftl_write(5, "B5");
+	ftl_write(6, "B6");
+	printTable();
+	printppn();
+
+	ftl_write(7, "D7");
+	ftl_write(5, "C5");
+	ftl_write(6, "C6");
+	ftl_write(7, "E7");
+	printTable();
+	printppn();
+
+	ftl_write(1, "B1");
+	ftl_write(1, "C1");
+	ftl_write(1, "D1");
+	ftl_write(3, "D3");
+	printTable();
+	printppn();
 }
 /*
 freeblock =>   31
