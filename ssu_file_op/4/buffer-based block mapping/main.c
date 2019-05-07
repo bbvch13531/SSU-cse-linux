@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
 	//
 	// ftl_write() 및 ftl_read() 테스트를 위한 코드를 자유자재로 만드세요
-	
+    test2();
 	printf("-------------\n");
 	for(int i=0; i<=14; i++){
 		ftl_read(i, sectorbuf);
@@ -63,8 +63,10 @@ int main(int argc, char *argv[])
 void printppn(){
 	char pagebuf[PAGE_SIZE]={0,};
 	printf("\n------------------------\n");
-	for(int i=0; i<=20; i++){
+	for(int i=0; i<=11; i++){
 		dd_read(i, pagebuf);
+		if(i%PAGES_PER_BLOCK == NONBUF_PAGES_PER_BLOCK)
+			printf("--------------\n");
 		if(i%PAGES_PER_BLOCK == 0)
 			printf("\n");
 		printf("i = %d, ",i);
@@ -73,7 +75,7 @@ void printppn(){
 		printf("\n");
 	}
 	printf("\n");
-	for(int i=124; i<=127; i++){
+	for(int i=186; i<=191; i++){
 		dd_read(i, pagebuf);
 		printf("i = %d, ",i);
 		for(int j=0; j<3; j++)
@@ -197,15 +199,21 @@ void test2(void){
 	printppn();
 
 	ftl_write(7, "B7");
+	printppn();
 	ftl_write(7, "C7");
+	printppn();
 	ftl_write(5, "B5");
+	printppn();
 	ftl_write(6, "B6");
 	printTable();
 	printppn();
 
 	ftl_write(7, "D7");
+	printppn();
 	ftl_write(5, "C5");
+	printppn();
 	ftl_write(6, "C6");
+	printppn();
 	ftl_write(7, "E7");
 	printTable();
 	printppn();
