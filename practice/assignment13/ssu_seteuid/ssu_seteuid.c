@@ -7,14 +7,14 @@
 int main(void){
 	int fd, state;
 
-	state = seteuid(1000);
+	state = seteuid(1000);	// euid를 1000으로 설정
 
 	if(state < 0){
 		fprintf(stderr, "seteuid error\n");
 		exit(1);
 	}
 
-	if((fd = open("ssu_test.txt", O_CREAT | O_RDWR | S_IRWXUR)) < 0){
+	if((fd = open("ssu_test.txt", O_CREAT | O_RDWR | S_IRWXUR)) < 0){	// ssu_test.txt 생성
 		fprintf(stderr, "open error\n");
 		exit(1);
 	}

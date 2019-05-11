@@ -11,9 +11,9 @@ void ssu_echo_exit(int status);
 int main(int argc, char **argv){
     int i;
 
-    setbuf(stdout, NULL);
+    setbuf(stdout, NULL);	// stdout에서 버퍼를 사용하지 않음
     for(i=1; i<argc; i++){
-        ssu_do_cmd(argv[i]);
+        ssu_do_cmd(argv[i]);	// argv를 ssu_do_cmd 처리
     }
     exit(0);   
 }
@@ -26,22 +26,22 @@ void ssu_do_cmd(char *cmd){
     
     printf("\ncommand: %s\n", cmd);
 
-    if((start = times(&tms_start)) == -1){
+    if((start = times(&tms_start)) == -1){	// 현재 시간 저장
         fprintf(stderr, "times error\n");
         exit(1);
     }
 
-    if((status = system(cmd)) < 0){
+    if((status = system(cmd)) < 0){		//명령어 실행
         fprintf(stderr, "system error\n");
         exit(1);
     }
 
-    if((end = times(&tms_end)) == -1){
+    if((end = times(&tms_end)) == -1){	// 현재 시간 저장
         fprintf(stderr, "times error\n");
         exit(1);
     }
-    ssu_print_times(end-start, &tms_start, &tms_end);
-    ssu_echo_exit(status);
+    ssu_print_times(end-start, &tms_start, &tms_end);	// 걸린 시간 출력
+    ssu_echo_exit(status);	// status를 출력
 }
 
 void ssu_print_times(clock_t real, struct tms *tms_start, struct tms *tms_end){
