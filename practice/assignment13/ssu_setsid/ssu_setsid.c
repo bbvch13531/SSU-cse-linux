@@ -5,7 +5,7 @@
 int main(void){
 	pid_t pid;
 
-	if((pid == fork()) < 0){	// 새 프로세스 생성
+	if((pid = fork()) < 0){	// 새 프로세스 생성
 		fprintf(stderr, "fork error\n");
 		exit(1);
 	}

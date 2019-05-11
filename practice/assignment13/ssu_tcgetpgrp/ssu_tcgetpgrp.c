@@ -26,7 +26,7 @@ int main(void){
 	else{	// 자식 프로세스
 		ssu_print_ids("child");		// 자식의 정보 출력
 		signal(SIGHUP, ssu_sig_hup);	// 시그널 처리
-		kill(getpid(), SIGSTP);	// 프로세스 종료
+		kill(getpid(), SIGTSTP);	// 프로세스 종료
 		ssu_print_ids("child");		// 자식의 정보 출력
 
 		if(read(STDIN_FILENO, &ch, 1) != 1)

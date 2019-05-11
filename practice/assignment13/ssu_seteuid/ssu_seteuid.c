@@ -14,7 +14,7 @@ int main(void){
 		exit(1);
 	}
 
-	if((fd = open("ssu_test.txt", O_CREAT | O_RDWR | S_IRWXUR)) < 0){	// ssu_test.txt 생성
+	if((fd = open("ssu_test.txt", O_CREAT | O_RDWR | S_IRWXU)) < 0){	// ssu_test.txt 생성
 		fprintf(stderr, "open error\n");
 		exit(1);
 	}

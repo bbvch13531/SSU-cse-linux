@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/time.h>
+#include <sys/times.h>
 #include <sys/wait.h>
 
 void ssu_do_cmd(char *cmd);
@@ -63,7 +63,7 @@ void ssu_echo_exit(int status){
     if(WIFEXITED(status))
         printf("normal termination, exit status = %d\n", WEXITSTATUS(status));
     else if(WIFSIGNALED(status))
-        printf("abnormal termination, exs = %d\n", WEXITSTATUS(status),
+        printf("abnormal termination, exs = %d%s\n", WEXITSTATUS(status),
 #ifdef WCOREDUMP
         WCOREDUMP(status) ? " (core file generated)" : "");
 #else
@@ -72,6 +72,3 @@ void ssu_echo_exit(int status){
     else if(WIFSTOPPED(status))
         printf("child stopped, signal number = %d\n", WSTOPSIG(status));
 }
-
-}
-
