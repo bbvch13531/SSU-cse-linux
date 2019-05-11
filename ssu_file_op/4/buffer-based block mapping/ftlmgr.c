@@ -13,7 +13,7 @@
 extern FILE *devicefp;
 int addressMappingTable[DATABLKS_PER_DEVICE];
 int freeblock = BLOCKS_PER_DEVICE - 1;
-int count = 0;
+// int count = 0;
 //
 // flash memory를 처음 사용할 때 필요한 초기화 작업, 예를 들면 address mapping table에 대한
 // 초기화 등의 작업을 수행한다. 따라서, 첫 번째 ftl_write() 또는 ftl_read()가 호출되기 전에
@@ -215,22 +215,22 @@ void ftl_write(int lsn, char *sectorbuf){
 			// printf("in-place update  %d => %d ppn=%d\n", lbn, addressMappingTable[lbn], newpbn+offset);
 
 			dd_erase(pbn);
-			count++;
+			// count++;
 			freeblock = pbn;
 		}
 	}
 	return;
 }
-void printcnt(){
-	printf("count = %d",count);
-}
-void printTable(){
-	printf("-----------TABLE----------\n");
-	for(int i=0; i<5; i++){
-		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
-	}
-	printf("freeblock =>%5d\n",freeblock);
-}
+// void printcnt(){
+// 	printf("count = %d",count);
+// }
+// void printTable(){
+// 	printf("-----------TABLE----------\n");
+// 	for(int i=0; i<5; i++){
+// 		printf("%8d  =>%5d\n",i, addressMappingTable[i]);
+// 	}
+// 	printf("freeblock =>%5d\n",freeblock);
+// }
 /*
 wjdtkdw정상적으로 저장할 수 있는 주소?
 buffer page는 정상적인 페이지가 아니어서 ppn이 없다?
