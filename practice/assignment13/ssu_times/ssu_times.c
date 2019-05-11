@@ -53,10 +53,10 @@ void ssu_print_times(clock_t real, struct tms *tms_start, struct tms *tms_end){
             exit(1);
         }
     printf("  real:  %7.2f\n", real / (double)clocktick);
-    printf("  user:  %7.2f\n", (tms_end->tms_utime - tims_start->tms_utime) / (double)clocktick);
-    printf("  sys:  %7.2f\n", (tms_end->tms_stime - tims_start->tms_stime) / (double)clocktick);
-    printf("  child user:  %7.2f\n", (tms_end->tms_cutime - tims_start->tms_cutime) / (double)clocktick);
-    printf("  child sys:  %7.2f\n", (tms_end->tms_cstime - tims_start->tms_cstime) / (double)clocktick);
+    printf("  user:  %7.2f\n", (tms_end->tms_utime - tms_start->tms_utime) / (double)clocktick);
+    printf("  sys:  %7.2f\n", (tms_end->tms_stime - tms_start->tms_stime) / (double)clocktick);
+    printf("  child user:  %7.2f\n", (tms_end->tms_cutime - tms_start->tms_cutime) / (double)clocktick);
+    printf("  child sys:  %7.2f\n", (tms_end->tms_cstime - tms_start->tms_cstime) / (double)clocktick);
 }
 
 void ssu_echo_exit(int status){
