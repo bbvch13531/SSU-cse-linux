@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int main(void){
+int main(int argc, char **argv){
 	pid_t pgid;
 	pid_t pid;
 	
