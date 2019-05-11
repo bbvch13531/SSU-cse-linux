@@ -8,6 +8,6 @@ int main(int argc, char **argv){
 		exit(1);
 	}
 	else
-		kill(atoi(argv[1], SIGKILL);
+		kill(atoi(argv[1], SIGKILL);	// argv[1] 을 종료
 	exit(0);
 }
