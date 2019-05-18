@@ -5,10 +5,10 @@
 int main(void){
 	sigset_t set;
 
-	sigemptyset(&set);
-	sigaddset(&set, SIGINT);
+	sigemptyset(&set);	// 시그널셋 초기화
+	sigaddset(&set, SIGINT);	// SIGINT 추가
 
-	switch(sigismember(&set, SIGINT)){
+	switch(sigismember(&set, SIGINT)){	// SIGINT를 확인
 		case 1 :
 			printf("SIGINT is included. \n");
 			break;
@@ -21,7 +21,7 @@ int main(void){
 			
 	}
 
-	switch(sigismember(&set, SIGSYS)){
+	switch(sigismember(&set, SIGSYS)){	//	SIGSYS를 확인
 		case 1 :
 			printf("SIGSYS is included. \n");
 			break;

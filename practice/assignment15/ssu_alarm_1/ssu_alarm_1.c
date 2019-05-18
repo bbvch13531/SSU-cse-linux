@@ -8,7 +8,7 @@ void ssu_signal_handler(int signo);
 int count = 0;
 
 int main(void){
-	signal(SIGALRM, ssu_signal_handler);
+	signal(SIGALRM, ssu_signal_handler);	// 시그널 핸들러 지정
 	alarm(1);
 
 	while(1);
@@ -17,7 +17,7 @@ int main(void){
 }
 
 void ssu_signal_handler(int signo){
-	printf("alarm %d\n", count++);
+	printf("alarm %d\n", count++);	// 시그널 발생할 때 출력
 	alarm(1);
 }
 

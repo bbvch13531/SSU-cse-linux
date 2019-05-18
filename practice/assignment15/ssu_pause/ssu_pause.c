@@ -7,12 +7,12 @@ void ssu_alarm(int signo);
 
 int main(void){
 	printf("Alarm Setting\n");
-	sugnal(SIGALRM, ssu_alarm);
+	signal(SIGALRM, ssu_alarm);	// 시그널 핸들러 설정
 	alarm(2);
 
 	while(1){
 		printf("done\n");
-		pause();
+		pause();	// pause 설정
 		alarm(2);
 	}
 	exit(0);	
