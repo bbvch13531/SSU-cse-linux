@@ -1,61 +1,105 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "student.h"
 
 //
-// ÇÐ»ý ·¹ÄÚµå ÆÄÀÏ¿¡ ·¹ÄÚµå¸¦ ÀúÀåÇÏ±â Àü¿¡ ±¸Á¶Ã¼ STUDENT¿¡ ÀúÀåµÇ¾î ÀÖ´Â µ¥ÀÌÅÍ¸¦ ·¹ÄÚµå ÇüÅÂ·Î ¸¸µç´Ù.
+// ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ STUDENTï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Â·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 // 
 void pack(char *recordbuf, const STUDENT *s);
 
 
 // 
-// ÇÐ»ý ·¹ÄÚµå ÆÄÀÏ·ÎºÎÅÍ ·¹ÄÚµå¸¦ ÀÐ¾î ¿Â ÈÄ ±¸Á¶Ã¼ STUDENT·Î º¯È¯ÇÑ´Ù.
+// ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ï·Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ ï¿½Ð¾ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼ STUDENTï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
 //
 void unpack(const char *recordbuf, STUDENT *s);
 
 //
-// ÇÐ»ý ·¹ÄÚµå ÆÄÀÏ·ÎºÎÅÍ  ·¹ÄÚµå ¹øÈ£¿¡ ÇØ´çÇÏ´Â ·¹ÄÚµå¸¦ ÀÐ¾î¼­ ·¹ÄÚµå ¹öÆÛ¿¡ ÀúÀåÇÑ´Ù.
+// ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ï·Îºï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ ï¿½Ð¾î¼­ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 //
 void readRecord(FILE *fp, char *recordbuf, int rn);
 
 //
-//¾Ë°í¸®Áò: ÀúÀå
-//ÇÐ»ý ·¹ÄÚµå ÆÄÀÏ¿¡¼­ »èÁ¦ ·¹ÄÚµåÀÇ Á¸Àç ¿©ºÎ¸¦ °Ë»çÇÑ ÈÄ »èÁ¦ ·¹ÄÚµå°¡ Á¸ÀçÇÏ¸é ÀÌ °ø°£¿¡
-//»õ·Î¿î ·¹ÄÚµå¸¦ ÀúÀåÇÏ¸ç, ¸¸¾à »èÁ¦ ·¹ÄÚµå°¡ Á¸ÀçÇÏÁö ¾Ê°Å³ª Á¶°Ç¿¡ ºÎÇÕÇÏ´Â »èÁ¦ ·¹ÄÚµå°¡
-//Á¸ÀçÇÏÁö ¾ÊÀ¸¸é  ÆÄÀÏÀÇ ¸Ç¸¶Áö¸·¿¡ ÀúÀåÇÑ´Ù.
+//ï¿½Ë°ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½
+//ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¸ï¿½ ï¿½Ë»ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµå°¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµå°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°Å³ï¿½ ï¿½ï¿½ï¿½Ç¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Úµå°¡
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 //
-void add(FILE *fp, const STUDET *s);
+void add(FILE *fp, const STUDENT *s);
 
 //
-//¾Ë°í¸®Áò: °Ë»ö
-//ÇÐ»ý ·¹ÄÚµå ÆÄÀÏ¿¡¼­ sequential search ±â¹ýÀ¸·Î ÁÖ¾îÁø ÇÐ¹ø Å°°ª°í ÀÏÄ¡ÇÏ´Â ·¹ÄÚµå¸¦ Ã£´Â´Ù.
-//Ãâ·ÂÀº ¸¸µå½Ã ÁÖ¾îÁø print ÇÔ¼ö¸¦ »ç¿ëÇÑ´Ù.
-//°Ë»ö ·¹ÄÚµå°¡ Á¸ÀçÇÏ¸é ·¹ÄÚµå ¹øÈ£ rnÀ», ±×·¸Áö ¾ÊÀ¸¸é -1À» ¸®ÅÏÇÑ´Ù.
+//ï¿½Ë°ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½Ë»ï¿½
+//ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ sequential search ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ð¹ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ Ã£ï¿½Â´ï¿½.
+//ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ print ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
+//ï¿½Ë»ï¿½ ï¿½ï¿½ï¿½Úµå°¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½È£ rnï¿½ï¿½, ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 //
 int search(FILE *fp, const char *keyval);
 
 //
-//¾Ë°í¸®Áò: »èÁ¦
-//ÇÐ»ý ÆÄÀÏ¿¡¼­ ÁÖ¾îÁø ÇÐ¹ø Å°°ª°ú ÀÏÄ¡ÇÏ´Â ·¹ÄÚµå¸¦ Ã£Àº ÈÄ ÇØ´ç ·¹ÄÚµå¸¦ »èÁ¦ Ã³¸®ÇÑ´Ù.
+//ï¿½Ë°ï¿½ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½
+//ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½Ð¹ï¿½ Å°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½Úµå¸¦ ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ï¿½Ñ´ï¿½.
 //
 void delete(FILE *fp, const char *keyval);
 
 void printRecord(const STUDENT *s, int n);
 
 
-int main(int argc, char *argv[])
-{
-	FILE *fp;  // ÇÐ»ý ·¹ÄÚµå ÆÄÀÏÀÇ ÆÄÀÏ Æ÷ÀÎÅÍ
+int main(int argc, char *argv[]){
+	FILE *record_fp, *idx_fp;  // ï¿½Ð»ï¿½ ï¿½ï¿½ï¿½Úµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int param_opt;
+	STUDENT std;
 
+	record_fp = fopen("RECORD_FILE_NAME", "w+");
+	idx_fp = fopen("INDEX_FILE_NAME", "w+");
 
-	return 1;
+	while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
+		switch(param_opt){
+			case 'a':
+				break;
+			case 'd':
+				break;
+			case 's':
+				break;
+			case  '?':
+				printf("usage: \n"); // optopt ì‚¬ìš©
+			break;
+		}
+	}
+
+	return 0;
 }
 
-void printRecord(const STUDENT *s, int n)
-{
+void pack(char *recordbuf, const STUDENT *s){
+
+}
+
+void unpack(const char *recordbuf, STUDENT *s){
+
+}
+
+void readRecord(FILE *fp, char *recordbuf, int rn){
+
+}
+
+void add(FILE *fp, const STUDENT *s){
+	// STUDENTë¥¼ packí•œë‹¤.
+	// index fileì„ ì°¸ì¡°í•´ì„œ ë¹ˆ ê³µê°„ì„ ì°¾ëŠ”ë‹¤.
+	// record_fpì˜ ë¹ˆ ê³µê°„ì— writeí•œë‹¤.
+	// index fileì„ ê°±ì‹ í•œë‹¤.
+	
+}
+
+int search(FILE *fp, const char *keyval){
+
+}
+
+void delete(FILE *fp, const char *keyval){
+
+}
+
+void printRecord(const STUDENT *s, int n){
 	int i;
 
-	for(i=0; i<n; i++)
-	{
+	for(i=0; i<n; i++){
 		printf("%s|%s|%s|%s|%s|%s|%s\n", s[i].id, s[i].name, s[i].dept, s[i].year, s[i].addr, s[i].phone, s[i].email);
 	}
 }
