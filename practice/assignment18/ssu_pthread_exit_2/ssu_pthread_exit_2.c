@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
-
+//362
 void *ssu_thread(void *arg);
 
 int main(void){
     pthread_t tid;
 
-    if(pthread_create(&tid, NULL, ssu_thread, NULL) != 0){
+    if(pthread_create(&tid, NULL, ssu_thread, NULL) != 0){  // 쓰레드 생성
         fprintf(stderr, "pthread_create error\n");
         exit(1);
     }
@@ -24,7 +24,7 @@ void *ssu_thread(void *arg){
     printf("쓰레드 시작\n");
     sleep(5);
     printf("쓰레드 수행 완료\n");
-    pthread_exit(NULL);
+    pthread_exit(NULL); // 쓰레드 종료
     
     return NULL;
 }

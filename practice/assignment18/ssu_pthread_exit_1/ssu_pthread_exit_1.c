@@ -13,12 +13,12 @@ int main(void){
     for(i=0; i<THREAD_NUM; i++){
         printf("In main: creating thread %d\n", i);
 
-        if(pthread_create(&tid[i], NULL, ssu_printhello, (void *)&i) != 0){
+        if(pthread_create(&tid[i], NULL, ssu_printhello, (void *)&i) != 0){  // 쓰레드 생성
             fprintf(stderr, "pthread_create error\n");
             exit(1);
         }
     }
-    pthread_exit(NULL);
+    pthread_exit(NULL); // 쓰레드 종료
     exit(0);
 }
 
