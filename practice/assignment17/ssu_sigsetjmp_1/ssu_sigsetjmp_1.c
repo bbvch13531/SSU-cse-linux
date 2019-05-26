@@ -4,17 +4,17 @@
 #include <signal.h>
 #include <setjmp.h>
 
-void ssu_signal_handler(int signo);
+void ssu_signal_handler(int signo);	//시그널 핸들러
 
 jmp_buf jump_buffer;
 
 int main(void){
-	signal(SIGINT, ssu_signal_handler);
+	signal(SIGINT, ssu_signal_handler); // 시그널 핸들러 설정
 
 	while(1){
-		if(setjmp(jump_buffer) == 0){
+		if(setjmp(jump_buffer) == 0){	// setjmp 설정
 			printf("Hit Ctrl-c at anytime ...\n");
-			pause();
+			pause();	// 프로그램 멈춤
 		}
 	}
 
@@ -31,7 +31,7 @@ void ssu_signal_handler(int signo){
 	if(character == 'y' || character == 'Y')
 		exit(0);
 	else{
-		signal(SIGINT, ssu_signal_handler);
-		longjmp(jump_buffer, 1);
+		signal(SIGINT, ssu_signal_handler);	// 다시 시그널 핸들러 설정
+		longjmp(jump_buffer, 1);	// longjmp 함수 사용
 	}
 }
