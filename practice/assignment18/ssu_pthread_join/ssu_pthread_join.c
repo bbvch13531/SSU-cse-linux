@@ -10,18 +10,18 @@ int main(void){
     int thread1 = 1, thread2 = 2;
     int status;
 
-    if(pthread_create(&tid1, NULL, ssu_thread, &thread1) != 0){
+    if(pthread_create(&tid1, NULL, ssu_thread, &thread1) != 0){ // 쓰레드 생성
         fprintf(stderr, "pthread_create error\n");
         exit(1);
     }
 
-    if(pthread_create(&tid2, NULL, ssu_thread, &thread2) != 0){
+    if(pthread_create(&tid2, NULL, ssu_thread, &thread2) != 0){ // 쓰레드 생성
         fprintf(stderr, "pthread_create error\n");
         exit(1);
     }
 
-    pthread_join(tid1, (void *)&status);
-    pthread_join(tid2, (void *)&status);
+    pthread_join(tid1, (void *)&status);    // 쓰레드가 종료할 때까지 대기
+    pthread_join(tid2, (void *)&status);    // 쓰레드가 종료할 때까지 대기
 
     exit(0);
 }
