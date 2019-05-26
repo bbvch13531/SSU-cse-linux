@@ -1,21 +1,15 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include "student.h"
 
-//
 // 학생 레코드 파일에 레코드를 저장하기 전에 구조체 STUDENT에 저장되어 있는 데이터를 레코드 형태로 만든다.
-// 
 void pack(char *recordbuf, const STUDENT *s);
 
-
-// 
 // 학생 레코드 파일로부터 레코드를 읽어 온 후 구조체 STUDENT로 변환한다.
-//
 void unpack(const char *recordbuf, STUDENT *s);
 
-//
 // 학생 레코드 파일로부터 레코드 번호에 해당하는 레코드를 읽어서 레코드 버퍼에 저장한다.
-//
 void readRecord(FILE *fp, char *recordbuf, int rn);
 
 //
@@ -23,7 +17,6 @@ void readRecord(FILE *fp, char *recordbuf, int rn);
 // 학생 레코드 파일에서 삭제 레코드의 존재 여부를 검사한 후 삭제 레코드가 존재하면 이 공간에
 // 새로운 레코드를 저장하면, 만약 삭제 레코드가 존재하지 않거나 조건에 부합하는 삭제 레코드가 존재하지 않으면
 // 파일의 맨 마지막에 저장한다.
-//
 void add(FILE *fp, const STUDENT *s);
 
 //
@@ -58,7 +51,7 @@ int main(int argc, char *argv[]){
 			case 's':
 				break;
 			case  '?':
-				printf("usage: \n"); // optopt 사용
+				printf("usage: %s [option] [field_value1] ...\n", argv[0]); // optopt 사용
 			break;
 		}
 	}
@@ -67,11 +60,30 @@ int main(int argc, char *argv[]){
 }
 
 void pack(char *recordbuf, const STUDENT *s){
+	char buf[256];
+	
+	// 필드를 '|'로 구분한다
+	sprintf(buf, "%s|%s|%s|%s|%s|%s|%s", s->id, s->name, s->addr, s->year, s->dept, s->phone, s->email);
 
+	strcpy(recordbuf, buf);
 }
 
 void unpack(const char *recordbuf, STUDENT *s){
-
+	char buf[256];
+	int j=0, nth=0;
+	for(int i=0; i<strlen(recordbuf); i++){
+		buf[j] = recordbuf[i];
+		if(recordbuf[i] == '|'){
+			if(nth == 0)	strcpy(s->id, buf);
+			else if(nth == 1)	strcpy(s->name, buf);
+			else if(nth == 2)	strcpy(s->addr, buf);
+			else if(nth == 3)	strcpy(s->year, buf);
+			else if(nth == 4)	strcpy(s->dept, buf);
+			else if(nth == 5)	strcpy(s->phone, buf);
+			else if(nth == 6)	strcpy(s->email, buf);
+			j = 0;
+		}
+	}
 }
 
 void readRecord(FILE *fp, char *recordbuf, int rn){
