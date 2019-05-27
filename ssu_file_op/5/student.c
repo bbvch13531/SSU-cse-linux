@@ -45,32 +45,33 @@ int main(int argc, char *argv[]){
 	int param_opt;
 	STUDENT std;
 
-	record_fp = fopen(RECORD_FILE_NAME, "r+");	// 제출시 w+로 수정해야함.
+	record_fp = fopen(RECORD_FILE_NAME, "rb+");	// 제출시 w+로 수정해야함.
 	idx_fp = fopen(INDEX_FILE_NAME, "r+");
 
-	while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
-		switch(param_opt){
-			case 'a':
-				break;
-			case 'd':
-				break;
-			case 's':
-				break;
-			case  '?':
-				printf("usage: %s [option] [field_value1] ...\n", argv[0]); // optopt 사용
-			break;
-		}
-	}
+	// while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
+	// 	switch(param_opt){
+	// 		case 'a':
+	// 			break;
+	// 		case 'd':
+	// 			break;
+	// 		case 's':
+	// 			break;
+	// 		case  '?':
+	// 			printf("usage: %s [option] [field_value1] ...\n", argv[0]); // optopt 사용
+	// 		break;
+	// 	}
+	// }
 	strcpy(std.id, "20142468");
 	strcpy(std.name, "Kyungyoung Heo");
 	strcpy(std.addr, "Seoul");
-	strcpy(std.year, "2019");
-	strcpy(std.dept, "Computer Science and Engineering");
-	strcpy(std.phone, "010-2454-3664");
-	strcpy(std.email, "bbvch13531@gmail.com");
+	strcpy(std.year, "1");
+	strcpy(std.dept, "Computer Science");
+	strcpy(std.phone, "01024543664");
+	strcpy(std.email, "a@a.com");
 
-	// add(record_fp, &std);
-	read_index_file();
+	// printf("%s %s %s\n\n", std.id, std.name, std.addr);
+	add(record_fp, &std);
+	// read_index_file();
 	return 0;
 }
 
@@ -111,32 +112,51 @@ void add(FILE *fp, const STUDENT *s){
 	// record_fp의 빈 공간에 write한다.
 	// index file을 갱신한다.
 	int record_num, record_size;
+	short header = 0;
 	char numbuf[5];
 	char recordbuf[127];
 
-	record_size = sizeof(s);
-	pack(recordbuf, s);
+	// record_size = sizeof(s);
+	// pack(recordbuf, s);
 
-	printf("pack beford add : %s\n",recordbuf);
+	// printf("pack beford add : %s\n",recordbuf);
 
+
+	// index file의 첫 2바이트에서 레코드 갯수를 읽어온다.
 	fseek(idx_fp, 0, SEEK_SET);
 	fread(numbuf, 2, 1, idx_fp);
-
+	printf("ftell = %d %s\n", ftell(idx_fp), numbuf);
 	record_num = atoi(numbuf);
 	printf("record num = %d\n", record_num);
 
-	read_index_file();
-	// index file의 첫 2바이트에서 레코드 갯수를 읽어온다.
+	if(record_num == 0){
+		// record_num 은 0이지만 삭제 레코드가 존재하는 경우 예외 처리.
+		header = 0;
+		fwrite(&header, 2, 1, fp);
+		unpack(recordbuf, &s);
+
+		fwrite(recordbuf, MAX_RECORD_SIZE, 1, fp);
+
+		// fwrite()
+	}
+	record_num++;
+	// if record_num == 0
+	// header = 0, 
+
+	fseek(idx_fp, 0, SEEK_SET);
+	// fwrite(&record_num, 2, 1, idx_fp);
 	// 레코드 갯수 +1 으로 갱신한다.
-	// 레코드 위치에 새로 추가한다. 
+	// 레코드 위치에 새로 추가한다.
+/*
+	read_index_file();
 
 	// TODO
 	// Add record at deleted space
 
 	// Header
-	recordbuf
-	// Append record to student.dat
 
+	// Append record to student.dat
+*/
 }
 
 int search(FILE *fp, const char *keyval){
