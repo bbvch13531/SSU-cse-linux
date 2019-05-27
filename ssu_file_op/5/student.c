@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include "student.h"
 
+#define MAXN 1000010
 // 학생 레코드 파일에 레코드를 저장하기 전에 구조체 STUDENT에 저장되어 있는 데이터를 레코드 형태로 만든다.
 void pack(char *recordbuf, const STUDENT *s);
 
@@ -33,14 +35,18 @@ void delete(FILE *fp, const char *keyval);
 
 void printRecord(const STUDENT *s, int n);
 
+void read_index_file(void);
+void update_index_file();
 
+FILE *idx_fp;
+int index_file_table[MAXN];
 int main(int argc, char *argv[]){
-	FILE *record_fp, *idx_fp;  // �л� ���ڵ� ������ ���� ������
+	FILE *record_fp;
 	int param_opt;
 	STUDENT std;
 
-	record_fp = fopen("RECORD_FILE_NAME", "w+");
-	idx_fp = fopen("INDEX_FILE_NAME", "w+");
+	record_fp = fopen(RECORD_FILE_NAME, "r+");	// 제출시 w+로 수정해야함.
+	idx_fp = fopen(INDEX_FILE_NAME, "r+");
 
 	while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
 		switch(param_opt){
@@ -55,7 +61,16 @@ int main(int argc, char *argv[]){
 			break;
 		}
 	}
+	strcpy(std.id, "20142468");
+	strcpy(std.name, "Kyungyoung Heo");
+	strcpy(std.addr, "Seoul");
+	strcpy(std.year, "2019");
+	strcpy(std.dept, "Computer Science and Engineering");
+	strcpy(std.phone, "010-2454-3664");
+	strcpy(std.email, "bbvch13531@gmail.com");
 
+	// add(record_fp, &std);
+	read_index_file();
 	return 0;
 }
 
@@ -95,7 +110,33 @@ void add(FILE *fp, const STUDENT *s){
 	// index file을 참조해서 빈 공간을 찾는다.
 	// record_fp의 빈 공간에 write한다.
 	// index file을 갱신한다.
-	
+	int record_num, record_size;
+	char numbuf[5];
+	char recordbuf[127];
+
+	record_size = sizeof(s);
+	pack(recordbuf, s);
+
+	printf("pack beford add : %s\n",recordbuf);
+
+	fseek(idx_fp, 0, SEEK_SET);
+	fread(numbuf, 2, 1, idx_fp);
+
+	record_num = atoi(numbuf);
+	printf("record num = %d\n", record_num);
+
+	read_index_file();
+	// index file의 첫 2바이트에서 레코드 갯수를 읽어온다.
+	// 레코드 갯수 +1 으로 갱신한다.
+	// 레코드 위치에 새로 추가한다. 
+
+	// TODO
+	// Add record at deleted space
+
+	// Header
+	recordbuf
+	// Append record to student.dat
+
 }
 
 int search(FILE *fp, const char *keyval){
@@ -112,4 +153,31 @@ void printRecord(const STUDENT *s, int n){
 	for(i=0; i<n; i++){
 		printf("%s|%s|%s|%s|%s|%s|%s\n", s[i].id, s[i].name, s[i].dept, s[i].year, s[i].addr, s[i].phone, s[i].email);
 	}
+}
+
+void read_index_file(void){
+	int n, i=0, num=0;
+	char buf[5], ch;
+
+	fseek(idx_fp, 0, SEEK_SET);
+	
+	fread(buf, 2, 1, idx_fp);
+
+	n = atoi(buf);
+
+	while((ch = fgetc(idx_fp)) != EOF){
+		if(ch == ' '){
+			index_file_table[i] = num;
+			printf("num = %d\n",num);
+			i++;
+			num = 0;
+		}
+		else num = 10 * num + ch - 48;
+		printf("ch = %c i = %d\n",ch, i);
+	}
+	index_file_table[i] = num;
+	printf("num = %d\n",num);
+}
+void update_index_file(){
+
 }
