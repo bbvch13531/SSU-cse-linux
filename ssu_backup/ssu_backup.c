@@ -53,7 +53,7 @@ void create_backup_dir(char *pathname);
 
 char backup_pathname[256];
 
-Backup_list backup_list;
+Backup_list list_head;
 
 int main(int argc, char **argv){
     int cnt;
@@ -75,11 +75,14 @@ int main(int argc, char **argv){
 
     while(1){
         printf("20142468>");
+
         fgets(inputbuf, 255, stdin);
         printf("%s\n", inputbuf);
+
         getcmd(inputbuf, cmd);
         setup_argv(inputbuf, argv_param);
         cnt = count_words(inputbuf);
+
         printf("cmd = %s, cnt = %d\n",cmd, cnt);
 
         if(strcmp(cmd, "add") == 0){
@@ -113,7 +116,43 @@ int main(int argc, char **argv){
 }
 
 void add(int argc, char **argv){
+    char pathname = argv[1];
+    int period;
+    struct stat statbuf;
+
     printf("add func\n");
+    period = atoi(argv[2]);
+    // 파일이 존재하지 않는 경우
+    if(access(pathname, F_OK) != 0){
+        printf("file not exists\n");
+        return ;
+    }
+
+    if(5 <= period && period <= 10){
+        printf("period should be greater than or equal to 5 and less than or equal to 10\n");
+        return ;
+    }
+    //  lstat
+    if(lstat(pathname, &statbuf) < 0){
+        fprintf(stderr, "lstat error\n");
+        return ;
+    }
+
+    // 정규파일이 아닌 경우
+    if(!S_ISREG(statbuf.st_mode)){
+        fprintf(stderr, "file is not regular file\n");
+        return ;
+    }
+
+    // 백업리스트에 이미 존재하는 경우
+    if(find_backup_list(pathname, &list_head) == 1){
+        fprintf(stderr, "file already exist in backup list\n");
+        return ;
+    }
+    // argv[1] filename
+    // argv[2]가 5이상 10이하이면 period
+    // 아니면 option
+    // getopt
 }
 
 void setup_argv(char *str, char **argv){
@@ -165,20 +204,25 @@ void create_backup_dir(char *pathname){
     struct dirent **dentry;
     struct stat statbuf;
 
+    // 디렉토리가 존재하지 않는 경우
     if(access(pathname, F_OK) != 0){
         fprintf(stderr, "Directory not exist\n");
         print_usage_and_exit();
     }
-
+    
+    //  lstat
     if(lstat(pathname, &statbuf) < 0){
         fprintf(stderr, "lstat error\n");
         print_usage_and_exit();
     }
 
+    // 디렉토리가 아닌 경우
     if(!S_ISDIR(statbuf.st_mode)){
         fprintf(stderr, "pathname is not directory\n");
         print_usage_and_exit();
     }
+
+    // 권한이 없는 경우
     if(access(pathname, R_OK) != 0 || access(pathname, W_OK) != 0 || access(pathname, X_OK) != 0){
         fprintf(stderr, "Permission denied\n");
         print_usage_and_exit();
