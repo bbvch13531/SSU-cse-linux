@@ -7,7 +7,6 @@
 
 void *sleep_interval(void *arg);
 
-
 char filename1[50] = "thread_sleep_test1.txt";
 char filename2[50] = "thread_sleep_test2.txt";
 FILE *fp1;
@@ -20,8 +19,8 @@ int main(int argc, char **argv){
 
     pthread_create(&tid[0], NULL, sleep_interval, (void *)&time1);
     pthread_create(&tid[1], NULL, sleep_interval, (void *)&time2);
-    pthread_join(tid[0], (void *)&status[0]);
-    pthread_join(tid[1], (void *)&status[1]);
+    // pthread_join(tid[0], (void *)&status[0]);
+    // pthread_join(tid[1], (void *)&status[1]);
     // pthread_join(tid[2], (void *)&status[2]);
     // pthread_join(tid[3], (void *)&status[3]);
     // pthread_join(tid[4], (void *)&status[4]);
