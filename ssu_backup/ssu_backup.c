@@ -56,10 +56,11 @@ void create_backup_dir(char *pathname);
 //   파일 복사하는 함수
 */
 int copy(char *pathname1, char *pathname2);
+
 char backup_pathname[256];
 
 Backup_list list_head;
-
+FILE *log_file_fp;
 int main(int argc, char **argv){
     int cnt;
     char inputbuf[256], cmd[10];
@@ -79,6 +80,7 @@ int main(int argc, char **argv){
     }
 
     while(1){
+        
         printf("20142468>");
 
         fgets(inputbuf, 255, stdin);
@@ -116,6 +118,8 @@ int main(int argc, char **argv){
             // 쓰레드 종료.
             break;
         }
+        // 백업 리스트의 정보를 가지고 쓰레드를 업데이트
+        // update_thread_from_backup_list();
     }
     exit(0);
 }
@@ -252,6 +256,8 @@ void create_backup_dir(char *pathname){
     chdir(pathname);
 
     mkdir(BACKUP_DIR, 0644);
+    chdir(BACKUP_DIR);
+    log_file_fp = fopen("backup_file.log", "w+");
 
     strcpy(backup_pathname, pathname);
     strcat(backup_pathname, BACKUP_DIR);

@@ -1,10 +1,16 @@
+#include <stdio.h>
+#include <string.h>
 typedef struct _backup_list{
     struct Backup_list *next;
     char pathname[256];
     int interval;
     int options[4]; // 옵션 설정되면 1 아니면 0
     int time;   // -t 옵션
-
+    int status;
+        // status:
+        // 0: not saved;
+        // 1: saving;
+        // 2: saved;
 } Backup_list;
 
 int find_backup_list(char *pathname, Backup_list *list){
