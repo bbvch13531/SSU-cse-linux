@@ -6,11 +6,16 @@
 #include <pthread.h>
 
 void *sleep_interval(void *arg);
+
+
+char filename1[50] = "thread_sleep_test1.txt";
+char filename2[50] = "thread_sleep_test2.txt";
 int main(int argc, char **argv){
     
     pthread_t tid[5];
     int status[5];
     int time1 = 3, time2 = 6;
+    
 
     pthread_create(&tid[0], NULL, sleep_interval, (void *)&time1);
     pthread_create(&tid[1], NULL, sleep_interval, (void *)&time2);
@@ -31,9 +36,20 @@ int main(int argc, char **argv){
 
 void *sleep_interval(void *arg){
     int interval = *(int *)arg;
+    char msg1[30];
+    char msg2[30];
+    FILE *fp;
+    if(interval == 3)
+        fp = fopen(filename1, "w+");
+    else
+        fp = fopen(filename2, "w+");
+        
+    sprintf(msg1, "%dth thread, sleep: %d\n", interval/2, interval);
+    sprintf(msg2, "sleep for %d, wakeup ", interval);
+
     while(1){
-        printf("%dth thread, sleep: %d\n", interval/2, interval);
+        fwrite(msg1, sizeof(msg1), 1, fp);
         sleep(interval);
-        printf("sleep for %d, wakeup ", interval);
+        fwrite(msg2, sizeof(msg2), 1, fp);
     }
 }
