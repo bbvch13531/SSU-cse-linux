@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <pthread.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/stat.h>
 #include "backup_list.h"
@@ -51,6 +52,10 @@ void print_usage_and_exit(void);
 */          
 void create_backup_dir(char *pathname);
 
+/*
+//   파일 복사하는 함수
+*/
+int copy(char *pathname1, char *pathname2);
 char backup_pathname[256];
 
 Backup_list list_head;
@@ -153,6 +158,22 @@ void add(int argc, char **argv){
     // argv[2]가 5이상 10이하이면 period
     // 아니면 option
     // getopt
+
+    // update_thread
+}
+
+int copy(char *pathname1, char *pathname2){
+    int len;
+    char buf[25];
+    int fd1, fd2;
+
+    fd1 = open(pathname1, O_RDONLY);
+    fd2 = open(pathname2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    while((len = read(fd1, buf, 10)) > 0){
+        write(fd2, buf, len);
+        // printf("len = %d buf = %s\n",len, buf);
+    }
 }
 
 void setup_argv(char *str, char **argv){
