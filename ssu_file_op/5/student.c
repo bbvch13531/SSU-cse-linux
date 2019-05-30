@@ -40,37 +40,48 @@ void update_index_file();
 
 FILE *idx_fp;
 int index_file_table[MAXN];
+short record_num, sizeof_record_dat;
 int main(int argc, char *argv[]){
 	FILE *record_fp;
 	int param_opt;
 	STUDENT std;
+	char findkeyval[12];
 
 	record_fp = fopen(RECORD_FILE_NAME, "rb+");	// 제출시 w+로 수정해야함.
-	idx_fp = fopen(INDEX_FILE_NAME, "r+");
+	idx_fp = fopen(INDEX_FILE_NAME, "rb+");
 
-	// while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
-	// 	switch(param_opt){
-	// 		case 'a':
-	// 			break;
-	// 		case 'd':
-	// 			break;
-	// 		case 's':
-	// 			break;
-	// 		case  '?':
-	// 			printf("usage: %s [option] [field_value1] ...\n", argv[0]); // optopt 사용
-	// 		break;
-	// 	}
-	// }
-	strcpy(std.id, "20142468");
-	strcpy(std.name, "Kyungyoung Heo");
-	strcpy(std.addr, "Seoul");
-	strcpy(std.year, "1");
-	strcpy(std.dept, "Computer Science");
-	strcpy(std.phone, "01024543664");
-	strcpy(std.email, "a@a.com");
+	while((param_opt = getopt(argc, argv, "a:d:s:")) != -1){
+		read_index_file();
+		switch(param_opt){
+			case 'a':
+				// printf("a\n");
+				strcpy(std.id, argv[2]);
+				strcpy(std.name, argv[3]);
+				strcpy(std.dept, argv[4]);
+				strcpy(std.year, argv[5]);
+				strcpy(std.addr, argv[6]);
+				strcpy(std.phone, argv[7]);
+				strcpy(std.email, argv[8]);
+
+				add(record_fp, &std);
+				break;
+			case 'd':
+				printf("d\n");
+				break;
+			case 's':
+				// printf("s\n");
+				strcpy(findkeyval, argv[2]);
+				search(record_fp, findkeyval);
+				break;
+			case  '?':
+				printf("usage: %s [option] [field_value1] ...\n", argv[0]); // optopt 사용
+			break;
+		}
+	}
+	
 
 	// printf("%s %s %s\n\n", std.id, std.name, std.addr);
-	add(record_fp, &std);
+	
 	// read_index_file();
 	return 0;
 }
@@ -111,42 +122,58 @@ void add(FILE *fp, const STUDENT *s){
 	// index file을 참조해서 빈 공간을 찾는다.
 	// record_fp의 빈 공간에 write한다.
 	// index file을 갱신한다.
-	int record_num, record_size;
+	int record_size;
 	short header = 0;
 	char numbuf[5];
-	char recordbuf[127];
+	char recordbuf[256], writebuf[5];
 
-	// record_size = sizeof(s);
-	// pack(recordbuf, s);
 
+	// STUDENT 구조체를 pack
+	pack(recordbuf, s);
+	// record_size를 계산한다.
+	record_size = strlen(recordbuf);
+	printf("record size = %d %s\n",record_size, recordbuf);
 	// printf("pack beford add : %s\n",recordbuf);
 
+	// fp 를 처음으로 이동
+	fseek(fp, 0, SEEK_END);
+	// student.dat의 사이즈를 계산한다.
+	sizeof_record_dat = ftell(fp);
+	printf("sizeof record dat = %d\n",sizeof_record_dat);
 
-	// index file의 첫 2바이트에서 레코드 갯수를 읽어온다.
+	// 레코드 갯수를 1 증가시키고 다시 idx_fp에 write 한다.
+	record_num++;
+	snprintf(numbuf, 3, "%2d", record_num);
+	printf("record num ++ %s\n", numbuf);
 	fseek(idx_fp, 0, SEEK_SET);
-	fread(numbuf, 2, 1, idx_fp);
-	printf("ftell = %d %s\n", ftell(idx_fp), numbuf);
-	record_num = atoi(numbuf);
-	printf("record num = %d\n", record_num);
+	fwrite(numbuf, 2, 1, idx_fp);
 
-	if(record_num == 0){
-		// record_num 은 0이지만 삭제 레코드가 존재하는 경우 예외 처리.
+	// 초기화하는 경우
+	if(record_num == 1){
+		// record_num 은 1이지만 삭제 레코드가 존재하는 경우 예외 처리.
 		header = 0;
 		fwrite(&header, 2, 1, fp);
-		unpack(recordbuf, &s);
 
-		fwrite(recordbuf, MAX_RECORD_SIZE, 1, fp);
+		fwrite(recordbuf, record_size, 1, fp);
+		fwrite("0", 2, 1, idx_fp);
 
-		// fwrite()
+		return ;
 	}
-	record_num++;
-	// if record_num == 0
-	// header = 0, 
 
+	// fp 를 처음으로 이동
 	fseek(idx_fp, 0, SEEK_SET);
-	// fwrite(&record_num, 2, 1, idx_fp);
+	// 
+	short newsize = sizeof_record_dat + record_size;
+	snprintf(writebuf, 3, "%2d", sizeof_record_dat + record_size);
+	printf("writebuf = %s\n",writebuf);
+	fseek(idx_fp, record_num * 2, SEEK_SET);
+	fwrite(&newsize, 2, 1, idx_fp);
+	// fwrite(writebuf, 2, 1, idx_fp);
 	// 레코드 갯수 +1 으로 갱신한다.
 	// 레코드 위치에 새로 추가한다.
+
+	fseek(fp, sizeof_record_dat, SEEK_SET);
+	fwrite(recordbuf, record_size, 1, fp);
 /*
 	read_index_file();
 
@@ -160,7 +187,7 @@ void add(FILE *fp, const STUDENT *s){
 }
 
 int search(FILE *fp, const char *keyval){
-
+	// for(int i=0; i<)
 }
 
 void delete(FILE *fp, const char *keyval){
@@ -183,7 +210,7 @@ void read_index_file(void){
 	
 	fread(buf, 2, 1, idx_fp);
 
-	n = atoi(buf);
+	record_num = atoi(buf);
 
 	while((ch = fgetc(idx_fp)) != EOF){
 		if(ch == ' '){
