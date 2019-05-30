@@ -35,10 +35,32 @@ typedef struct _backup_list{
 
 } backup_list;
 
-
 ## remove
 ` remove <FILENAME> [OPTION] `
 [OPTION] : 
     -a
 
 백업 중단해야함. 어떻게? - 시그널?
+
+백업할때
+    fopen해서
+    버퍼로 읽고
+    다른 파일 fopen해서
+    버퍼를 write 해야 한다.
+
+int copy(char *pathname, Backup_list *list){
+    fopen1()
+    fopen2()
+    fread()
+    fwrite()
+    list의 백업 주기를 확인
+}
+
+쓰레드를 만든다.
+전달할 정보 - i 번째 리스트.
+함수 - backup(): copy를 호출함.
+
+리스트에 visit check해야함. -> 쓰레드가 할당 되었는지 아닌지 체크.
+안되었으면 새로 쓰레드 만들어야함.
+
+쓰레드 배열
