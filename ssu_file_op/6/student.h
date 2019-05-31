@@ -4,18 +4,18 @@
 #define RECORD_FILE_NAME    "student.dat"
 #define HASH_FILE_NAME     "student.hsh"
 #define STUDENT_RECORD_SIZE     120
-#define HASH_RECORD_SIZE    14      //ÇÐ¹øÅ°°ª(10)+ÇÐ»ý·¹ÄÚµå¹øÈ£(4)
-#define SID_FIELD_SIZE	10	// ÇÐ¹ø ÇÊµåÀÇ Å©±â
+#define HASH_RECORD_SIZE    14      // í•™ë²ˆ(10)+ ë ˆì½”ë“œ ì£¼ì†Œ(4)
+#define SID_FIELD_SIZE	10	// ï¿½Ð¹ï¿½ ï¿½Êµï¿½ï¿½ï¿½ Å©ï¿½ï¿½
 
 typedef struct _Student
 {
-	char id[11];		//ÇÐ¹ø
-	char name[21];		//ÀÌ¸§
-	char addr[31];	    //ÁÖ¼Ò
-	char year[2];		//ÇÐ³â
-	char dept[20];		//ÇÐ°ú
-    char phone[16];		//ÀüÈ­¹øÈ£
-	char email[26];		//ÀÌ¸ÞÀÏ ÁÖ¼Ò
+	char id[11];		//ï¿½Ð¹ï¿½
+	char name[21];		//ï¿½Ì¸ï¿½
+	char addr[31];	    //ï¿½Ö¼ï¿½
+	char year[2];		//ï¿½Ð³ï¿½
+	char dept[20];		//ï¿½Ð°ï¿½
+    char phone[16];		//ï¿½ï¿½È­ï¿½ï¿½È£
+	char email[26];		//ï¿½Ì¸ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½
 } STUDENT;
 
 #endif
