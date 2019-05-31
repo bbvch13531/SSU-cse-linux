@@ -41,7 +41,7 @@ int search_backup_list(char *pathname, struct Backup_list *list){
 void append_backup_list(struct Node data, struct Backup_list *list){
     struct Node *node = list->head;
     struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
-    
+
 
     strcpy(new_node->pathname, data.pathname);
     new_node->interval = data.interval;

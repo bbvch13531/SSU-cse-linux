@@ -59,7 +59,7 @@ int copy(char *pathname1, char *pathname2);
 
 char backup_pathname[256];
 
-Backup_list list_head;
+struct Backup_list list_head;
 FILE *log_file_fp;
 int main(int argc, char **argv){
     int cnt;
