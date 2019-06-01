@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 struct Backup_list{
     struct Node *head;
@@ -19,16 +20,18 @@ struct Node{
         // 0: not saved;
         // 1: saving;
         // 2: saved;
+    pthread_t tid;
 };
 
 void init(struct Backup_list *list){
     list->head = NULL;
-    list->size =0;
+    list->size = 0;
 }
 
 int search_backup_list(char *pathname, struct Backup_list *list){
     struct Node *node = list->head;
     int cnt=0;
+    if(node == NULL) return -1;
     while(node->next != NULL){
         if(strcmp(pathname, node->pathname) == 0)
             return cnt;
@@ -41,7 +44,6 @@ int search_backup_list(char *pathname, struct Backup_list *list){
 void append_backup_list(struct Node data, struct Backup_list *list){
     struct Node *node = list->head;
     struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
-
 
     strcpy(new_node->pathname, data.pathname);
     new_node->interval = data.interval;

@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <ctype.h>
 #include <sys/stat.h>
 #include <sys/stat.h>
 #include "backup_list.h"
@@ -46,6 +47,11 @@ void setup_argv(char *str, char **argv);
 //  사용법 출력하고 종료하는 함수
 */
 void print_usage_and_exit(void);
+
+/*
+//  정규파일, 디렉토리 확인하는 함수
+*/
+int is_reg_or_dir(struct stat statbuf, int opt);
 
 /*
 //  백업 디렉터리 생성하는 함수
@@ -124,13 +130,43 @@ int main(int argc, char **argv){
     exit(0);
 }
 
+int is_reg_or_dir(struct stat statbuf, int opt){
+    // opt == 1 정규파일인지 확인
+    if(opt == 1){
+        if(!S_ISREG(statbuf.st_mode)){ 
+            printf("Not regular file\n");
+            return -1;
+        }
+        else
+            return 1;
+    }
+    // opt == 2 디렉토리인지 확인
+    else if(opt == 2){
+        if(!S_ISDIR(statbuf.st_mode)){
+            printf("Not directory\n");
+            return -1;
+        }
+        else
+            return 1;
+    }
+}
 void add(int argc, char **argv){
-    char pathname = argv[1];
+    char *pathname = argv[1];
     int period;
+    int opt, opt_number, opt_time;
     struct stat statbuf;
+    struct Node new_node;
 
-    printf("add func\n");
+
+    // period 가 정수가 아닐 경우.
+    for(int i=0; i<strlen(argv[2]); i++){
+        if(!isdigit(argv[2][i])){
+            printf("period should be Integer\n");
+            return ;
+        }
+    }
     period = atoi(argv[2]);
+
     // 파일이 존재하지 않는 경우
     if(access(pathname, F_OK) != 0){
         printf("file not exists\n");
@@ -147,14 +183,16 @@ void add(int argc, char **argv){
         return ;
     }
 
-    // 정규파일이 아닌 경우
-    if(!S_ISREG(statbuf.st_mode)){
-        fprintf(stderr, "file is not regular file\n");
-        return ;
-    }
+    // -d 옵션에서 처리해야함.
+    // // 정규파일이 아닌 경우
+    // if(!S_ISREG(statbuf.st_mode)){
+    //     fprintf(stderr, "file is not regular file\n");
+    //     return ;
+    // }
 
+    printf("before search func\n");
     // 백업리스트에 이미 존재하는 경우
-    if(find_backup_list(pathname, &list_head) == 1){
+    if(search_backup_list(pathname, &list_head) == 1){
         fprintf(stderr, "file already exist in backup list\n");
         return ;
     }
@@ -164,6 +202,43 @@ void add(int argc, char **argv){
     // getopt
 
     // update_thread
+
+    printf("add func\n");
+    while((opt = getopt(argc, argv, "mn:t:d")) != -1){
+        switch(opt){
+            case 'm':
+                if(is_reg_or_dir(statbuf, 1) == -1) return;
+                printf("add -m\n");
+                break;
+
+            case 'n':
+                if(is_reg_or_dir(statbuf, 1) == -1) return;
+                opt_number = atoi(optarg);
+                printf("add -n\n");
+                break;
+
+            case 't':
+                if(is_reg_or_dir(statbuf, 1) == -1) return;
+                opt_time = atoi(optarg);
+                printf("add -t\n");
+                break;
+
+            case 'd':
+                if(is_reg_or_dir(statbuf, 2) == -1) return;
+                printf("add -d\n");
+                break;
+
+            case '?':
+
+                break;
+        }
+    }
+    // new_node.pathname;
+    // new_node.interval;
+    // new_node.options;
+    // new_node.status;
+    // new_node.time;
+
 }
 
 int copy(char *pathname1, char *pathname2){
@@ -203,11 +278,12 @@ void setup_argv(char *str, char **argv){
     }
     return ;
 }
+
 void getcmd(char *string, char *cmd){
     int len = strlen(string);
 
     for(int i=0; i<len; i++){
-        if(string[i] == ' '){
+        if(string[i] == ' '){                                                                                                                           
             cmd[i] = '\0';
             return;
         }
