@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/stat.h>
 #include "backup_list.h"
@@ -59,6 +60,15 @@ void print_usage_and_exit(void);
 int is_reg_or_dir(struct stat statbuf, int opt);
 
 /*
+//  쓰레드에서 실행할 함수
+*/
+void * thread_func(void *arg);
+
+/*
+//
+*/
+void make_postfix(time_t timer, char *postfix1, char *postfix2);
+/*
 //  백업 디렉터리 생성하는 함수
 */          
 void create_backup_dir(char *pathname);
@@ -66,7 +76,7 @@ void create_backup_dir(char *pathname);
 /*
 //   파일 복사하는 함수
 */
-int copy(char *pathname1, char *pathname2);
+time_t copy(char *pathname1, char *pathname2);
 
 char backup_pathname[256];
 
@@ -279,34 +289,94 @@ void update_thread(void){
     //backup_pathname
     struct Node *np;
     int size = list_head.size;
-    
+    int tid;
     for(int i=0; i<size; i++){
         np = get(i, &list_head);
         
         // To add Node from thread
         if(np->saved_count == 0){
-            pthread_create()
+            pthread_create(&tid, NULL, thread_func, (void *)np);
         }
         // To remove Node from thread
         else if(np->saved_count == -1){
+            // 쓰레드 종료.
 
+            pthread_cancel(np->tid);
         }
     }
 }
 
-int copy(char *pathname1, char *pathname2){
+void *thread_func(void *arg){
+    struct Node *np = (struct Node *)arg;
+    time_t timer;
+    char yypostfix[10], hhpostfix[10];
+
+
+    // 처음 생성될 때.
+    // 로그파일에 added 기록
+    if(np->saved_count == 0){
+
+    }
+    // 삭제할 때
+    // 로그파일에 deleted 기록
+    else if(np->saved_count == -1){
+
+    }
+    
+    timer = copy(np->pathname, backup_pathname);
+    make_postfix(timer, yypostfix, hhpostfix);
+    
+    // 로그파일에 로그 남기기.
+    // fwrite()
+
+}
+
+time_t copy(char *pathname1, char *pathname2){
     int len;
-    char buf[25];
+    char buf[513];
     int fd1, fd2;
+    time_t timer;
 
     fd1 = open(pathname1, O_RDONLY);
     fd2 = open(pathname2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-    while((len = read(fd1, buf, 10)) > 0){
+    while((len = read(fd1, buf, 512)) > 0){
         write(fd2, buf, len);
         // printf("len = %d buf = %s\n",len, buf);
     }
+
+    timer = time(NULL);
+    return timer;
 }
+
+void make_postfix(time_t timer, char *postfix1, char *postfix2){
+    struct tm *cur_time;
+    int year, mon, mday, hour, min, sec;
+
+    // char postfix[256];
+    char yymmdd[10], hhmmss[10];
+
+    cur_time = localtime(&timer);
+
+    year = cur_time->tm_year;
+    mon = cur_time->tm_mon;
+    mday = cur_time->tm_mday;
+    hour = cur_time->tm_hour;
+    min = cur_time->tm_min;
+    sec = cur_time->tm_sec;
+
+    year += 1900;
+    year %= 100;
+    mon += 1;
+
+    sprintf(yymmdd, "%02d%02d%02d", year, mon, mday);
+    sprintf(hhmmss, "%02d%02d%02d", hour, min, sec);
+
+    strcpy(postfix1, yymmdd);
+    strcpy(postfix2, hhmmss);
+    // sprintf(postfix, "%s%s", yymmdd, hhmmss);
+}
+
 
 void setup_argv(char *str, char **argv){
     int len = strlen(str);
