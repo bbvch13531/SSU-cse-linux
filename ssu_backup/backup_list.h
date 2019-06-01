@@ -11,6 +11,7 @@ struct Backup_list{
 struct Node{
     struct Node *next;
 
+    char filename[256];
     char pathname[256];
     int interval;
     int options[4]; // 옵션 설정되면 1 아니면 0

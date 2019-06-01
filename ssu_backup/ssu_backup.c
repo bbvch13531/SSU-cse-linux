@@ -204,34 +204,42 @@ void add(int argc, char **argv){
     // update_thread
 
     printf("add func\n");
-    while((opt = getopt(argc, argv, "mn:t:d")) != -1){
-        switch(opt){
-            case 'm':
-                if(is_reg_or_dir(statbuf, 1) == -1) return;
-                printf("add -m\n");
-                break;
 
-            case 'n':
-                if(is_reg_or_dir(statbuf, 1) == -1) return;
-                opt_number = atoi(optarg);
-                printf("add -n\n");
-                break;
+    // 옵션이 있는 경우
+    if(argc > 3){
+        while((opt = getopt(argc, argv, "mn:t:d")) != -1){
+            switch(opt){
+                case 'm':
+                    if(is_reg_or_dir(statbuf, 1) == -1) return;
+                    printf("add -m\n");
+                    break;
 
-            case 't':
-                if(is_reg_or_dir(statbuf, 1) == -1) return;
-                opt_time = atoi(optarg);
-                printf("add -t\n");
-                break;
+                case 'n':
+                    if(is_reg_or_dir(statbuf, 1) == -1) return;
+                    opt_number = atoi(optarg);
+                    printf("add -n\n");
+                    break;
 
-            case 'd':
-                if(is_reg_or_dir(statbuf, 2) == -1) return;
-                printf("add -d\n");
-                break;
+                case 't':
+                    if(is_reg_or_dir(statbuf, 1) == -1) return;
+                    opt_time = atoi(optarg);
+                    printf("add -t\n");
+                    break;
 
-            case '?':
+                case 'd':
+                    if(is_reg_or_dir(statbuf, 2) == -1) return;
+                    printf("add -d\n");
+                    break;
 
-                break;
+                case '?':
+
+                    break;
+            }
         }
+    }
+    // 옵션 없이 add 실행하는 경우
+    else {
+
     }
     // new_node.pathname;
     // new_node.interval;
