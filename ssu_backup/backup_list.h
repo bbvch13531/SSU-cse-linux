@@ -11,16 +11,13 @@ struct Backup_list{
 struct Node{
     struct Node *next;
 
-    char filename[256];
     char pathname[256];
     int interval;
     int options[4]; // 옵션 설정되면 1 아니면 0
     int time;   // -t 옵션
-    int status;
-        // status:
-        // 0: not saved;
-        // 1: saving;
-        // 2: saved;
+    int mtime;
+    int number; // -n 옵션
+    int saved_count;
     pthread_t tid;
 };
 
@@ -48,9 +45,13 @@ void append_backup_list(struct Node data, struct Backup_list *list){
 
     strcpy(new_node->pathname, data.pathname);
     new_node->interval = data.interval;
-    // memcpy(new_node->options, data.options, 16);
+    for(int i=0; i<4; i++){
+        new_node->options[i] = data.options[i];
+    }
     new_node->time = data.time;
-    new_node->status = data.status;
+    new_node->mtime = data.mtime;
+    new_node->number = data.number;
+    new_node->saved_count = 0;
 
     // printf("new_node::pathname=%s append\nlist->size = %d\n", new_node->pathname, list->size);
     if(node == NULL){
@@ -106,4 +107,19 @@ void remove_from_list(char *pathname, struct Backup_list *list){
         }
     }
     list->size--;
+}
+
+struct Node* get(int n, struct Backup_list *list){
+    struct Node *node = NULL;
+
+    if(n > list->size || list->head == NULL)
+        return NULL;
+    
+    node = list->head;
+    
+    for(int i=0; i<n; i++){
+        node = node->next;
+    }
+
+    return node;
 }

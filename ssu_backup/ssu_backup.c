@@ -39,7 +39,12 @@ int count_words(char *string);
 void getcmd(char *string, char *cmd);
 
 /*
-//
+//  backup_list를 update하고 쓰레드를 실행/종료하는 함수
+*/
+void update_thread(void);
+
+/*
+//  string을 argc, argv로 만드는 함수
 */
 void setup_argv(char *str, char **argv);
 
@@ -157,7 +162,7 @@ void add(int argc, char **argv){
     struct stat statbuf;
     struct Node new_node;
 
-
+    memset(&new_node, 0, sizeof(struct Node));
     // period 가 정수가 아닐 경우.
     for(int i=0; i<strlen(argv[2]); i++){
         if(!isdigit(argv[2][i])){
@@ -192,7 +197,7 @@ void add(int argc, char **argv){
 
     printf("before search func\n");
     // 백업리스트에 이미 존재하는 경우
-    if(search_backup_list(pathname, &list_head) == 1){
+    if(search_backup_list(pathname, &list_head) != -1){
         fprintf(stderr, "file already exist in backup list\n");
         return ;
     }
@@ -212,23 +217,47 @@ void add(int argc, char **argv){
                 case 'm':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
                     printf("add -m\n");
+                    // mtime이 수정된 경우에만 백업 실행
+                    strcpy(new_node.pathname, pathname);
+                    new_node.interval = period;
+                    new_node.mtime = statbuf.st_mtime;
+                    new_node.options[0] = 1;
+
+                    append_backup_list(new_node, &list_head);
                     break;
 
                 case 'n':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
                     opt_number = atoi(optarg);
                     printf("add -n\n");
+                    // 백업한 파일의 최대 갯수: opt_number
+                    strcpy(new_node.pathname, pathname);
+                    new_node.interval = period;
+                    new_node.mtime = statbuf.st_mtime;
+                    new_node.options[1] = 1;
+                    new_node.number = opt_number;
+
+                    append_backup_list(new_node, &list_head);
                     break;
 
                 case 't':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
                     opt_time = atoi(optarg);
                     printf("add -t\n");
+
+                    strcpy(new_node.pathname, pathname);
+                    new_node.interval = period;
+                    new_node.mtime = statbuf.st_mtime;
+                    new_node.options[2] = 1;
+                    new_node.time = opt_time;
+
+                    append_backup_list(new_node, &list_head);
                     break;
 
                 case 'd':
                     if(is_reg_or_dir(statbuf, 2) == -1) return;
                     printf("add -d\n");
+                    // append_dir_backup();
                     break;
 
                 case '?':
@@ -239,14 +268,30 @@ void add(int argc, char **argv){
     }
     // 옵션 없이 add 실행하는 경우
     else {
-
+        strcpy(new_node.pathname, pathname);
+        new_node.interval = period;
     }
-    // new_node.pathname;
-    // new_node.interval;
-    // new_node.options;
-    // new_node.status;
-    // new_node.time;
+    update_thread();
 
+}
+
+void update_thread(void){
+    //backup_pathname
+    struct Node *np;
+    int size = list_head.size;
+    
+    for(int i=0; i<size; i++){
+        np = get(i, &list_head);
+        
+        // To add Node from thread
+        if(np->saved_count == 0){
+            pthread_create()
+        }
+        // To remove Node from thread
+        else if(np->saved_count == -1){
+
+        }
+    }
 }
 
 int copy(char *pathname1, char *pathname2){
