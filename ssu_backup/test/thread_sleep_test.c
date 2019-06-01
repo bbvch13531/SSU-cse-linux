@@ -48,7 +48,7 @@ void *sleep_interval(void *arg){
     //     fp = fopen(filename2, "w+");
     //     printf("interval 6\n");
     // }
-        
+
     sprintf(msg1, "%dth thread, sleep: %d\n", interval/2, interval);
     sprintf(msg2, "sleep for %d, wakeup ", interval);
 
@@ -61,6 +61,4 @@ void *sleep_interval(void *arg){
         fflush(fp1);
     }
 
-    // while(1){
-    // }
 }
