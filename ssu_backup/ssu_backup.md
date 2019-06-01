@@ -13,7 +13,6 @@
 7. vi(m)
 8. exit
 
-
 ## add
 ` add <FILENAME> [PERIOD] [OPTION] `
 [OPTION] : 
@@ -34,7 +33,7 @@ typedef struct _backup_list{
     int time;   // -t 옵션
 
 } backup_list;
-
+ .
 ## remove
 ` remove <FILENAME> [OPTION] `
 [OPTION] : 
@@ -64,3 +63,14 @@ int copy(char *pathname, Backup_list *list){
 안되었으면 새로 쓰레드 만들어야함.
 
 쓰레드 배열
+tid_t threads[]
+
+tail pointer?
+
+
+0531
+
+1. thread_test 예제 테스트
+2. 로그파일 만드는 예제 테스트
+3. Add 설계
+4. 
