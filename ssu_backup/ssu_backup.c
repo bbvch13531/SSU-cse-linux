@@ -408,15 +408,15 @@ void setup_argv(char *str, char **argv){
             buf[j] = '\0';
             j=0;
             // malloc
-            printf("strlen %d\n",strlen(buf)+1);
-            argv[n] = (char *)malloc(sizeof(strlen(buf+1)));
+            // printf("strlen %d\n",strlen(buf)+1);
+            argv[n] = (char *)malloc(strlen(buf) +1);
             strcpy(argv[n], buf);
-            printf("buf = %s argv[%d] = %s %d\n", buf, n, argv[n], strlen(buf));
+            // printf("buf = %s argv[%d] = %s %d\n", buf, n, argv[n], strlen(buf));
             n++;
             memset(buf, 0, 256);
         }
         else{
-            printf("n=%d\n", n);
+            // printf("%c\n", str[i]);
             buf[j++] = str[i];
         }
     }
