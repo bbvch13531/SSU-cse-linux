@@ -310,24 +310,31 @@ void *thread_func(void *arg){
     struct Node *np = (struct Node *)arg;
     time_t timer;
     char yypostfix[10], hhpostfix[10];
-
+    char backup_filename[256], writebuf1[512], writebuf2[512];
+    char realpath1[256];
 
     // 처음 생성될 때.
     // 로그파일에 added 기록
     if(np->saved_count == 0){
+        timer = copy(np->pathname, backup_pathname);
 
     }
     // 삭제할 때
     // 로그파일에 deleted 기록
     else if(np->saved_count == -1){
-
+        // timer = delete(np->pathname, backup_pathname);
     }
-    
-    timer = copy(np->pathname, backup_pathname);
     make_postfix(timer, yypostfix, hhpostfix);
+    
+    strcpy(backup_filename, backup_pathname);
+    strcat(backup_filename, np->pathname);
+    strcat(backup_filename, yypostfix);
+    strcat(backup_filename, hhpostfix);
+
     
     // 로그파일에 로그 남기기.
     // fwrite()
+    realpath(np->pathname, realpath1);
 
 }
 
