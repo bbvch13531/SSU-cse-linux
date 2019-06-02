@@ -123,3 +123,15 @@ struct Node* get(int n, struct Backup_list *list){
 
     return node;
 }
+
+void print_backup_list(struct Backup_list *list){
+    struct Node *node = NULL;
+
+    node = list->head;
+    if(node == NULL) return;
+
+    while(node->next != NULL){
+        printf("%s %d %d %d  ->  ", node->pathname, node->interval, node->mtime, node->saved_count);
+    }
+    printf("\n");
+}

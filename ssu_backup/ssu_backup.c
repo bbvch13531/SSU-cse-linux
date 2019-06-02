@@ -111,7 +111,7 @@ int main(int argc, char **argv){
         setup_argv(inputbuf, argv_param);
         cnt = count_words(inputbuf);
 
-        printf("cmd = %s, cnt = %d\n",cmd, cnt);
+        // printf("cmd = %s, cnt = %d\n",cmd, cnt);
 
         if(strcmp(cmd, "add") == 0){
             add(cnt, argv_param);
@@ -169,6 +169,7 @@ int is_reg_or_dir(struct stat statbuf, int opt){
 
 void add(int argc, char **argv){
     char *pathname = argv[1];
+    char realpathname[1024];
     int period;
     int opt, opt_number, opt_time;
     struct stat statbuf;
@@ -176,6 +177,10 @@ void add(int argc, char **argv){
 
     memset(&new_node, 0, sizeof(struct Node));
     // period 가 정수가 아닐 경우.
+    if(argc < 3){
+        printf("Usage: add <FILENAME> <PERIOD> [OPTION]\n");
+        return ;
+    }
     for(int i=0; i<strlen(argv[2]); i++){
         if(!isdigit(argv[2][i])){
             printf("period should be Integer\n");
@@ -183,7 +188,9 @@ void add(int argc, char **argv){
         }
     }
     period = atoi(argv[2]);
-
+    realpath(pathname, realpathname);
+    printf("pathname = %s %s\n",pathname, realpathname);
+    
     // 파일이 존재하지 않는 경우
     if(access(pathname, F_OK) != 0){
         printf("file not exists\n");
@@ -220,7 +227,7 @@ void add(int argc, char **argv){
 
     // update_thread
 
-    printf("add func\n");
+    // printf("add func\n");
 
     // 옵션이 있는 경우
     if(argc > 3){
@@ -283,6 +290,8 @@ void add(int argc, char **argv){
         strcpy(new_node.pathname, pathname);
         new_node.interval = period;
     }
+    printf("before update_thread\n");
+    print_backup_list(&list_head);
     update_thread();
 
 }
@@ -317,6 +326,7 @@ void *thread_func(void *arg){
 
     // 처음 생성될 때.
     // 로그파일에 added 기록
+    printf("thread func\n");
     if(np->saved_count == 0){
         timer = copy(np->pathname, backup_pathname);
 
@@ -391,19 +401,24 @@ void make_postfix(time_t timer, char *postfix1, char *postfix2){
 void setup_argv(char *str, char **argv){
     int len = strlen(str);
     int j = 0, n = 0;
-    char buf[128];
+    char buf[256];
 
     for(int i=0; i<len; i++){
         if(str[i] == ' ' || i == len-1){
             buf[j] = '\0';
             j=0;
             // malloc
-            argv[n] = (char *)malloc(sizeof(strlen(buf)));
+            printf("strlen %d\n",strlen(buf)+1);
+            argv[n] = (char *)malloc(sizeof(strlen(buf+1)));
             strcpy(argv[n], buf);
+            printf("buf = %s argv[%d] = %s %d\n", buf, n, argv[n], strlen(buf));
             n++;
+            memset(buf, 0, 256);
         }
-        else
+        else{
+            printf("n=%d\n", n);
             buf[j++] = str[i];
+        }
     }
 
     for(int i=0; i<n; i++){
