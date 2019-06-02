@@ -1,8 +1,8 @@
 CC = gcc
 
-SOURCE = ssu_backup.c backup_list.h
+SOURCE = ssu_backup.c
+HEADER = backup_list.h
 
-
-build : $(SOURCE)
-	$(CC) -o ssu_backup $(SOURCE)
+build : $(SOURCE) $(HEADER)
+	$(CC) -o ssu_backup $(SOURCE) -lpthread
     

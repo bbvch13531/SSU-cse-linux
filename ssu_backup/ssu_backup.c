@@ -164,7 +164,9 @@ int is_reg_or_dir(struct stat statbuf, int opt){
         else
             return 1;
     }
+    return -1;
 }
+
 void add(int argc, char **argv){
     char *pathname = argv[1];
     int period;
@@ -289,7 +291,7 @@ void update_thread(void){
     //backup_pathname
     struct Node *np;
     int size = list_head.size;
-    int tid;
+    pthread_t tid;
     for(int i=0; i<size; i++){
         np = get(i, &list_head);
         
@@ -335,7 +337,8 @@ void *thread_func(void *arg){
     // 로그파일에 로그 남기기.
     // fwrite()
     realpath(np->pathname, realpath1);
-
+    
+    pthread_exit(NULL); 
 }
 
 time_t copy(char *pathname1, char *pathname2){
