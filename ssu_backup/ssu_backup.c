@@ -68,6 +68,12 @@ void * thread_func(void *arg);
 //
 */
 void make_postfix(time_t timer, char *postfix1, char *postfix2);
+
+/*
+//
+*/
+void get_filename_only(char *origin, char *filename);
+
 /*
 //  백업 디렉터리 생성하는 함수
 */          
@@ -289,6 +295,7 @@ void add(int argc, char **argv){
     else {
         strcpy(new_node.pathname, pathname);
         new_node.interval = period;
+        append_backup_list(new_node, &list_head);
     }
     printf("before update_thread\n");
     print_backup_list(&list_head);
@@ -303,7 +310,7 @@ void update_thread(void){
     pthread_t tid;
     for(int i=0; i<size; i++){
         np = get(i, &list_head);
-        
+        printf("np=%s, count = %d\n", np->pathname, np->saved_count);
         // To add Node from thread
         if(np->saved_count == 0){
             pthread_create(&tid, NULL, thread_func, (void *)np);
@@ -321,28 +328,34 @@ void *thread_func(void *arg){
     struct Node *np = (struct Node *)arg;
     time_t timer;
     char yypostfix[10], hhpostfix[10];
-    char backup_filename[256], writebuf1[512], writebuf2[512];
+    char backup_filename[256], filename_only[512], writebuf2[512];
     char realpath1[256];
 
     // 처음 생성될 때.
     // 로그파일에 added 기록
     printf("thread func\n");
-    if(np->saved_count == 0){
-        timer = copy(np->pathname, backup_pathname);
 
+    make_postfix(timer, yypostfix, hhpostfix);
+    get_filename_only(np->pathname, filename_only);
+    
+    strcpy(backup_filename, backup_pathname);
+    strcat(backup_filename, "/");
+    strcat(backup_filename, filename_only);
+    strcat(backup_filename, "_");
+    strcat(backup_filename, yypostfix);
+    strcat(backup_filename, hhpostfix);
+
+    printf("backup_filename=%s\n",backup_filename);
+
+    if(np->saved_count == 0){
+        printf("path1=%s path2=%s\n", np->pathname, backup_filename);
+        timer = copy(np->pathname, backup_filename);
     }
     // 삭제할 때
     // 로그파일에 deleted 기록
     else if(np->saved_count == -1){
         // timer = delete(np->pathname, backup_pathname);
     }
-    make_postfix(timer, yypostfix, hhpostfix);
-    
-    strcpy(backup_filename, backup_pathname);
-    strcat(backup_filename, np->pathname);
-    strcat(backup_filename, yypostfix);
-    strcat(backup_filename, hhpostfix);
-
     
     // 로그파일에 로그 남기기.
     // fwrite()
@@ -356,13 +369,15 @@ time_t copy(char *pathname1, char *pathname2){
     char buf[513];
     int fd1, fd2;
     time_t timer;
-
+    char testpathname2[256] = "./BACKUP_DIR/aaa.txt_700101090000";
     fd1 = open(pathname1, O_RDONLY);
-    fd2 = open(pathname2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    fd2 = open(testpathname2, O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+    printf("fd2 = %d\n",fd2);
 
     while((len = read(fd1, buf, 512)) > 0){
         write(fd2, buf, len);
-        // printf("len = %d buf = %s\n",len, buf);
+        printf("len = %d buf = %s\n",len, buf);
     }
 
     timer = time(NULL);
@@ -397,6 +412,28 @@ void make_postfix(time_t timer, char *postfix1, char *postfix2){
     // sprintf(postfix, "%s%s", yymmdd, hhmmss);
 }
 
+void get_filename_only(char *origin, char *filename){
+    int len = strlen(origin);
+    char buf[256], tmp;
+    int j=0;
+    printf("%s\n",origin);
+    for(int i=len-1; i>=0; i--){
+        if(origin[i] == '/'){
+            printf("buf in for = %s\n",buf);
+            break;
+        }
+        buf[j++] = origin[i];
+    }
+    for(int i=0; i<j/2; i++){
+        tmp = buf[i];
+        buf[i] = buf[j-i-1];
+        buf[j-i-1] = tmp;
+    }
+    
+    printf("buf = %s\n",buf);
+
+    strcpy(filename, buf);
+}
 
 void setup_argv(char *str, char **argv){
     int len = strlen(str);
@@ -485,6 +522,8 @@ void create_backup_dir(char *pathname){
 
     strcpy(backup_pathname, pathname);
     strcat(backup_pathname, BACKUP_DIR);
+
+    chdir("..");
 }
 
 void print_usage_and_exit(void){
