@@ -97,8 +97,8 @@ void remove_from_list(char *pathname, struct Backup_list *list){
     
     if(res != -1){
         if(res == 0){
-            free(list->head);
-            list->head = NULL;
+            list->head = list->head->next;
+            // free(list->head);
         }
         else{
             tmp = node;
@@ -110,11 +110,41 @@ void remove_from_list(char *pathname, struct Backup_list *list){
             }
             tmp->next = node->next;
             
-            node = NULL;
             free(node);
+            node = NULL;
         }
     }
     list->size--;
+}
+
+void remove_all(struct Backup_list *list){
+    struct Node *node = list->head;
+    struct Node *prev;
+    int size = list->size;
+
+    if(node == NULL)
+        return;
+    
+    if(node->next == NULL){
+        free(node);
+        node = NULL;
+    }
+    
+    for(int i=0; i<size; i++){
+        node = list->head;
+        prev = list->head;
+        for(int j=0; j<size-i-1; j++){
+            if(j!=0)
+                prev = node;
+            printf("node=%s, prev=%s, i=%d, j=%d\n", node->pathname, prev->pathname, i, j);
+            node = node->next;
+        }
+        free(node);
+        node = NULL;
+        prev->next = NULL;
+    }
+    list->head = NULL;
+    list->size = 0;
 }
 
 struct Node* get(int n, struct Backup_list *list){

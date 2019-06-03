@@ -35,7 +35,7 @@ int main(void){
         n = n->next;
     }
 
-    remove_from_list("bbb", &list);
+    remove_all(&list);
 
     n = list.head;
     for(int i=0; i<list.size; i++){

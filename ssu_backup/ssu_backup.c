@@ -20,6 +20,13 @@
 */
 void add(int argc, char **argv);
 
+
+/*
+//  remove 기능
+*/
+void remove_list(int argc, char **argv);
+
+
 /*
 //  주어진 문자열이 몇개의 단어인지 계산하는 함수
 */
@@ -95,6 +102,7 @@ void delete_timeout_files(char *backupname, int backup_time);
 */
 time_t copy(char *pathname1, char *pathname2);
 
+
 char backup_pathname[256];
 
 struct Backup_list list_head;
@@ -119,7 +127,6 @@ int main(int argc, char **argv){
     }
 
     while(1){
-        
         printf("20142468>");
 
         fgets(inputbuf, 255, stdin);
@@ -129,13 +136,13 @@ int main(int argc, char **argv){
         setup_argv(inputbuf, argv_param);
         cnt = count_words(inputbuf);
 
-        // printf("cmd = %s, cnt = %d\n",cmd, cnt);
+        printf("cmd = %s, cnt = %d\n",cmd, cnt);
 
         if(strcmp(cmd, "add") == 0){
             add(cnt, argv_param);
         }
         else if(strcmp(cmd, "remove") == 0){
-            
+            remove_list(cnt, argv_param);
         }
         else if(strcmp(cmd, "compare") == 0){
 
@@ -156,6 +163,10 @@ int main(int argc, char **argv){
             // 자원 해제.
             // 쓰레드 종료.
             break;
+        }
+        else if(strcmp(cmd, "print") == 0){
+            print_backup_list(&list_head);
+            printf("size=%d\n",list_head.size);
         }
         // 백업 리스트의 정보를 가지고 쓰레드를 업데이트
         // update_thread_from_backup_list();
@@ -327,6 +338,45 @@ void add(int argc, char **argv){
     printf("after update_thread\n");
 }
 
+
+void remove_list(int argc, char **argv){
+    struct Node *node;
+    char pathname[256];
+    int size = list_head.size;
+    if(argc != 2){
+        printf("Usage: remove <FILENAME> [OPTION]\n");
+        return ;
+    }
+
+    if(strcmp(argv[1], "-a") == 0){
+        
+            for(int i=0; i<size; i++){
+                node = get(i, &list_head);
+                pthread_cancel(node->tid);
+            }
+            remove_all(&list_head);
+            print_backup_list(&list_head);
+        // else{
+        //     printf("Usage: remove <FILENAME> [OPTION]\n%s\n",argv[1]);
+        //     return ;
+        // }
+    }
+
+    else{
+        strcpy(pathname, argv[1]);
+        int search_res = search_backup_list(pathname, &list_head);
+        
+        if(search_res == -1){
+            printf("File is not exist in backup list\n");
+            return ;
+        }
+        node = get(search_res, &list_head);
+        pthread_cancel(node->tid);
+        remove_from_list(pathname, &list_head);
+    }
+}
+
+
 int is_mtime_changed(char *pathname, struct stat originstat){
     struct stat statbuf;
 
@@ -451,6 +501,7 @@ void *thread_func(void *arg){
             }
         }
         if(will_copy == 1){
+            np->tid = pthread_self();
             copy(np->pathname, backup_filename);
         }
         np->saved_count++;
@@ -641,7 +692,7 @@ void getcmd(char *string, char *cmd){
     int len = strlen(string);
 
     for(int i=0; i<len; i++){
-        if(string[i] == ' '){                                                                                                                           
+        if(string[i] == ' ' || string[i] =='\n'){                                                                                                                           
             cmd[i] = '\0';
             return;
         }
