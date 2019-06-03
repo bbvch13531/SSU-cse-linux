@@ -29,10 +29,14 @@ void init(struct Backup_list *list){
 int search_backup_list(char *pathname, struct Backup_list *list){
     struct Node *node = list->head;
     int cnt=0;
+
     if(node == NULL) return -1;
-    while(node->next != NULL){
+
+    while(1){
+        // printf("search %s to %s\n",pathname, node->pathname);
         if(strcmp(pathname, node->pathname) == 0)
             return cnt;
+        if(node->next == NULL) break;
         node = node->next;
         cnt++;
     }

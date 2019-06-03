@@ -73,6 +73,11 @@ void make_postfix(time_t timer, char *postfix1, char *postfix2);
 /*
 //
 */
+void write_log(char *pathname, int option);
+
+/*
+//
+*/
 void get_filename_only(char *origin, char *filename);
 
 /*
@@ -83,7 +88,7 @@ void create_backup_dir(char *pathname);
 /*
 //
 */
-void delete_timeout_files(int backup_time);
+void delete_timeout_files(char *backupname, int backup_time);
 
 /*
 //   파일 복사하는 함수
@@ -94,6 +99,7 @@ char backup_pathname[256];
 
 struct Backup_list list_head;
 FILE *log_file_fp;
+int log_file_fd;
 int main(int argc, char **argv){
     int cnt;
     char inputbuf[256], cmd[10];
@@ -117,7 +123,7 @@ int main(int argc, char **argv){
         printf("20142468>");
 
         fgets(inputbuf, 255, stdin);
-        printf("%s\n", inputbuf);
+        // printf("%s\n", inputbuf);
 
         getcmd(inputbuf, cmd);
         setup_argv(inputbuf, argv_param);
@@ -232,6 +238,7 @@ void add(int argc, char **argv){
         fprintf(stderr, "file already exist in backup list\n");
         return ;
     }
+    
     // argv[1] filename
     // argv[2]가 5이상 10이하이면 period
     // 아니면 option
@@ -312,8 +319,10 @@ void add(int argc, char **argv){
         new_node.mtime = statbuf.st_mtime;
         append_backup_list(new_node, &list_head);
     }
+
     print_backup_list(&list_head);
-    printf("before update_thread\n");
+    write_log(realpathname, 0);
+    // printf("before update_thread\n");
     update_thread();
     printf("after update_thread\n");
 }
@@ -341,7 +350,7 @@ void update_thread(void){
 
     for(int i=0; i<size; i++){
         np = get(i, &list_head);
-        printf("np=%s, count = %d\n", np->pathname, np->saved_count);
+        // printf("np=%s, count = %d\n", np->pathname, np->saved_count);
         // To add Node from thread
         if(np->saved_count == 0){
             pthread_create(&tid, NULL, thread_func, (void *)np);
@@ -362,7 +371,7 @@ void *thread_func(void *arg){
     char yypostfix[10], hhpostfix[10];
     char backup_filename[256], filename_only[512], writebuf2[512];
     char realpath1[256];
-    int interval = np->interval;
+    int interval = np->interval, will_copy = 0;
     // 처음 생성될 때.
     // 로그파일에 added 기록
     printf("thread func\n");
@@ -372,7 +381,7 @@ void *thread_func(void *arg){
     // save before mtime
     if(lstat(np->pathname, &statbuf) < 0){
         fprintf(stderr, "lstat error\n");
-        pthread_exit(NULL); 
+        pthread_exit(NULL);
     }
     
     while(1){
@@ -392,7 +401,8 @@ void *thread_func(void *arg){
 
             // 파일이 수정되거나 처음 추가된 파일인 경우
             if(mtime_flag == 1 || np->saved_count == 0){
-                timer = copy(np->pathname, backup_filename);
+                will_copy = 1;
+                // copy(np->pathname, backup_filename);
 
                 // update stat       
                 if(lstat(np->pathname, &statbuf) < 0){
@@ -406,7 +416,8 @@ void *thread_func(void *arg){
         if(np->options[1] == 1){
             int max_count = np->number;
             if(np->saved_count < max_count){
-                timer = copy(np->pathname, backup_filename);
+                will_copy = 1;
+                // copy(np->pathname, backup_filename);
             }
         }
 
@@ -415,10 +426,18 @@ void *thread_func(void *arg){
             // pathname로 시작하는 기존 백업 파일 찾기
             // 백업 파일의 생성시간과 현재 시간을 비교
             // np->time 이상이면 삭제
-            timer = copy(np->pathname, backup_filename);
-            delete_timeout_files(np->time);
+            will_copy = 1;
+            // copy(np->pathname, backup_filename);
+
+            delete_timeout_files(np->pathname, np->time);
         }
 
+        // -d option
+        if(np->options[3] == 1){
+            // 인자로 받은 디렉터리 탐색
+            // 디렉터리의 모든 파일을 append
+            // copy
+        }
         else{
             if(np->saved_count == -1){
                 // timer = delete(np->pathname, backup_pathname);
@@ -427,8 +446,12 @@ void *thread_func(void *arg){
             // 로그파일에 deleted 기록
             else{
                 printf("path1=%s path2=%s\n", np->pathname, backup_filename);
-                timer = copy(np->pathname, backup_filename);
+                will_copy = 1;
+                // copy(np->pathname, backup_filename);
             }
+        }
+        if(will_copy == 1){
+            copy(np->pathname, backup_filename);
         }
         np->saved_count++;
 
@@ -440,7 +463,7 @@ void *thread_func(void *arg){
     pthread_exit(NULL); 
 }
 
-void delete_timeout_files(int backup_time){
+void delete_timeout_files(char *backupname, int backup_time){
     struct dirent **dentry;
     struct stat statbuf;
     int dircnt=0;
@@ -457,20 +480,23 @@ void delete_timeout_files(int backup_time){
         if(strcmp(filename, "..") == 0 || strcmp(filename, ".") == 0)
             continue;
 
-        printf("file %d=%s\n", i, filename);
+        // printf("file %d=%s\n", i, filename);
         if(lstat(filename, &statbuf) < 0){
             fprintf(stderr, "lstat error\n");
             printf("%s\n",strerror(errno));
             print_usage_and_exit();
         }
-
-        if(statbuf.st_ctime + backup_time < cur_time ){
-            
-            int res = remove(filename);
-            if(res == 0)
-                printf("file removed successfully\n");
-            else
-                printf("file not removed\n");
+        if(strstr(filename, backupname) != NULL){
+            if(statbuf.st_ctime + backup_time < cur_time ){
+                int res = remove(filename);
+                if(res == 0){
+                    // remove logging
+                    // write_log(filename, 1);
+                    printf("file removed successfully\n");
+                }
+                else
+                    printf("file not removed\n");
+            }
         }
         // printf("file %d=%s, ctime=%d, cur_time=%d, backup_time=%d\n", i, filename, statbuf.st_ctime, cur_time, backup_time);
     }
@@ -484,11 +510,12 @@ time_t copy(char *pathname1, char *pathname2){
     char buf[513];
     int fd1, fd2;
     time_t timer;
-    char testpathname2[256] = "./BACKUP_DIR/aaa.txt_700101090000";
+    // char testpathname2[256] = "./BACKUP_DIR/aaa.txt_700101090000";
     fd1 = open(pathname1, O_RDONLY);
     fd2 = open(pathname2, O_RDWR | O_CREAT | O_TRUNC, 0777);
 
-    printf("fd2 = %d\n",fd2);
+    // printf("fd2 = %d\n",fd2);
+    write_log(pathname1, 1);
 
     while((len = read(fd1, buf, 512)) > 0){
         write(fd2, buf, len);
@@ -496,16 +523,45 @@ time_t copy(char *pathname1, char *pathname2){
     }
     close(fd1);
     close(fd2);
+
     return timer;
+}
+
+void write_log(char *pathname, int option){
+    char yymmdd[10], hhmmss[10];
+    char writebuf1[512], writebuf2[256];
+    time_t timer = time(NULL);
+
+    make_postfix(timer, yymmdd, hhmmss);
+    realpath(pathname, writebuf2);
+    sprintf(writebuf1, "[%s %s] %s ", yymmdd, hhmmss, writebuf2);
+
+    // add
+    if(option == 0){
+        strcat(writebuf1, "added\n");
+    }
+    // copy
+    else if(option == 1){
+        strcat(writebuf1, "generated\n");
+    }
+    // delete
+    else if(option == 2){
+        strcat(writebuf1, "deleted\n");
+    }
+    // recover
+    else if(option == 3){
+        strcat(writebuf1, "recovered\n");
+    }
+    // fwrite(writebuf1, )
+    // write()
+    write(log_file_fd, writebuf1, strlen(writebuf1));
 }
 
 void make_postfix(time_t timer, char *postfix1, char *postfix2){
     struct tm *cur_time;
     int year, mon, mday, hour, min, sec;
-
     // char postfix[256];
     char yymmdd[10], hhmmss[10];
-
 
     timer = time(NULL);
     cur_time = localtime(&timer);
@@ -575,9 +631,9 @@ void setup_argv(char *str, char **argv){
         }
     }
 
-    for(int i=0; i<n; i++){
-        printf("argv[%d] = %s\n", i, argv[i]);
-    }
+    // for(int i=0; i<n; i++){
+    //     printf("argv[%d] = %s\n", i, argv[i]);
+    // }
     return ;
 }
 
@@ -635,9 +691,9 @@ void create_backup_dir(char *pathname){
 
     mkdir(BACKUP_DIR, 0777);
     chdir(BACKUP_DIR);
-    log_file_fp = fopen("backup_file.log", "w+");
-
-    system("pwd");
+    // log_file_fp = fopen("backup_file.log", "w+");
+    log_file_fd = open("backup_file.log", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+    // system("pwd");
     strcpy(backup_pathname, pathname);
     strcat(backup_pathname, BACKUP_DIR);
 
