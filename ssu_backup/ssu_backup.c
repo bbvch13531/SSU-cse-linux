@@ -4,6 +4,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <pthread.h>
+#include <errno.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <ctype.h>
@@ -78,6 +79,11 @@ void get_filename_only(char *origin, char *filename);
 //  백업 디렉터리 생성하는 함수
 */          
 void create_backup_dir(char *pathname);
+
+/*
+//
+*/
+void delete_timeout_files(int backup_time);
 
 /*
 //   파일 복사하는 함수
@@ -267,7 +273,15 @@ void add(int argc, char **argv){
 
                 case 't':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
+                    
+                    for(int i=0; i<strlen(optarg); i++){
+                        if(!isdigit(optarg[i])){
+                            printf("period should be Integer\n");
+                            return ;
+                        }
+                    }
                     opt_time = atoi(optarg);
+
                     printf("add -t\n");
 
                     strcpy(new_node.pathname, pathname);
@@ -396,6 +410,15 @@ void *thread_func(void *arg){
             }
         }
 
+        // -t option
+        if(np->options[2] == 1){
+            // pathname로 시작하는 기존 백업 파일 찾기
+            // 백업 파일의 생성시간과 현재 시간을 비교
+            // np->time 이상이면 삭제
+            timer = copy(np->pathname, backup_filename);
+            delete_timeout_files(np->time);
+        }
+
         else{
             if(np->saved_count == -1){
                 // timer = delete(np->pathname, backup_pathname);
@@ -417,6 +440,45 @@ void *thread_func(void *arg){
     pthread_exit(NULL); 
 }
 
+void delete_timeout_files(int backup_time){
+    struct dirent **dentry;
+    struct stat statbuf;
+    int dircnt=0;
+    time_t cur_time = time(NULL);
+    char filename[256];
+
+    if((dircnt = scandir(backup_pathname, &dentry, NULL, NULL)) == -1){
+        fprintf(stderr, "opendir: chdir error for %s\n",backup_pathname);
+        exit(1);
+    }
+    chdir(backup_pathname);
+    for(int i=0; i<dircnt; i++){
+        strcpy(filename, dentry[i]->d_name);
+        if(strcmp(filename, "..") == 0 || strcmp(filename, ".") == 0)
+            continue;
+
+        printf("file %d=%s\n", i, filename);
+        if(lstat(filename, &statbuf) < 0){
+            fprintf(stderr, "lstat error\n");
+            printf("%s\n",strerror(errno));
+            print_usage_and_exit();
+        }
+
+        if(statbuf.st_ctime + backup_time < cur_time ){
+            
+            int res = remove(filename);
+            if(res == 0)
+                printf("file removed successfully\n");
+            else
+                printf("file not removed\n");
+        }
+        // printf("file %d=%s, ctime=%d, cur_time=%d, backup_time=%d\n", i, filename, statbuf.st_ctime, cur_time, backup_time);
+    }
+    // chdir(backup_pathname);
+
+    chdir("../");
+}
+
 time_t copy(char *pathname1, char *pathname2){
     int len;
     char buf[513];
@@ -424,7 +486,7 @@ time_t copy(char *pathname1, char *pathname2){
     time_t timer;
     char testpathname2[256] = "./BACKUP_DIR/aaa.txt_700101090000";
     fd1 = open(pathname1, O_RDONLY);
-    fd2 = open(pathname2, O_RDWR | O_CREAT | O_TRUNC, 0666);
+    fd2 = open(pathname2, O_RDWR | O_CREAT | O_TRUNC, 0777);
 
     printf("fd2 = %d\n",fd2);
 
@@ -432,7 +494,8 @@ time_t copy(char *pathname1, char *pathname2){
         write(fd2, buf, len);
         printf("len = %d buf = %s\n",len, buf);
     }
-
+    close(fd1);
+    close(fd2);
     return timer;
 }
 
