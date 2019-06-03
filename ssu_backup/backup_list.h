@@ -97,6 +97,7 @@ void remove_from_list(char *pathname, struct Backup_list *list){
     
     if(res != -1){
         if(res == 0){
+            free(list->head);
             list->head = NULL;
         }
         else{
@@ -108,6 +109,9 @@ void remove_from_list(char *pathname, struct Backup_list *list){
                 node = node->next;
             }
             tmp->next = node->next;
+            
+            node = NULL;
+            free(node);
         }
     }
     list->size--;

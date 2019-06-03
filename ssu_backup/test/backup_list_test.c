@@ -29,7 +29,16 @@ int main(void){
     printf("%d\n",head.interval);
     struct Node *n;
     n = list.head;
-    for(int i=0; i<5; i++){
+    for(int i=0; i<list.size; i++){
+        if(n->next == NULL)  break;
+        printf("i=%d, inetval=%d %s\n", i, n->interval, n->pathname);
+        n = n->next;
+    }
+
+    remove_from_list("bbb", &list);
+
+    n = list.head;
+    for(int i=0; i<list.size; i++){
         if(n->next == NULL)  break;
         printf("i=%d, inetval=%d %s\n", i, n->interval, n->pathname);
         n = n->next;
