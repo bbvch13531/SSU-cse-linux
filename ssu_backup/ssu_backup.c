@@ -144,7 +144,7 @@ int main(int argc, char **argv){
         setup_argv(inputbuf, argv_param);
         cnt = count_words(inputbuf);
 
-        printf("cmd = %s, cnt = %d\n",cmd, cnt);
+        // printf("cmd = %s, cnt = %d\n",cmd, cnt);
 
         if(strcmp(cmd, "add") == 0){
             add(cnt, argv_param);
@@ -225,7 +225,7 @@ void add(int argc, char **argv){
     }
     period = atoi(argv[2]);
     realpath(pathname, realpathname);
-    printf("pathname = %s %s\n",pathname, realpathname);
+    // printf("pathname = %s %s\n",pathname, realpathname);
     
     // 파일이 존재하지 않는 경우
     if(access(pathname, F_OK) != 0){
@@ -272,20 +272,20 @@ void add(int argc, char **argv){
             switch(opt){
                 case 'm':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
-                    printf("add -m\n");
+                    // printf("add -m\n");
                     // mtime이 수정된 경우에만 백업 실행
                     strcpy(new_node.pathname, pathname);
                     new_node.interval = period;
                     new_node.mtime = statbuf.st_mtime;
                     new_node.options[0] = 1;
 
-                    append_backup_list(new_node, &list_head);
+                    // append_backup_list(new_node, &list_head);
                     break;
 
                 case 'n':
                     if(is_reg_or_dir(statbuf, 1) == -1) return;
                     opt_number = atoi(optarg);
-                    printf("add -n\n");
+                    // printf("add -n\n");
                     // 백업한 파일의 최대 갯수: opt_number
                     strcpy(new_node.pathname, pathname);
                     new_node.interval = period;
@@ -293,7 +293,7 @@ void add(int argc, char **argv){
                     new_node.options[1] = 1;
                     new_node.number = opt_number;
 
-                    append_backup_list(new_node, &list_head);
+                    // append_backup_list(new_node, &list_head);
                     break;
 
                 case 't':
@@ -307,7 +307,7 @@ void add(int argc, char **argv){
                     }
                     opt_time = atoi(optarg);
 
-                    printf("add -t\n");
+                    // printf("add -t\n");
 
                     strcpy(new_node.pathname, pathname);
                     new_node.interval = period;
@@ -315,7 +315,7 @@ void add(int argc, char **argv){
                     new_node.options[2] = 1;
                     new_node.time = opt_time;
 
-                    append_backup_list(new_node, &list_head);
+                    // append_backup_list(new_node, &list_head);
                     break;
 
                 case 'd':
@@ -335,9 +335,10 @@ void add(int argc, char **argv){
         strcpy(new_node.pathname, pathname);
         new_node.interval = period;
         new_node.mtime = statbuf.st_mtime;
-        append_backup_list(new_node, &list_head);
+        // append_backup_list(new_node, &list_head);
     }
 
+    append_backup_list(new_node, &list_head);
     // print_backup_list(&list_head);
     write_log(realpathname, 0);
     // printf("before update_thread\n");
