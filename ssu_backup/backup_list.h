@@ -64,7 +64,8 @@ void append_backup_list(struct Node data, struct Backup_list *list){
     }
     else{
         // printf("list->head = %d\n",list->head->interval);
-        while(node->next != NULL){
+        while(1){
+            if(node->next == NULL) break;
             node = node->next;
             // printf("node::pathname=%s\n",node->pathname);
         }
@@ -136,7 +137,7 @@ void remove_all(struct Backup_list *list){
         for(int j=0; j<size-i-1; j++){
             if(j!=0)
                 prev = node;
-            printf("node=%s, prev=%s, i=%d, j=%d\n", node->pathname, prev->pathname, i, j);
+            // printf("node=%s, prev=%s, i=%d, j=%d\n", node->pathname, prev->pathname, i, j);
             node = node->next;
         }
         free(node);
@@ -168,8 +169,9 @@ void print_backup_list(struct Backup_list *list){
     node = list->head;
     if(node == NULL) return;
 
-    while(1){
-        printf("%s %d %d %d  ->  ", node->pathname, node->interval, node->mtime, node->saved_count);
+    printf("%10s %6s %3s %3s %3s %3s size=%d\n", "filename", "PERIOD", "-m", "-n", "-t", "-d", list->size);
+    for(int i=0; i < list->size; i++){
+        printf("%10s %6d %3d %3d %3d %3d\n", node->pathname, node->interval, node->options[0], node->options[1], node->options[2], node->options[3]);
         if(node->next == NULL) return;
         node = node->next;
     }

@@ -31,6 +31,11 @@ void remove_list(int argc, char **argv);
 void compare(int argc, char **argv);
 
 /*
+//  list 기능
+*/
+void list(void);
+
+/*
 //  주어진 문자열이 몇개의 단어인지 계산하는 함수
 */
 int count_words(char *string);
@@ -154,7 +159,7 @@ int main(int argc, char **argv){
 
         }
         else if(strcmp(cmd, "list") == 0){
-
+            list();
         }
         else if(strcmp(cmd, "ls") == 0){
             system("ls");
@@ -163,8 +168,7 @@ int main(int argc, char **argv){
             system("vim");
         }
         else if(strcmp(cmd, "exit") == 0){
-            // 자원 해제.
-            // 쓰레드 종료.
+            exit(0);
             break;
         }
         else if(strcmp(cmd, "print") == 0){
@@ -334,11 +338,11 @@ void add(int argc, char **argv){
         append_backup_list(new_node, &list_head);
     }
 
-    print_backup_list(&list_head);
+    // print_backup_list(&list_head);
     write_log(realpathname, 0);
     // printf("before update_thread\n");
     update_thread();
-    printf("after update_thread\n");
+    // printf("after update_thread\n");
 }
 
 
@@ -352,13 +356,13 @@ void remove_list(int argc, char **argv){
     }
 
     if(strcmp(argv[1], "-a") == 0){
-            for(int i=0; i<size; i++){
-                node = get(i, &list_head);
-                write_log(node->pathname, 2);
-                pthread_cancel(node->tid);
-            }
-            remove_all(&list_head);
-            print_backup_list(&list_head);
+        for(int i=0; i<size; i++){
+            node = get(i, &list_head);
+            write_log(node->pathname, 2);
+            pthread_cancel(node->tid);
+        }
+        remove_all(&list_head);
+        print_backup_list(&list_head);
         // else{
         //     printf("Usage: remove <FILENAME> [OPTION]\n%s\n",argv[1]);
         //     return ;
@@ -416,10 +420,15 @@ void compare(int argc, char **argv){
         printf("%s and %s are same file\n", filename1, filename2);
     }
     else{
-        printf("filename=%s, mtime=%d, filesize=%d\n", filename1, statbuf1.st_mtime, statbuf1.st_size);
-        printf("filename=%s, mtime=%d, filesize=%d\n", filename2, statbuf2.st_mtime, statbuf2.st_size);
+        printf("filename=%s, mtime=%ld, filesize=%ld\n", filename1, statbuf1.st_mtime, statbuf1.st_size);
+        printf("filename=%s, mtime=%ld, filesize=%ld\n", filename2, statbuf2.st_mtime, statbuf2.st_size);
     }
 }
+
+void list(void){
+    print_backup_list(&list_head);
+}
+
 
 int is_mtime_changed(char *pathname, struct stat originstat){
     struct stat statbuf;
@@ -468,7 +477,7 @@ void *thread_func(void *arg){
     int interval = np->interval, will_copy = 0;
     // 처음 생성될 때.
     // 로그파일에 added 기록
-    printf("thread func\n");
+    // printf("thread func\n");
 
     // printf("backup_filename=%s\n",backup_filename);
 
@@ -539,7 +548,7 @@ void *thread_func(void *arg){
             // 삭제할 때
             // 로그파일에 deleted 기록
             else{
-                printf("path1=%s path2=%s\n", np->pathname, backup_filename);
+                // printf("path1=%s path2=%s\n", np->pathname, backup_filename);
                 will_copy = 1;
                 // copy(np->pathname, backup_filename);
             }
@@ -614,7 +623,7 @@ time_t copy(char *pathname1, char *pathname2){
 
     while((len = read(fd1, buf, 512)) > 0){
         write(fd2, buf, len);
-        printf("len = %d buf = %s\n",len, buf);
+        // printf("len = %d buf = %s\n",len, buf);
     }
     close(fd1);
     close(fd2);
@@ -684,7 +693,7 @@ void get_filename_only(char *origin, char *filename){
     int len = strlen(origin);
     char buf[256], tmp;
     int j=0;
-    printf("%s\n",origin);
+    // printf("%s\n",origin);
     for(int i=len-1; i>=0; i--){
         if(origin[i] == '/'){
             printf("buf in for = %s\n",buf);
@@ -698,7 +707,7 @@ void get_filename_only(char *origin, char *filename){
         buf[j-i-1] = tmp;
     }
     
-    printf("buf = %s\n",buf);
+    // printf("buf = %s\n",buf);
 
     strcpy(filename, buf);
 }
