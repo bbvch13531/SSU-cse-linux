@@ -203,7 +203,7 @@ void add(int argc, char **argv){
         return ;
     }
 
-    if(5 <= period && period <= 10){
+    if(5 > period || period > 10){
         printf("period should be greater than or equal to 5 and less than or equal to 10\n");
         return ;
     }
@@ -297,10 +297,10 @@ void add(int argc, char **argv){
         new_node.interval = period;
         append_backup_list(new_node, &list_head);
     }
-    printf("before update_thread\n");
     print_backup_list(&list_head);
+    printf("before update_thread\n");
     update_thread();
-
+    printf("after update_thread\n");
 }
 
 void update_thread(void){
@@ -356,11 +356,11 @@ void *thread_func(void *arg){
     else if(np->saved_count == -1){
         // timer = delete(np->pathname, backup_pathname);
     }
+    np->saved_count++;
     
     // 로그파일에 로그 남기기.
     // fwrite()
     realpath(np->pathname, realpath1);
-    
     pthread_exit(NULL); 
 }
 
@@ -371,7 +371,7 @@ time_t copy(char *pathname1, char *pathname2){
     time_t timer;
     char testpathname2[256] = "./BACKUP_DIR/aaa.txt_700101090000";
     fd1 = open(pathname1, O_RDONLY);
-    fd2 = open(testpathname2, O_RDWR | O_CREAT | O_TRUNC, 0666);
+    fd2 = open(pathname2, O_RDWR | O_CREAT | O_TRUNC, 0666);
 
     printf("fd2 = %d\n",fd2);
 
@@ -380,7 +380,6 @@ time_t copy(char *pathname1, char *pathname2){
         printf("len = %d buf = %s\n",len, buf);
     }
 
-    timer = time(NULL);
     return timer;
 }
 
@@ -391,6 +390,8 @@ void make_postfix(time_t timer, char *postfix1, char *postfix2){
     // char postfix[256];
     char yymmdd[10], hhmmss[10];
 
+
+    timer = time(NULL);
     cur_time = localtime(&timer);
 
     year = cur_time->tm_year;
@@ -516,10 +517,11 @@ void create_backup_dir(char *pathname){
 
     chdir(pathname);
 
-    mkdir(BACKUP_DIR, 0644);
+    mkdir(BACKUP_DIR, 0777);
     chdir(BACKUP_DIR);
     log_file_fp = fopen("backup_file.log", "w+");
 
+    system("pwd");
     strcpy(backup_pathname, pathname);
     strcat(backup_pathname, BACKUP_DIR);
 

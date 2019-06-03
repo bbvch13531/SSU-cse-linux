@@ -130,8 +130,10 @@ void print_backup_list(struct Backup_list *list){
     node = list->head;
     if(node == NULL) return;
 
-    while(node->next != NULL){
+    while(1){
         printf("%s %d %d %d  ->  ", node->pathname, node->interval, node->mtime, node->saved_count);
+        if(node->next == NULL) return;
+        node = node->next;
     }
     printf("\n");
 }
