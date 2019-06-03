@@ -372,6 +372,7 @@ void *thread_func(void *arg){
         strcat(backup_filename, yypostfix);
         strcat(backup_filename, hhpostfix);
 
+        // -m option
         if(np->options[0] == 1){
             int mtime_flag = is_mtime_changed(np->pathname, statbuf);
 
@@ -387,6 +388,14 @@ void *thread_func(void *arg){
             }
         }
 
+        // -n option
+        if(np->options[1] == 1){
+            int max_count = np->number;
+            if(np->saved_count < max_count){
+                timer = copy(np->pathname, backup_filename);
+            }
+        }
+
         else{
             if(np->saved_count == -1){
                 // timer = delete(np->pathname, backup_pathname);
@@ -399,8 +408,6 @@ void *thread_func(void *arg){
             }
         }
         np->saved_count++;
-
-        
 
         sleep(interval);
     }
