@@ -308,6 +308,7 @@ void update_thread(void){
     struct Node *np;
     int size = list_head.size;
     pthread_t tid;
+
     for(int i=0; i<size; i++){
         np = get(i, &list_head);
         printf("np=%s, count = %d\n", np->pathname, np->saved_count);
@@ -330,34 +331,37 @@ void *thread_func(void *arg){
     char yypostfix[10], hhpostfix[10];
     char backup_filename[256], filename_only[512], writebuf2[512];
     char realpath1[256];
-
+    int interval = np->interval;
     // 처음 생성될 때.
     // 로그파일에 added 기록
     printf("thread func\n");
 
-    make_postfix(timer, yypostfix, hhpostfix);
-    get_filename_only(np->pathname, filename_only);
-    
-    strcpy(backup_filename, backup_pathname);
-    strcat(backup_filename, "/");
-    strcat(backup_filename, filename_only);
-    strcat(backup_filename, "_");
-    strcat(backup_filename, yypostfix);
-    strcat(backup_filename, hhpostfix);
+    // printf("backup_filename=%s\n",backup_filename);
 
-    printf("backup_filename=%s\n",backup_filename);
+    while(1){
+        make_postfix(timer, yypostfix, hhpostfix);
+        get_filename_only(np->pathname, filename_only);
+        
+        strcpy(backup_filename, backup_pathname);
+        strcat(backup_filename, "/");
+        strcat(backup_filename, filename_only);
+        strcat(backup_filename, "_");
+        strcat(backup_filename, yypostfix);
+        strcat(backup_filename, hhpostfix);
 
-    if(np->saved_count == 0){
-        printf("path1=%s path2=%s\n", np->pathname, backup_filename);
-        timer = copy(np->pathname, backup_filename);
+        if(np->saved_count == -1){
+            // timer = delete(np->pathname, backup_pathname);
+        }
+        // 삭제할 때
+        // 로그파일에 deleted 기록
+        else{
+            printf("path1=%s path2=%s\n", np->pathname, backup_filename);
+            timer = copy(np->pathname, backup_filename);
+        }
+
+        np->saved_count++;
+        sleep(interval);
     }
-    // 삭제할 때
-    // 로그파일에 deleted 기록
-    else if(np->saved_count == -1){
-        // timer = delete(np->pathname, backup_pathname);
-    }
-    np->saved_count++;
-    
     // 로그파일에 로그 남기기.
     // fwrite()
     realpath(np->pathname, realpath1);
