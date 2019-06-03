@@ -295,12 +295,28 @@ void add(int argc, char **argv){
     else {
         strcpy(new_node.pathname, pathname);
         new_node.interval = period;
+        new_node.mtime = statbuf.st_mtime;
         append_backup_list(new_node, &list_head);
     }
     print_backup_list(&list_head);
     printf("before update_thread\n");
     update_thread();
     printf("after update_thread\n");
+}
+
+int is_mtime_changed(char *pathname, struct stat originstat){
+    struct stat statbuf;
+
+    if(lstat(pathname, &statbuf) < 0){
+        fprintf(stderr, "lstat error\n");
+        return 0;
+    }
+
+    if(statbuf.st_mtime != originstat.st_mtime){
+        return 1;
+    }
+    else
+        return 0;
 }
 
 void update_thread(void){
@@ -327,6 +343,7 @@ void update_thread(void){
 
 void *thread_func(void *arg){
     struct Node *np = (struct Node *)arg;
+    struct stat statbuf;
     time_t timer;
     char yypostfix[10], hhpostfix[10];
     char backup_filename[256], filename_only[512], writebuf2[512];
@@ -338,6 +355,12 @@ void *thread_func(void *arg){
 
     // printf("backup_filename=%s\n",backup_filename);
 
+    // save before mtime
+    if(lstat(np->pathname, &statbuf) < 0){
+        fprintf(stderr, "lstat error\n");
+        pthread_exit(NULL); 
+    }
+    
     while(1){
         make_postfix(timer, yypostfix, hhpostfix);
         get_filename_only(np->pathname, filename_only);
@@ -349,17 +372,36 @@ void *thread_func(void *arg){
         strcat(backup_filename, yypostfix);
         strcat(backup_filename, hhpostfix);
 
-        if(np->saved_count == -1){
-            // timer = delete(np->pathname, backup_pathname);
-        }
-        // 삭제할 때
-        // 로그파일에 deleted 기록
-        else{
-            printf("path1=%s path2=%s\n", np->pathname, backup_filename);
-            timer = copy(np->pathname, backup_filename);
+        if(np->options[0] == 1){
+            int mtime_flag = is_mtime_changed(np->pathname, statbuf);
+
+            // 파일이 수정되거나 처음 추가된 파일인 경우
+            if(mtime_flag == 1 || np->saved_count == 0){
+                timer = copy(np->pathname, backup_filename);
+
+                // update stat       
+                if(lstat(np->pathname, &statbuf) < 0){
+                    fprintf(stderr, "lstat error\n");
+                    pthread_exit(NULL); 
+                }
+            }
         }
 
+        else{
+            if(np->saved_count == -1){
+                // timer = delete(np->pathname, backup_pathname);
+            }
+            // 삭제할 때
+            // 로그파일에 deleted 기록
+            else{
+                printf("path1=%s path2=%s\n", np->pathname, backup_filename);
+                timer = copy(np->pathname, backup_filename);
+            }
+        }
         np->saved_count++;
+
+        
+
         sleep(interval);
     }
     // 로그파일에 로그 남기기.
