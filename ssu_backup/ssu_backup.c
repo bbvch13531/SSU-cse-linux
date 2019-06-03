@@ -20,12 +20,15 @@
 */
 void add(int argc, char **argv);
 
-
 /*
 //  remove 기능
 */
 void remove_list(int argc, char **argv);
 
+/*
+//  compare 기능
+*/
+void compare(int argc, char **argv);
 
 /*
 //  주어진 문자열이 몇개의 단어인지 계산하는 함수
@@ -145,7 +148,7 @@ int main(int argc, char **argv){
             remove_list(cnt, argv_param);
         }
         else if(strcmp(cmd, "compare") == 0){
-
+            compare(cnt, argv_param);
         }
         else if(strcmp(cmd, "recover") == 0){
 
@@ -349,9 +352,9 @@ void remove_list(int argc, char **argv){
     }
 
     if(strcmp(argv[1], "-a") == 0){
-        
             for(int i=0; i<size; i++){
                 node = get(i, &list_head);
+                write_log(node->pathname, 2);
                 pthread_cancel(node->tid);
             }
             remove_all(&list_head);
@@ -371,11 +374,52 @@ void remove_list(int argc, char **argv){
             return ;
         }
         node = get(search_res, &list_head);
+        write_log(node->pathname, 2);
         pthread_cancel(node->tid);
         remove_from_list(pathname, &list_head);
     }
 }
 
+
+void compare(int argc, char **argv){
+    char filename1[256], filename2[256];
+    struct stat statbuf1, statbuf2;
+
+    if(argc != 3){
+        printf("Usage: compare <FILENAME1> <FILENAME2>\n");
+        return ;
+    }
+
+    // 파일이 존재하지 않는 경우
+    if(access(filename1, F_OK) != 0 || access(filename2, F_OK) != 0 ){
+        printf("file not exists\n");
+        return ;
+    }
+
+    //  lstat
+    if(lstat(filename1, &statbuf1) < 0){
+        fprintf(stderr, "lstat error\n");
+        return ;
+    }
+
+    //  lstat
+    if(lstat(filename2, &statbuf2) < 0){
+        fprintf(stderr, "lstat error\n");
+        return ;
+    }
+
+    if(is_reg_or_dir(statbuf1, 1) == -1 || is_reg_or_dir(statbuf2, 1) == -1){
+        return;
+    }
+
+    if(statbuf1.st_mtime == statbuf2.st_mtime && statbuf1.st_size == statbuf2.st_size){
+        printf("%s and %s are same file\n", filename1, filename2);
+    }
+    else{
+        printf("filename=%s, mtime=%d, filesize=%d\n", filename1, statbuf1.st_mtime, statbuf1.st_size);
+        printf("filename=%s, mtime=%d, filesize=%d\n", filename2, statbuf2.st_mtime, statbuf2.st_size);
+    }
+}
 
 int is_mtime_changed(char *pathname, struct stat originstat){
     struct stat statbuf;
