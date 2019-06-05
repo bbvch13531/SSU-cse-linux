@@ -171,10 +171,7 @@ int main(int argc, char **argv){
             exit(0);
             break;
         }
-        else if(strcmp(cmd, "print") == 0){
-            print_backup_list(&list_head);
-            printf("size=%d\n",list_head.size);
-        }
+
         // 백업 리스트의 정보를 가지고 쓰레드를 업데이트
         // update_thread_from_backup_list();
     }
@@ -250,7 +247,7 @@ void add(int argc, char **argv){
     //     return ;
     // }
 
-    printf("before search func\n");
+    // printf("before search func\n");
     // 백업리스트에 이미 존재하는 경우
     if(search_backup_list(pathname, &list_head) != -1){
         fprintf(stderr, "file already exist in backup list\n");
@@ -320,7 +317,7 @@ void add(int argc, char **argv){
 
                 case 'd':
                     if(is_reg_or_dir(statbuf, 2) == -1) return;
-                    printf("add -d\n");
+                    // printf("add -d\n");
                     // append_dir_backup();
                     break;
 
@@ -697,7 +694,7 @@ void get_filename_only(char *origin, char *filename){
     // printf("%s\n",origin);
     for(int i=len-1; i>=0; i--){
         if(origin[i] == '/'){
-            printf("buf in for = %s\n",buf);
+            // printf("buf in for = %s\n",buf);
             break;
         }
         buf[j++] = origin[i];

@@ -37,8 +37,8 @@ int main(void){
             break;
         }
     }
-    pthread_join(tid1, (void *)&status);
-    pthread_join(tid2, (void *)&status);
+    pthread_join(tid1, (void *)&status);    // 함수의 종료 기다림
+    pthread_join(tid2, (void *)&status);    // 함수의 종료 기다림
 
     printf("complete \n");
     exit(0);
@@ -46,7 +46,7 @@ int main(void){
 
 void *ssu_thread1(void *arg){
     while(1){
-        pthread_mutex_lock(&mutex1);
+        pthread_mutex_lock(&mutex1);    // 뮤텍스 락
 
         if(input < 2)
             pthread_cond_wait(&cond1, &mutex1);
@@ -68,14 +68,14 @@ void *ssu_thread1(void *arg){
         }
         pthread_cond_signal(&cond2);
         pthread_cond_wait(&cond1, &mutex1);
-        pthread_mutex_unlock(&mutex1);
+        pthread_mutex_unlock(&mutex1);  // 뮤텍스 언락
     }
     return NULL;
 }
 
 void *ssu_thread2(void *arg){
     while(1){
-        pthread_mutex_lock(&mutex2);
+        pthread_mutex_lock(&mutex2);    // 뮤텍스 락
 
         if(input < 2)
             pthread_cond_wait(&cond2, &mutex2);
@@ -89,14 +89,14 @@ void *ssu_thread2(void *arg){
             count++;
             printf("Thread 2 : %d\n", t2);
         }
-        else if(count % 2 == 0){
+        else if(count % 2 == 1){
             t2 += t1;
             count++;
             printf("Thread 2 : %d\n", t2);
         }
         pthread_cond_signal(&cond1);
         pthread_cond_wait(&cond2, &mutex2);
-        pthread_mutex_unlock(&mutex2);
+        pthread_mutex_unlock(&mutex2);  // 뮤텍스 언락
     }
     return NULL;
 }
