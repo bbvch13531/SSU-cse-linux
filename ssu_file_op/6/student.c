@@ -55,22 +55,26 @@ void readHashRec(FILE *fp, char *recordbuf, int rn){
 void writeHashRec(FILE *fp, const char *recordbuf, int rn){
 	char checkbuf[30];
 	
-	fseek(fp, rn * HASH_SIZE, SEEK_SET);
-	
-
-	while(1){
-		fread(checkbuf, 10, 1, hfp);
+	fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
+	printf("-------------------\nwriteHashRec\n");
+	for(int i=0; i<N; i++){
+		memset(checkbuf, 0, 30);
+		fread(checkbuf, 10, 1, fp);
+		checkbuf[10] = '\0';
+		// printf("%s %ld\n", checkbuf, ftell(fp));
 		// key번째 hash file을 읽고 collision을 확인
 		// 이미 데이터가 있는 경우
-		if(strcmp(checkbuf, "") == 0 || checkbuf[0] == '#' ){
+		if(strlen(checkbuf) == 0 || checkbuf[0] == '#' ){
 			break;
 		}
 		rn += 1;
-		fseek(hfp, rn * HASH_SIZE, SEEK_SET);
+		if(rn == N)
+			rn = 0;
+		fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
 	}
 
-	fseek(hfp, rn * HASH_SIZE, SEEK_SET);
-	fwrite(recordbuf, HASH_SIZE, 1, hfp);
+	fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
+	fwrite(recordbuf, HASH_SIZE, 1, fp);
 }
 
 //
@@ -81,8 +85,14 @@ int hashFunction(const char *sid, int n){
 
 	len = strlen(sid);
 	hashnum = (sid[len-1] * sid[len-2]) % N;
-
+	printf("--------------------\nhashFunction\nA=%d(%c), B=%d(%c), hashnum=%d\n",sid[len-1], sid[len-1], sid[len-2], sid[len-2], hashnum);
 	return hashnum;
+}
+
+void openHash(void){
+	hfp = fopen("student.hsh", "r+");
+	fread(&N, 4, 1, hfp);
+	printf("------------------\nopenHash\nN=%d\n", N);
 }
 
 //
@@ -95,22 +105,27 @@ void makeHashfile(int n){
 	// 여기에는 hash file의 크기 n을 저장한다. 이것은 search()와 (필요하면) delete()를 위한 것이다.
 	STUDENT std;
 	char idbuf[30], namebuf[50];
-	char recordbuf[30];
+	char recordbuf[130], hashbuf[30];
 	int cnt=0, key;
-
+	printf("--------------------\nmakeHashFile\n");
 	hfp = fopen("student.hsh", "w+");
-	fwrite(n, 4, 1, hfp);
+	fwrite(&n, 4, 1, hfp);
+	
+	while(!feof(rfp)){
+		// fseek(rfp, cnt * RECORD_SIZE, SEEK_SET);
+		fread(recordbuf, 120, 1, rfp);
+		// strncpy(idbuf, recordbuf, 10);
+		memcpy(idbuf, recordbuf, 10);
 
-	while(rfp != EOF){
-		fseek(rfp, cnt * RECORD_SIZE, SEEK_SET);
-		fread(idbuf, 10, 1, rfp);
+		key = hashFunction(idbuf, n); 
+		// sprintf(hashbuf, "%s%d", idbuf, key);
+		memcpy(hashbuf, idbuf, 10);
+		memcpy(hashbuf+10, (void*)&key, 4);
 
-		key = hashFunction(idbuf, n);
-		sprintf(recordbuf, "%s%d", idbuf, key);
-
-		writeHashRec(hfp, recordbuf, key);
+		writeHashRec(hfp, hashbuf, key);
 
 		cnt++;
+		printf("idbuf=%s, cnt=%d, hashbuf=%s %d\n",idbuf, cnt, hashbuf, *(hashbuf+10));
 	}
 }
 
@@ -124,27 +139,30 @@ void makeHashfile(int n){
 int search(const char *sid, int *rn){
 	int search_length = 0, key;
 	char readbuf[30], sidbuf[15];
+	printf("--------------------\nsearch func\n");
 
 	key = hashFunction(sid, N);
 
-	while(1){
-		fseek(hfp, key * 14, SEEK_SET);
+	while(!feof(hfp)){
+		fseek(hfp, key * 14+4, SEEK_SET);
 		fread(readbuf, 14, 1, hfp);
 		strncpy(sidbuf, readbuf, 10);
 		
 		sidbuf[10] = '\0';
 		// 비어있는 레코드. 검색 실패
 		if(strcmp(sidbuf, "") == 0){
-			rn = -1;
+			*rn = -1;
 			break;
 		}
 		if(strcmp(sid, sidbuf) == 0){
-			rn = key;
+			*rn = key;
 			break;
 		}
 
 		search_length++;
 		key++;
+		if(key == N)
+			key = 0;
 	}
 
 	return search_length;
@@ -180,10 +198,11 @@ int main(int argc, char *argv[]){
 	// N 을 인자로 받아서 사용한다.
 	// 검색 기능을 수행할 때 출력은 반드시 주어진 printSearchResult() 함수를 사용한다.
 
-	int param_opt;
+	int param_opt, rn, search_length=0;
+	char sid[15], hashbuf[20], recordbuf[130];
 
 	if(argc != 3){
-		print("Usage: a.out [option] [hash_table_size] or [sid]\n");
+		printf("Usage: a.out [option] [hash_table_size] or [sid]\n");
 		exit(0);
 	}
 
@@ -195,16 +214,25 @@ int main(int argc, char *argv[]){
 	while((param_opt = getopt(argc, argv, "c:s:d:")) != -1){
 		switch(param_opt){
 			case 'c':
-				N = argv[2];
-
+				N = atoi(argv[2]);
 				makeHashfile(N);
 
 				break;
 			
 			case 's':
+				strcpy(sid, argv[2]);
+				openHash();
+				printf("search %s\n",sid);
+				search_length = search(sid, &rn);
+				printf("record num = %d, search_length = %d\n", rn, search_length);
+			
 				break;
 
 			case 'd':
+				strcpy(sid, argv[2]);
+				openHash();
+				delete(sid);
+
 				break;
 		}
 	}
