@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "student.h"
+#include "../student.h"
 
 #define N 17
 #define M 23
@@ -58,27 +58,18 @@ STUDENT data2[M]={
 int main(void){
     FILE *fp;
     STUDENT std1;
-    char id[11], name[21], addr[31], year[2], dept[20], phone[16], email[26];
     int len, cnt=0;
 
-    fp = fopen("student.dat", "w+");
+    char s[20] = "./hash -s ", cmd[50];
+    char searchkey[15];
     
     for(int i=0; i<M; i++){
-        fwrite(&data2[i], 120, 1, fp);
+        strcpy(searchkey, data2[i].id);
+        
+        strcpy(cmd, s); // ./hash -s
+        strcat(cmd, searchkey); // ./hash -s 0020190002
+        printf("%s\n",cmd);
+        system(cmd);
     }
-    printf("Input ends %d\n", ftell(fp));
-
-    fseek(fp, 0, SEEK_SET);
-    printf("file pointer:%d\n",ftell(fp));
-
-    while(1){
-        fread(&std1, 120, 1, fp);
-
-        if(feof(fp))
-            break;
-        printf("%s %s %s %s %s %s %s\n", std1.id, std1.name, std1.addr, std1.year, std1.dept, std1.phone, std1.email);
-    }
-    
-
     return 0;
 }

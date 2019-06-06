@@ -10,7 +10,7 @@
 int N;
 FILE *hfp, *rfp;
 
-
+/*
 void pack(char *recordbuf, const STUDENT *s){
 	char buf[256];
 	
@@ -32,6 +32,7 @@ void unpack(const char *recordbuf, STUDENT *s){
 	strncpy(s->email, recordbuf+95, 25);
     printf("unpack : recordbuf=%s s.id=%s\n\n", recordbuf, s->id);
 }
+*/
 
 //
 // 학생 레코드 파일로부터 레코드 번호에 해당하는 레코드를 읽어 레코드버퍼에 저장한다.
@@ -64,7 +65,7 @@ void writeHashRec(FILE *fp, const char *recordbuf, int rn){
 		// printf("%s %ld\n", checkbuf, ftell(fp));
 		// key번째 hash file을 읽고 collision을 확인
 		// 이미 데이터가 있는 경우
-		if(strlen(checkbuf) == 0 || checkbuf[0] == '#' ){
+		if(strlen(checkbuf) == 0 || checkbuf[0] == '*' ){
 			break;
 		}
 		rn += 1;
@@ -120,6 +121,7 @@ void makeHashfile(int n){
 		// strncpy(idbuf, recordbuf, 10);
 		memcpy(idbuf, recordbuf, 10);
 
+		idbuf[10] = '\0';
 		key = hashFunction(idbuf, n); 
 		// sprintf(hashbuf, "%s%d", idbuf, key);
 		memcpy(hashbuf, idbuf, 10);
@@ -178,13 +180,13 @@ int search(const char *sid, int *rn){
 void delete(const char *sid){
 	int key, rn;
 	char readbuf[30], sidbuf[15];
-	char tombstone[15] = "##############";
+	char tombstone[15] = "*";
 	
 	search(sid, &rn);
 	printf("------------------------\ndelete\nrn = %d\n",rn);
 	if(rn != -1){
-		fseek(hfp, rn * 14+4, SEEK_SET);
-		fwrite(tombstone, 14, 1, hfp);
+		fseek(hfp, (rn * 14)+4, SEEK_SET);
+		fwrite(tombstone, 1, 1, hfp);
 	}
 }
 
@@ -221,14 +223,14 @@ int main(int argc, char *argv[]){
 				makeHashfile(N);
 
 				break;
-			
+
 			case 's':
 				strcpy(sid, argv[2]);
 				openHash();
 				printf("search %s\n",sid);
 				search_length = search(sid, &rn);
-				printf("record num = %d, search_length = %d\n", rn, search_length);
-			
+				// printf("record num = %d, search_length = %d\n", rn, search_length);
+				printSearchResult(rn, search_length);
 				break;
 
 			case 'd':
@@ -239,7 +241,5 @@ int main(int argc, char *argv[]){
 				break;
 		}
 	}
-	
-
 	return 0;
 }

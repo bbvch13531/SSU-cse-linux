@@ -2,7 +2,7 @@
 #include <string.h>
 
 int main(void){
-    int A=48,B=48,N=0, hashnum=23;
+    int A=48,B=48,N=0, hashnum=31;
     int flag=0;
     
     for(int i=0; i<10; i++){
@@ -10,7 +10,7 @@ int main(void){
         A = 48 + i;
         for(int j=0; j<10; j++){
             B = 48 + j;
-            if((A*B) % hashnum == 18){
+            if((A*B) % hashnum == 8){
                 printf("A=%d, B=%d, %d\n",A,B, (A*B) % hashnum);
                 // flag = 1;
                 // break;
