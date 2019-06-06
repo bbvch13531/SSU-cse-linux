@@ -37,14 +37,16 @@ void unpack(const char *recordbuf, STUDENT *s){
 // 학생 레코드 파일로부터 레코드 번호에 해당하는 레코드를 읽어 레코드버퍼에 저장한다.
 //
 void readStudentRec(FILE *fp, char *recordbuf, int rn){
-
+	fseek(fp, rn * 120, SEEK_SET);
+	fread(recordbuf, 120, 1, fp);
 }
 
 //
 // Hash file로부터 rn의 레코드 번호에 해당하는 레코드를 읽어 레코드 버퍼에 저장한다.
 //
 void readHashRec(FILE *fp, char *recordbuf, int rn){
-
+	fseek(fp, rn*14, SEEK_SET);
+	fread(recordbuf, 14, 1, fp);
 }
 
 //
@@ -130,6 +132,7 @@ int search(const char *sid, int *rn){
 		fread(readbuf, 14, 1, hfp);
 		strncpy(sidbuf, readbuf, 10);
 		
+		sidbuf[10] = '\0';
 		// 비어있는 레코드. 검색 실패
 		if(strcmp(sidbuf, "") == 0){
 			rn = -1;
@@ -152,7 +155,16 @@ int search(const char *sid, int *rn){
 // 이때 학생 레코드 파일에서 레코드 삭제는 필요하지 않다.
 //
 void delete(const char *sid){
+	int key, rn;
+	char readbuf[30], sidbuf[15];
+	char tombstone[2] = "#";
+	
+	search(sid, &rn);
 
+	if(rn != -1){
+		fseek(hfp, rn * 14, SEEK_SET);
+		fwrite(tombstone, 2, 1, hfp);
+	}
 }
 
 //
