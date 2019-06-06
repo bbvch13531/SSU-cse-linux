@@ -74,6 +74,7 @@ void writeHashRec(FILE *fp, const char *recordbuf, int rn){
 	}
 
 	fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
+	printf("write %s %d to %d\n", recordbuf, *(recordbuf+10), ftell(fp));
 	fwrite(recordbuf, HASH_SIZE, 1, fp);
 }
 
@@ -114,6 +115,8 @@ void makeHashfile(int n){
 	while(!feof(rfp)){
 		// fseek(rfp, cnt * RECORD_SIZE, SEEK_SET);
 		fread(recordbuf, 120, 1, rfp);
+		if(feof(rfp))
+			break;
 		// strncpy(idbuf, recordbuf, 10);
 		memcpy(idbuf, recordbuf, 10);
 
@@ -175,13 +178,13 @@ int search(const char *sid, int *rn){
 void delete(const char *sid){
 	int key, rn;
 	char readbuf[30], sidbuf[15];
-	char tombstone[2] = "#";
+	char tombstone[15] = "##############";
 	
 	search(sid, &rn);
-
+	printf("------------------------\ndelete\nrn = %d\n",rn);
 	if(rn != -1){
-		fseek(hfp, rn * 14, SEEK_SET);
-		fwrite(tombstone, 2, 1, hfp);
+		fseek(hfp, rn * 14+4, SEEK_SET);
+		fwrite(tombstone, 14, 1, hfp);
 	}
 }
 
