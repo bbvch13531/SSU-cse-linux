@@ -5,7 +5,7 @@
 
 int main(void){
     char recordbuf[15];
-    int header;
+    int header,i=0;
     FILE *fp = fopen("student.hsh", "r+");
 
     fread(&header, 4, 1, fp);
@@ -14,7 +14,8 @@ int main(void){
         fread(recordbuf, 14, 1, fp);
         if(feof(fp))
             break;
-        printf("%s %d\n", recordbuf, *(recordbuf +10));
+        printf("%03d %s %d\n",i, recordbuf, *(recordbuf +10));
+        i++;
     }
     return 0;
 }
