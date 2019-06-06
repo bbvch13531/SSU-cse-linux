@@ -57,7 +57,7 @@ void writeHashRec(FILE *fp, const char *recordbuf, int rn){
 	char checkbuf[30];
 	
 	fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
-	printf("-------------------\nwriteHashRec\n");
+	// printf("-------------------\nwriteHashRec\n");
 	for(int i=0; i<N; i++){
 		memset(checkbuf, 0, 30);
 		fread(checkbuf, 10, 1, fp);
@@ -75,7 +75,7 @@ void writeHashRec(FILE *fp, const char *recordbuf, int rn){
 	}
 
 	fseek(fp, rn * HASH_SIZE + 4, SEEK_SET);
-	printf("write %s %d to %d\n", recordbuf, *(recordbuf+10), ftell(fp));
+	// printf("write %s %d to %d\n", recordbuf, *(recordbuf+10), ftell(fp));
 	fwrite(recordbuf, HASH_SIZE, 1, fp);
 }
 
@@ -87,14 +87,14 @@ int hashFunction(const char *sid, int n){
 
 	len = strlen(sid);
 	hashnum = (sid[len-1] * sid[len-2]) % N;
-	printf("--------------------\nhashFunction\nA=%d(%c), B=%d(%c), hashnum=%d\n",sid[len-1], sid[len-1], sid[len-2], sid[len-2], hashnum);
+	// printf("--------------------\nhashFunction\nA=%d(%c), B=%d(%c), hashnum=%d\n",sid[len-1], sid[len-1], sid[len-2], sid[len-2], hashnum);
 	return hashnum;
 }
 
 void openHash(void){
 	hfp = fopen("student.hsh", "r+");
 	fread(&N, 4, 1, hfp);
-	printf("------------------\nopenHash\nN=%d\n", N);
+	// printf("------------------\nopenHash\nN=%d\n", N);
 }
 
 //
@@ -109,10 +109,14 @@ void makeHashfile(int n){
 	char idbuf[30], namebuf[50];
 	char recordbuf[130], hashbuf[30];
 	int cnt=0, key;
-	printf("--------------------\nmakeHashFile\n");
+	// printf("--------------------\nmakeHashFile\n");
 	hfp = fopen("student.hsh", "w+");
 	fwrite(&n, 4, 1, hfp);
 	
+	fseek(hfp, 14*n+3, SEEK_SET);
+	fputc('\0',hfp);
+	fseek(hfp, 0, SEEK_SET);
+
 	while(!feof(rfp)){
 		// fseek(rfp, cnt * RECORD_SIZE, SEEK_SET);
 		fread(recordbuf, 120, 1, rfp);
@@ -130,7 +134,7 @@ void makeHashfile(int n){
 		writeHashRec(hfp, hashbuf, key);
 
 		cnt++;
-		printf("idbuf=%s, cnt=%d, hashbuf=%s %d\n",idbuf, cnt, hashbuf, *(hashbuf+10));
+		// printf("idbuf=%s, cnt=%d, hashbuf=%s %d\n",idbuf, cnt, hashbuf, *(hashbuf+10));
 	}
 }
 
@@ -144,7 +148,7 @@ void makeHashfile(int n){
 int search(const char *sid, int *rn){
 	int search_length = 0, key;
 	char readbuf[30], sidbuf[15];
-	printf("--------------------\nsearch func\n");
+	// printf("--------------------\nsearch func\n");
 
 	key = hashFunction(sid, N);
 
@@ -183,7 +187,7 @@ void delete(const char *sid){
 	char tombstone[15] = "*";
 	
 	search(sid, &rn);
-	printf("------------------------\ndelete\nrn = %d\n",rn);
+	// printf("------------------------\ndelete\nrn = %d\n",rn);
 	if(rn != -1){
 		fseek(hfp, (rn * 14)+4, SEEK_SET);
 		fwrite(tombstone, 1, 1, hfp);
@@ -227,7 +231,7 @@ int main(int argc, char *argv[]){
 			case 's':
 				strcpy(sid, argv[2]);
 				openHash();
-				printf("search %s\n",sid);
+				// printf("search %s\n",sid);
 				search_length = search(sid, &rn);
 				// printf("record num = %d, search_length = %d\n", rn, search_length);
 				printSearchResult(rn, search_length);

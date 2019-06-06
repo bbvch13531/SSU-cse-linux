@@ -63,8 +63,8 @@ int main(void){
 
     fp = fopen("student.dat", "w+");
     
-    for(int i=0; i<M; i++){
-        fwrite(&data2[i], 120, 1, fp);
+    for(int i=0; i<N; i++){
+        fwrite(&data1[i], 120, 1, fp);
     }
     printf("Input ends %d\n", ftell(fp));
 
