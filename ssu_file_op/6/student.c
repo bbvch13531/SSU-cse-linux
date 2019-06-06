@@ -120,7 +120,31 @@ void makeHashfile(int n){
 // search length는 함수의 리턴값이며,  상관없이 search length는 항상 계산되어야 한다.
 //
 int search(const char *sid, int *rn){
+	int search_length = 0, key;
+	char readbuf[30], sidbuf[15];
 
+	key = hashFunction(sid, N);
+
+	while(1){
+		fseek(hfp, key * 14, SEEK_SET);
+		fread(readbuf, 14, 1, hfp);
+		strncpy(sidbuf, readbuf, 10);
+		
+		// 비어있는 레코드. 검색 실패
+		if(strcmp(sidbuf, "") == 0){
+			rn = -1;
+			break;
+		}
+		if(strcmp(sid, sidbuf) == 0){
+			rn = key;
+			break;
+		}
+
+		search_length++;
+		key++;
+	}
+
+	return search_length;
 }
 
 //
