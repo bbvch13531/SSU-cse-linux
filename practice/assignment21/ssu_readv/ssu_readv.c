@@ -2,15 +2,15 @@
 #include <sys/uio.h>
 
 int main(int argc, char **argv){
-    struct iovec vec[2];
+    struct iovec vec[2];    // 벡터 선언
     char MSG1[10] = {0,};
     char MSG2[10] = {0,};
     int str_len;
 
-    vec[0].iov_base=MSG1;
-    vec[0].iov_len=9;
-    vec[1].iov_base=MSG1;
-    vec[1].iov_len=9;
+    vec[0].iov_base=MSG1;   // 배열 지정
+    vec[0].iov_len=9;   // 길이 지정
+    vec[1].iov_base=MSG2;   // 배열 지정
+    vec[1].iov_len=9;   // 길이 지정
 
     str_len = readv(0, vec, 2);
 

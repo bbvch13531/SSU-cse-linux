@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sys/uio.h>
 
 int main(int argc, char **argv){
@@ -7,9 +8,9 @@ int main(int argc, char **argv){
     char MSG2[] = "abcdefghijklmnopqrstuvwxyz";
     int str_len;
 
-    vec[0].iov_base=MSG1;
+    vec[0].iov_base=MSG1;   // 배열 지정
     vec[0].iov_len=strlen(MSG1);
-    vec[1].iov_base=MSG1;
+    vec[1].iov_base=MSG1;   // 배열 지정
     vec[1].iov_len=strlen(MSG2);
 
     str_len = writev(0, vec, 2);
