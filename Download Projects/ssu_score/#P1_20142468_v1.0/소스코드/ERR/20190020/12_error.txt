@@ -1,0 +1,6 @@
+/tmp/ccmUh1wu.o: In function `main':
+12.c:(.text+0x1a2): undefined reference to `pthread_create'
+12.c:(.text+0x1c9): undefined reference to `pthread_create'
+12.c:(.text+0x1da): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+sh: 1: ./12.stdexe: not found

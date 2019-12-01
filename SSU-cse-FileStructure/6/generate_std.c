@@ -54,6 +54,17 @@ STUDENT data2[M]={
     {"0020190090", "vvvv", "vv", "v", "vv", "vv", "vv"},  // % 31 == 8
     {"0020190099", "rrrr", "rr", "r", "rr", "rr", "rr"} 
 };
+STUDENT data3[9]={
+    {"0000000037", "bbbb", "bb", "b", "bb", "bb", "bb"},  // % 31 == 30
+    {"0000000073", "aaaa", "aa", "a", "aa", "aa", "aa"},
+    {"0000000058", "cccc", "cc", "c", "cc", "cc", "cc"},
+    {"0000000085", "eeee", "ee", "e", "ee", "ee", "ee"},
+    {"0000000046", "ffff", "ee", "e", "ee", "ee", "ee"},
+    {"0000000034", "gggg", "ee", "e", "ee", "ee", "ee"},
+    {"0000000084", "hhhh", "ee", "e", "ee", "ee", "ee"},
+    {"0000000033", "iiii", "ee", "e", "ee", "ee", "ee"},
+    {"0000000029", "jjjj", "ee", "e", "ee", "ee", "ee"}
+};
 
 int main(void){
     FILE *fp;

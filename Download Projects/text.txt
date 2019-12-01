@@ -1,0 +1,38 @@
+Midterm
+11-5.txt run
+
+Final
+
+4-1, 4-2, 4-3, 4-5
+
+10
+condition 9 fprintf error handling
+condition 5 double minus
+
+11
+??
+
+13
+
+
+ssu_score
+
+5seconds file
+
+-t
+-c
+
+ssu_convert
+
+
+ssu_backup
+
+prompt command error
+
+add
+-m
+-n
+-d
+
+remove
+-a

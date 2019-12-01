@@ -1,0 +1,7 @@
+../../STD_DIR/20190016/12.c: In function 'main':
+../../STD_DIR/20190016/12.c:36:38: error: 'ssu_thread_consumer' undeclared (first use in this function); did you mean 'ssu_thread_producer'?
+  pthread_create(&consumer_tid, NULL, ssu_thread_consumer, NULL);
+                                      ^~~~~~~~~~~~~~~~~~~
+                                      ssu_thread_producer
+../../STD_DIR/20190016/12.c:36:38: note: each undeclared identifier is reported only once for each function it appears in
+sh: 1: ./12.stdexe: not found
